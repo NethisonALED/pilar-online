@@ -1,0 +1,226 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Estilos da Sidebar */
+.app-sidebar {
+    background-color: #1a1a1a;
+    transition: width 0.3s ease-in-out;
+}
+
+.menu-link.active {
+    background-color: #10b981; /* emerald-500 */
+    color: #ffffff;
+}
+
+.menu-link:hover {
+    background-color: #333;
+    color: #ffffff;
+}
+
+/* Estilos para ocultar/mostrar views (gerenciado por JS) */
+.tab-view {
+    display: none;
+}
+
+.tab-view.active {
+    display: block;
+}
+
+/* Estilos para o input de arquivo customizado */
+.file-input-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.file-input {
+    display: none; /* Oculta o input de arquivo nativo */
+}
+
+/* Estilos para Modais */
+.modal {
+    display: none; /* Oculto por padrão */
+}
+
+.modal.flex {
+    display: flex; /* Exibe o modal quando a classe 'flex' é adicionada via JS */
+}
+
+/* Esconde containers de autenticação e app por padrão (gerenciado por JS) */
+#auth-container, #app-container {
+    display: none;
+}
+
+/* Estilos para Sidebar Recolhida */
+.app-sidebar.collapsed {
+    width: 5rem; /* 80px */
+}
+
+.app-sidebar.collapsed .sidebar-header span,
+.app-sidebar.collapsed .menu-link span,
+.app-sidebar.collapsed .menu-title {
+    display: none;
+    opacity: 0; /* Garante que o texto não apareça durante a transição */
+}
+
+.app-sidebar.collapsed .sidebar-header {
+    padding-bottom: 2rem;
+}
+
+.app-sidebar.collapsed .sidebar-header a,
+.app-sidebar.collapsed .menu-link {
+    justify-content: center; /* Centraliza ícones quando recolhido */
+}
+
+#sidebar-toggle-btn i {
+    transition: transform 0.3s ease-in-out; /* Transição para a seta do toggle */
+}
+
+.app-sidebar.collapsed #sidebar-toggle-btn i {
+    transform: rotate(180deg); /* Gira a seta quando recolhido */
+}
+
+/* CSS extraído do index.html */
+.glass-effect, .glass-card, .glass-content, .glass-sidebar, .glass-modal {
+    background: rgba(18, 32, 23, 0.6);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Updated Input Styles */
+input.glass-input, 
+textarea.glass-input, 
+select.glass-input {
+    background-color: rgba(13, 26, 19, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFF !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+input.glass-input::placeholder,
+textarea.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+input.glass-input:focus, 
+textarea.glass-input:focus, 
+select.glass-input:focus {
+    background-color: rgba(13, 26, 19, 0.9) !important;
+    border-color: rgba(57, 224, 121, 0.5) !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.modal { display: none; }
+.modal.active { display: flex; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+::-webkit-scrollbar-thumb { background-color: rgba(57, 224, 121, 0.4); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(57, 224, 121, 0.6); }
+
+/* UPDATED TABLE STYLES */
+#arquitetos-table-container table, 
+#historico-manual-container table,
+#ranking-table-container table,
+#resgates-container table,
+#eventos-log-container table,
+#sysled-table-container table,
+#pagamentos-container table,
+#gerar-pagamentos-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+#arquitetos-table-container table th, #arquitetos-table-container table td,
+#historico-manual-container table th, #historico-manual-container table td,
+#ranking-table-container table th, #ranking-table-container table td,
+#resgates-container table th, #resgates-container table td,
+#eventos-log-container table th, #eventos-log-container table td,
+#sysled-table-container table th, #sysled-table-container table td,
+#pagamentos-container table th, #pagamentos-container table td,
+#gerar-pagamentos-table-container table th, #gerar-pagamentos-table-container table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+#arquitetos-table-container table th,
+#historico-manual-container table th,
+#ranking-table-container table th,
+#resgates-container table th,
+#eventos-log-container table th,
+#sysled-table-container table th,
+#pagamentos-container table th,
+#gerar-pagamentos-table-container table th {
+    font-weight: 600;
+    color: #BCC3BF !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    background-color: #293c2f !important;
+}
+#arquitetos-table-container table tbody tr,
+#historico-manual-container table tbody tr,
+#ranking-table-container table tbody tr,
+#resgates-container table tbody tr,
+#eventos-log-container table tbody tr,
+#sysled-table-container table tbody tr,
+#pagamentos-container table tbody tr,
+#gerar-pagamentos-table-container table tbody tr {
+    transition: background-color 0.2s ease-in-out;
+}
+#arquitetos-table-container table tbody tr:nth-child(even),
+#historico-manual-container table tbody tr:nth-child(even),
+#ranking-table-container table tbody tr:nth-child(even),
+#resgates-container table tbody tr:nth-child(even),
+#eventos-log-container table tbody tr:nth-child(even),
+#sysled-table-container table tbody tr:nth-child(even),
+#pagamentos-container table tbody tr:nth-child(even),
+#gerar-pagamentos-table-container table tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+#arquitetos-table-container table tbody tr:hover,
+#historico-manual-container table tbody tr:hover,
+#ranking-table-container table tbody tr:hover,
+#resgates-container table tbody tr:hover,
+#eventos-log-container table tbody tr:hover,
+#sysled-table-container table tbody tr:hover,
+#pagamentos-container table tbody tr:hover,
+#gerar-pagamentos-table-container table tbody tr:hover {
+    background-color: rgba(57, 224, 121, 0.25) !important; /* Green translucent hover */
+}
+
+/* Hide Actions Column */
+#arquitetos-table-container th:last-child,
+#arquitetos-table-container td:last-child {
+    display: none;
+}
+
+.btn-modal { padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; color: white; }
+.btn-modal:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+.tab-view { display: none; }
+.tab-view.active { display: block; }
+.menu-link.active { background-color: rgba(57, 224, 121, 0.2); color: white; font-weight: 600; }
+.file-input-label { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; font-weight: 600; color: white; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+.file-input { display: none; }
+
+/* Styles for dynamically generated content */
+#pagamentos-container > div,
+#arquivos-importados-container > div,
+.payment-group-card,
+.imported-file-card {
+    background: rgba(18, 32, 23, 0.7);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}

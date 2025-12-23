@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Acesso - Pilar</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><path fill=%22%2339E079%22 d=%22M224 448V224H160V448h64zM32 480H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32zm160-352H128V448h64V128zM320 448V256H256V448h64zM416 448V160H352V448h64zM480 64H32C14.3 64 0 49.7 0 32S14.3 0 32 0H480c17.7 0 32 14.3 32 32s-14.3 32-32 32z%22/></svg>">
+    
+    <!-- Fonts and Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#39E079",
+                        "background-dark": "#0D1A13"
+                    },
+                    fontFamily: {
+                        display: "Manrope, sans-serif"
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Custom Stylesheet -->
+    <style>
+        .glass-card, .glass-effect {
+            background: rgba(18, 32, 23, 0.6);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input {
+            background-color: rgba(13, 26, 19, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #FFF !important;
+            --tw-ring-shadow: 0 0 #0000 !important;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .glass-input:focus {
+            background-color: rgba(13, 26, 19, 0.9) !important;
+            border-color: rgba(57, 224, 121, 0.5) !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .view { display: none; }
+        .view.active { display: block; }
+        table th {
+            font-weight: 600;
+            color: #BCC3BF !important;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        table th, table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        table tbody tr:hover {
+            background-color: rgba(57, 224, 121, 0.08) !important;
+        }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="font-display bg-background-dark text-gray-200 min-h-screen">
+
+    <div class="fixed inset-0 -z-10 h-full w-full bg-cover bg-center" style="background-image: url('https://www.urban.imb.br/blog/wp-content/uploads/2023/05/Design-sem-nome-25.png.webp');"></div>
+    <div class="fixed inset-0 -z-10 h-full w-full bg-background-dark/80 backdrop-blur-sm"></div>
+
+    <!-- Container de Autenticação -->
+    <div id="auth-container" class="flex min-h-screen w-full flex-col items-center justify-center p-4">
+        <div class="w-full max-w-sm rounded-xl glass-effect p-8">
+            <div class="mb-8 text-center">
+                <span class="material-symbols-outlined text-5xl text-primary">architecture</span>
+                <h1 class="text-3xl font-bold text-white mt-2">Pilar</h1>
+                <p class="mt-2 text-sm text-gray-300">Acesso ao Painel de Controle</p>
+            </div>
+            <form id="login-form" class="w-full space-y-6">
+                <div class="relative">
+                    <input type="email" id="email" required class="glass-input w-full rounded-lg px-4 py-3" placeholder="Email">
+                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+                </div>
+                <div class="relative">
+                    <input type="password" id="password" required class="glass-input w-full rounded-lg px-4 py-3" placeholder="Senha">
+                </div>
+                <button type="submit" id="login-button" class="flex w-full items-center justify-center rounded-lg bg-primary/80 px-4 py-3 text-base font-bold text-white shadow-lg transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary">
+                    <span class="material-symbols-outlined mr-2">login</span>
+                    Entrar
+                </button>
+            </form>
+            <p id="auth-error" class="mt-4 text-center text-sm text-red-400 h-4"></p>
+        </div>
+    </div>
+
+    <!-- Container da Aplicação -->
+    <div id="app-container" class="container mx-auto p-4 sm:p-6 lg:p-8" style="display: none;">
+        <header class="flex flex-wrap justify-between items-center gap-4 mb-8">
+            <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-4xl text-primary">manage_accounts</span>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tight">Controle de Acesso</h1>
+                    <p class="text-gray-400 mt-1">Gerencie as permissões dos usuários do sistema.</p>
+                </div>
+            </div>
+            <button id="logout-button" class="flex items-center gap-2 rounded-lg bg-red-600/20 px-4 py-2 text-sm font-semibold text-red-300 transition-colors hover:bg-red-600/40">
+                <span class="material-symbols-outlined">logout</span>
+                Sair
+            </button>
+        </header>
+
+        <!-- View de Carregamento -->
+        <div id="loading-view" class="view active text-center py-12 glass-card rounded-xl">
+            <span class="material-symbols-outlined text-6xl text-primary/50 animate-spin">progress_activity</span>
+            <p class="text-gray-300 mt-4">Aguarde, carregando informações...</p>
+        </div>
+
+        <!-- View de Conteúdo Principal (Logado) -->
+        <main id="content-view" class="view glass-card rounded-xl p-6 md:p-8">
+            <div id="editor-controls" class="mb-8 pb-8 border-b border-white/10">
+                <h2 class="text-xl font-semibold text-white mb-4">Cadastrar Novo Usuário</h2>
+                <form id="register-user-form" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label for="register-email" class="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                        <input type="email" id="register-email" placeholder="email@exemplo.com" required class="glass-input rounded-lg px-4 py-2 w-full">
+                    </div>
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-400 mb-1">Senha Provisória</label>
+                        <input type="password" id="register-password" placeholder="••••••••" required class="glass-input rounded-lg px-4 py-2 w-full">
+                    </div>
+                    <div>
+                        <label for="register-level" class="block text-sm font-medium text-gray-400 mb-1">Nível de Acesso</label>
+                        <select id="register-level" class="glass-input rounded-lg px-4 py-2 w-full">
+                            <option value="visualizador" class="bg-background-dark">Visualizador</option>
+                            <option value="editor" class="bg-background-dark">Editor</option>
+                        </select>
+                    </div>
+                    <div class="lg:col-span-1">
+                        <button type="submit" class="w-full h-full flex items-center justify-center rounded-lg bg-primary/80 px-4 py-2 text-sm font-bold text-white shadow-lg transition-all hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined mr-2 text-base">person_add</span>
+                            Cadastrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <h2 class="text-xl font-semibold text-white mb-6">Usuários Cadastrados</h2>
+            <div id="user-list-container" class="overflow-x-auto"></div>
+        </main>
+
+        <!-- View de Erro -->
+        <div id="error-view" class="view text-center py-12 glass-card rounded-xl">
+            <span class="material-symbols-outlined text-6xl text-yellow-500/50">error</span>
+            <h2 class="text-2xl font-bold mt-4">Ocorreu um Erro</h2>
+            <p class="text-gray-400 mt-2" id="error-text"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        const SUPABASE_URL = 'https://zelozgmdphofqxpxsbna.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplbG96Z21kcGhvZnF4cHhzYm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxMDA2NTMsImV4cCI6MjA3MjY3NjY1M30.PXY7G6OfD_ALW4n7L5IQvc-ViR4VgX25Fs3gR-wElDA';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const authContainer = document.getElementById('auth-container');
+        const appContainer = document.getElementById('app-container');
+        const loginForm = document.getElementById('login-form');
+        const loginButton = document.getElementById('login-button');
+        const authError = document.getElementById('auth-error');
+        const logoutButton = document.getElementById('logout-button');
+        
+        const views = {
+            loading: document.getElementById('loading-view'),
+            content: document.getElementById('content-view'),
+            error: document.getElementById('error-view'),
+        };
+        const errorText = document.getElementById('error-text');
+        const userListContainer = document.getElementById('user-list-container');
+        const registerForm = document.getElementById('register-user-form');
+        const editorControls = document.getElementById('editor-controls');
+
+        const showView = (viewName) => {
+            Object.values(views).forEach(view => view.classList.remove('active'));
+            if (views[viewName]) views[viewName].classList.add('active');
+        };
+
+        const getCurrentUserProfile = async (userId) => {
+            const { data, error } = await supabase.from('perfis').select('id, nivel_acesso').eq('id', userId).single();
+            if (error) throw new Error("Não foi possível verificar suas permissões de acesso. " + error.message);
+            return data;
+        };
+
+        const fetchAllProfiles = async () => {
+            const { data, error } = await supabase.from('perfis').select('*').order('email');
+            if (error) throw new Error("Falha ao carregar a lista de usuários. " + error.message);
+            return data;
+        };
+
+        const renderUserTable = (profiles, currentUserProfile) => {
+            const isEditor = currentUserProfile.nivel_acesso === 'editor';
+            editorControls.style.display = isEditor ? 'block' : 'none';
+
+            if (profiles.length === 0) {
+                userListContainer.innerHTML = '<p class="text-center text-gray-400 py-8">Nenhum usuário cadastrado.</p>';
+                return;
+            }
+
+            const rows = profiles.map(profile => {
+                const isCurrentUser = profile.id === currentUserProfile.id;
+                const canEdit = isEditor && !isCurrentUser;
+                
+                return `
+                    <tr data-user-id="${profile.id}">
+                        <td class="font-medium">${profile.email}</td>
+                        <td>
+                            <select class="role-select glass-input rounded-lg w-full max-w-[200px]" ${!canEdit ? 'disabled' : ''}>
+                                <option value="visualizador" ${profile.nivel_acesso === 'visualizador' ? 'selected' : ''} class="bg-background-dark">Visualizador</option>
+                                <option value="editor" ${profile.nivel_acesso === 'editor' ? 'selected' : ''} class="bg-background-dark">Editor</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="delete-btn text-red-500/80 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed" title="Excluir Usuário" ${!canEdit ? 'disabled' : ''}>
+                                <span class="material-symbols-outlined align-middle">delete</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            userListContainer.innerHTML = `
+                <table class="w-full">
+                    <thead><tr><th>E-mail</th><th>Nível de Acesso</th><th>Ações</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+        };
+        
+        const handleRoleChange = async (event) => {
+            if (!event.target.classList.contains('role-select')) return;
+            const select = event.target;
+            const row = select.closest('tr');
+            const userId = row.dataset.userId;
+            const newLevel = select.value;
+            select.disabled = true;
+
+            const { error } = await supabase.from('perfis').update({ nivel_acesso: newLevel }).eq('id', userId);
+
+            if (error) {
+                alert(`Erro ao atualizar permissão: ${error.message}`);
+            } else {
+                row.style.transition = 'background-color 0.3s';
+                row.style.backgroundColor = 'rgba(57, 224, 121, 0.2)';
+                setTimeout(() => { row.style.backgroundColor = ''; }, 1500);
+            }
+            select.disabled = false;
+        };
+
+        const handleDeleteUser = async (event) => {
+            const deleteButton = event.target.closest('.delete-btn');
+            if (!deleteButton) return;
+            const row = deleteButton.closest('tr');
+            const userId = row.dataset.userId;
+            const userEmail = row.cells[0].textContent;
+
+            if (confirm(`Tem certeza que deseja excluir o usuário ${userEmail}? Esta ação é irreversível.`)) {
+                // No Supabase, a exclusão de um usuário do 'auth.users' precisa ser feita
+                // por uma função de servidor (Edge Function) com a chave de serviço.
+                // A política de RLS não permite que um usuário delete outro.
+                // Por enquanto, vamos apenas deletar o perfil.
+                // AVISO: Isso deixará um usuário "órfão" na autenticação do Supabase.
+                // O ideal é criar uma Edge Function para lidar com a exclusão completa.
+                const { error } = await supabase.from('perfis').delete().eq('id', userId);
+                if (error) {
+                    alert(`Erro ao excluir o perfil do usuário: ${error.message}. A exclusão completa de usuários requer configuração no servidor.`);
+                } else {
+                    alert(`Perfil de ${userEmail} excluído. O usuário não poderá mais fazer login.`);
+                    row.remove();
+                }
+            }
+        };
+
+        const handleRegisterUser = async (event) => {
+            event.preventDefault();
+            const button = event.target.querySelector('button[type="submit"]');
+            button.innerHTML = `<span class="material-symbols-outlined mr-2 text-base animate-spin">progress_activity</span> Cadastrando...`;
+            button.disabled = true;
+
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const nivelAcesso = document.getElementById('register-level').value;
+
+            // Para criar um usuário do lado do cliente, o usuário atual precisa estar logado
+            // e ter permissões. O RLS já cuida disso.
+            // A função signUp cria o usuário em auth.users, e o TRIGGER cria o perfil.
+            const { data: { user }, error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                alert(`Erro ao cadastrar: ${error.message}`);
+            } else if (user) {
+                // O trigger já cria o perfil com nível 'visualizador'.
+                // Se o nível for 'editor', precisamos atualizar o perfil.
+                if (nivelAcesso === 'editor') {
+                    const { error: updateError } = await supabase.from('perfis').update({ nivel_acesso: 'editor' }).eq('id', user.id);
+                    if (updateError) alert(`Usuário criado, mas falha ao definir como editor: ${updateError.message}`);
+                }
+                alert('Usuário cadastrado com sucesso!');
+                registerForm.reset();
+                
+                // Recarrega a lista de usuários para incluir o novo
+                const { data: sessionData } = await supabase.auth.getSession();
+                const currentUserProfile = await getCurrentUserProfile(sessionData.session.user.id);
+                const allProfiles = await fetchAllProfiles();
+                renderUserTable(allProfiles, currentUserProfile);
+            }
+            
+            button.innerHTML = `<span class="material-symbols-outlined mr-2 text-base">person_add</span> Cadastrar`;
+            button.disabled = false;
+        };
+
+        const handleLogin = async (event) => {
+            event.preventDefault();
+            authError.textContent = '';
+            loginButton.disabled = true;
+            loginButton.innerHTML = `<span class="material-symbols-outlined mr-2 animate-spin">progress_activity</span> Entrando...`;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                authError.textContent = 'Email ou senha inválidos.';
+                loginButton.disabled = false;
+                loginButton.innerHTML = `<span class="material-symbols-outlined mr-2">login</span> Entrar`;
+            }
+            // A transição de tela é tratada pelo onAuthStateChange
+        };
+
+        const handleLogout = async () => {
+            await supabase.auth.signOut();
+             // A transição de tela é tratada pelo onAuthStateChange
+        };
+
+        // Função principal que gerencia o estado da aplicação
+        const initializeApp = () => {
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                try {
+                    if (session && session.user) {
+                        // Usuário logado
+                        authContainer.style.display = 'none';
+                        appContainer.style.display = 'block';
+                        showView('loading');
+                        
+                        const currentUserProfile = await getCurrentUserProfile(session.user.id);
+                        const allProfiles = await fetchAllProfiles();
+                        renderUserTable(allProfiles, currentUserProfile);
+                        showView('content');
+                    } else {
+                        // Usuário deslogado
+                        appContainer.style.display = 'none';
+                        authContainer.style.display = 'flex';
+                    }
+                } catch (error) {
+                    errorText.textContent = error.message;
+                    showView('error');
+                }
+            });
+        };
+
+        // Adiciona event listeners
+        loginForm.addEventListener('submit', handleLogin);
+        logoutButton.addEventListener('click', handleLogout);
+        userListContainer.addEventListener('change', handleRoleChange);
+        userListContainer.addEventListener('click', handleDeleteUser);
+        registerForm.addEventListener('submit', handleRegisterUser);
+        
+        // Inicia a aplicação
+        initializeApp();
+    </script>
+</body>
+</html>
+

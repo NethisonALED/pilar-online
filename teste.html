@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Login - Sales Management</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+        .glassmorphic {
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dark .glassmorphic {
+            background: rgba(16, 25, 34, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-input.glassmorphic {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .form-input.glassmorphic {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-glassmorphic {
+            background: rgba(19, 127, 236, 0.25);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(19, 127, 236, 0.3);
+        }
+        .dark .btn-glassmorphic {
+            background: rgba(19, 127, 236, 0.2);
+            border: 1px solid rgba(19, 127, 236, 0.25);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center bg-cover bg-center p-4 overflow-hidden" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA-KsqjArNnUU37pvLFZU35szit9NHcP16-bvgR3tyObOiplDlY8vESppZM6LS-oMsV1iNZQT6rAe485ewRCOBOBJ8pEvlEyB0CIBRtPjBdRiKKofc2Vc-TQKMGlfF6wuqBlbyg5y8QGpgFmsB8BmHEapFS2oKqNzKHBO1NDyW9en2WH8_KJ4w1RPhsSb4COaHdTy0pufWo8KGYTUQk1jIegT9dG3DZBMRGBWBmY0MJvdmb11F-nltnqK2pbrWWkB_QIExumPO7PXE')">
+<div class="absolute inset-0 bg-black/30 dark:bg-black/50"></div>
+<div class="absolute inset-0 -z-10">
+<div class="absolute -top-40 -left-60 h-[28rem] w-[28rem] rounded-full bg-primary/30 blur-[120px]"></div>
+<div class="absolute -bottom-40 -right-60 h-[28rem] w-[28rem] rounded-full bg-pink-500/20 blur-[120px]"></div>
+</div>
+<div class="relative z-10 flex w-full max-w-md flex-col items-center p-8 rounded-xl glassmorphic">
+<div class="mb-8 text-center">
+<h1 class="text-3xl font-bold text-white">Bem-vindo</h1>
+<p class="mt-2 text-sm text-gray-300">Faça login para continuar</p>
+</div>
+<form class="w-full space-y-6">
+<div class="relative">
+<input class="form-input glassmorphic w-full rounded-lg border-0 px-4 py-3 text-white placeholder-gray-300 focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Email" type="email"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-300">mail</span>
+</div>
+<div class="relative">
+<input class="form-input glassmorphic w-full rounded-lg border-0 px-4 py-3 text-white placeholder-gray-300 focus:ring-2 focus:ring-primary focus:outline-none" id="password" placeholder="Senha" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300" onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password'; this.querySelector('span').textContent = p.type === 'password' ? 'visibility' : 'visibility_off'" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<button class="flex w-full items-center justify-center rounded-lg px-4 py-3 text-base font-bold text-white shadow-lg transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark btn-glassmorphic hover:shadow-primary/40">
+<span class="material-symbols-outlined mr-2">login</span>
+                Entrar
+            </button>
+</form>
+</div>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+      .glass-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .dark .glass-card {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      .light .glass-card {
+        background-color: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .glass-sidebar {
+        background-color: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .glass-content {
+         background-color: rgba(13, 17, 23, 0.3);
+         backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative min-h-screen w-full">
+<div class="absolute inset-0 bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAHLRgc98FiB57K6e1U4YPhv29wpG-JT_m7PxVdByhAoBZPWIJOgkB3e7g4LRekQ5JPjlJXJPnL4e4DjOZUjWRVMyunLqAiRQv3c-rgGhq2g6BO-f5jcCV4FskfqFElpeIUoYDUteRtKrOuC99qKD9NNXZzh9LukIAivFBJAjoWiY2hrSyj1Nl022c6m6sTnDVAMEca93W40M41r3j3zj0kTZeQc4A0YOYgBRtI79d9bXdw8lHDyuf4comCg7VWD-wGSHOrjtxo5c0");'></div>
+<div class="absolute inset-0 bg-background-dark/80"></div>
+<div class="relative flex min-h-screen">
+<aside class="w-64 flex-shrink-0 glass-sidebar flex flex-col">
+<div class="flex items-center gap-3 px-6 h-20 border-b border-white/10">
+<svg class="h-8 w-8 text-primary" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 11.5L5 8.5L12 5.5L19 8.5L12 11.5ZM4 15.5V9.5L11 13V19L4 15.5Z"></path>
+</svg>
+<h2 class="text-xl font-bold">Sales Mng.</h2>
+</div>
+<nav class="flex-1 space-y-2 p-4">
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">cloud_upload</span>
+<span>Import Sales</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">support_agent</span>
+<span>Consultation Sysled</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span>Manual Inclusion</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-primary/20 transition-all" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span>Architects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span>Scoring</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span>Vouchers</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">redeem</span>
+<span>Redemptions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">draft</span>
+<span>Imported Files</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">event</span>
+<span>Events</span>
+</a>
+</nav>
+</aside>
+<div class="flex-1 flex flex-col">
+<header class="flex items-center justify-between h-20 px-8">
+<div></div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full text-slate-300 hover:bg-primary/10">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmEAkZo8CBW9sJNVpybSoCsOfVMQc7C3JTMhJ3kHnTF9E9ZPrYFYbUqykhpFSlZtZqaPEZohWPvWGWUhCl8MDoyvoewB6aCGMGmGew8_o_XTQTIBDg4BqbDwrEsc2su06tExKLGmCKLCfEyXhfrXYeL5RGJjs1gEgOj51ogPca0kLhGwkTbwgDNEU421UlQ62e0EuYtHou_CRB_nLTnrjrZ3BZFjnEBOgQbPkzi-WjOQJsjl6w9ELyUVY2R2zKFshfVNfxeoe_12Q");'></div>
+</div>
+</header>
+<main class="flex-1 p-8">
+<div class="h-full rounded-xl glass-content p-8">
+<h1 class="text-3xl font-bold tracking-tight mb-8">Dashboard</h1>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">cloud_upload</span>
+<h2 class="text-sm font-semibold text-white">Import Sales</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">support_agent</span>
+<h2 class="text-sm font-semibold text-white">Consultation Sysled</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">add_circle</span>
+<h2 class="text-sm font-semibold text-white">Manual Inclusion</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">groups</span>
+<h2 class="text-sm font-semibold text-white">Architects</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">monitoring</span>
+<h2 class="text-sm font-semibold text-white">Scoring</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">confirmation_number</span>
+<h2 class="text-sm font-semibold text-white">Vouchers</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">redeem</span>
+<h2 class="text-sm font-semibold text-white">Redemptions</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">draft</span>
+<h2 class="text-sm font-semibold text-white">Imported Files</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">event</span>
+<h2 class="text-sm font-semibold text-white">Events</h2>
+</a>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+        .glassmorphic-main {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glassmorphic-main {
+            background: rgba(16, 25, 34, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glassmorphic-instructions {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glassmorphic-instructions {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="relative flex min-h-screen w-full flex-col bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCtXPs9sUcMQPuYAzVwhVI2XU2lAkiqtD_1TthwLABcp3-UYJoDlMQuGlYUyD_jQCINgTuo_oYrez8457UdiY91aT6yp9qc9DLfZxOxDBF675YvKNyQKetz1yEigX1a9jGYMJMAdlC-mp7ZfJ_9312wFXIZqZNk3Hacst1GIos6E10QYVYisHR1ijNM_fFY9W173wB7me8UakGC21wuD304_-JKYHbS0tKa3nXl7UFVx7Dx_Hru0DABoSKBhReZQ0B9xKZqJpW7JH0');">
+<div class="absolute inset-0 bg-background-dark/50 backdrop-blur-sm"></div>
+<header class="sticky top-0 z-20 flex items-center justify-between whitespace-nowrap border-b border-white/10 bg-background-dark/30 px-10 py-3 backdrop-blur-lg">
+<div class="flex items-center gap-4">
+<div class="text-primary h-8 w-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z" fill="currentColor" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold text-white">Sales Management</h2>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden items-center gap-8 md:flex">
+<a class="text-sm font-medium text-gray-300 transition-colors hover:text-primary" href="#">Dashboard</a>
+<a class="text-sm font-medium text-primary" href="#">Sales</a>
+<a class="text-sm font-medium text-gray-300 transition-colors hover:text-primary" href="#">Architects</a>
+<a class="text-sm font-medium text-gray-300 transition-colors hover:text-primary" href="#">Commissions</a>
+<a class="text-sm font-medium text-gray-300 transition-colors hover:text-primary" href="#">Reports</a>
+</nav>
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-gray-300 transition-colors hover:bg-white/20">
+<svg fill="currentColor" height="20px" viewbox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path>
+</svg>
+</button>
+<div class="h-10 w-10 rounded-full bg-cover bg-center bg-no-repeat" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDMdZtin411mO0Cu-YYB--wn13Gz9jf1z2zen_THdc5eaq78tPE0LpyKoKqbgcwlj3I-e91vwHMYz4FCzvmCQbNJtbT0OBRZCpizXkYrm1fnXQFgGNY5G_rXUZ3tdV2PHs-exn8TG2cEH2YRw0boWxnfmqyUd-eS-KefLpUOlxHFy0yLOTdlkUe8WJ6GZPCZvgGSSBmvRIzVuGYENbdB5yvNeT4qWZPSdZl7CXmgWnRMLUJCjR9SLu-346hFEpHeQ4fOY33wn1huIU");'></div>
+</div>
+</header>
+<main class="relative z-10 flex flex-1 items-center justify-center py-12 lg:py-24">
+<div class="container mx-auto max-w-5xl px-4">
+<div class="glassmorphic-main flex flex-col gap-8 rounded-xl p-8 shadow-2xl shadow-primary/20">
+<div class="text-center">
+<h1 class="text-4xl font-bold tracking-tighter text-white">Import Sales Data</h1>
+<p class="mt-2 text-gray-300">Upload your Excel or CSV file to seamlessly import sales records.</p>
+</div>
+<div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+<div class="flex flex-col gap-6">
+<div class="glassmorphic-instructions rounded-lg p-6">
+<h3 class="text-xl font-semibold text-white">Instructions</h3>
+<ol class="mt-4 list-inside list-decimal space-y-3 text-gray-300">
+<li>Select the file type you want to import (Excel or CSV).</li>
+<li>Click the "Browse Files" button or drag and drop your file into the designated area.</li>
+<li>Ensure your file is no larger than 10MB.</li>
+<li>Once the file is selected, click "Upload File" to begin the import process.</li>
+<li>You will be redirected to a review page to confirm the data before finalizing.</li>
+</ol>
+</div>
+<div class="glassmorphic-instructions rounded-lg p-6">
+<h3 class="text-xl font-semibold text-white">File Format</h3>
+<p class="mt-2 text-gray-300">Please ensure your file has the following columns in order:</p>
+<ul class="mt-4 list-inside list-disc space-y-2 text-gray-300">
+<li>Sale ID</li>
+<li>Date</li>
+<li>Product Name</li>
+<li>Amount</li>
+<li>Architect Name</li>
+</ul>
+</div>
+</div>
+<div class="flex flex-col gap-6 rounded-lg bg-black/20 p-6">
+<div>
+<label class="mb-2 block text-sm font-medium text-white">File Type</label>
+<fieldset class="flex flex-wrap gap-4">
+<legend class="sr-only">File Type</legend>
+<label class="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-transparent bg-white/10 px-6 py-3 text-sm font-medium text-gray-200 ring-2 ring-transparent transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/20 has-[:checked]:ring-primary">
+<input checked="" class="absolute h-full w-full cursor-pointer opacity-0" name="file-type" type="radio" value="excel"/>
+                                        Excel
+                                    </label>
+<label class="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-transparent bg-white/10 px-6 py-3 text-sm font-medium text-gray-200 ring-2 ring-transparent transition-all has-[:checked]:border-primary has-[:checked]:bg-primary/20 has-[:checked]:ring-primary">
+<input class="absolute h-full w-full cursor-pointer opacity-0" name="file-type" type="radio" value="csv"/>
+                                        CSV
+                                    </label>
+</fieldset>
+</div>
+<div class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-500/50 p-12 text-center">
+<input class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0" id="file-upload" type="file"/>
+<svg aria-hidden="true" class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 48 48">
+<path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<label class="mt-4 text-lg font-semibold text-white" for="file-upload">Drag and drop your file here, or</label>
+<label class="mt-1 cursor-pointer text-sm text-primary underline" for="file-upload">Browse Files</label>
+<p class="mt-4 text-xs text-gray-400">XLS, XLSX, or CSV up to 10MB</p>
+<p class="mt-2 text-sm text-gray-300" id="file-name"></p>
+</div>
+<div class="flex justify-end">
+<button class="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
+<span class="truncate">Upload File</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="relative z-10 mt-auto border-t border-white/10 bg-background-dark/30 py-6">
+<div class="container mx-auto px-4 text-center">
+<div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+<a class="text-sm text-gray-400 transition-colors hover:text-primary" href="#">Privacy Policy</a>
+<a class="text-sm text-gray-400 transition-colors hover:text-primary" href="#">Terms of Service</a>
+<a class="text-sm text-gray-400 transition-colors hover:text-primary" href="#">Contact Us</a>
+</div>
+<p class="mt-4 text-sm text-gray-500">© 2024 Sales Management. All rights reserved.</p>
+</div>
+</footer>
+</div>
+<script>
+        const fileUpload = document.getElementById("file-upload");
+        const fileNameDisplay = document.getElementById("file-name");
+        fileUpload.addEventListener("change", function() {
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = `Selected file: ${this.files[0].name}`;
+            } else {
+                fileNameDisplay.textContent = "";
+            }
+        });
+    </script>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+    .glassmorphic {
+        background: rgba(16, 25, 34, 0.5);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glassmorphic-input {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glassmorphic-input {
+      background: rgba(16, 25, 34, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white">
+<div class="flex flex-col min-h-screen">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-10 py-3">
+<div class="flex items-center gap-4">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold">SalesTracker</h2>
+</div>
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-6 text-sm font-medium text-white/70">
+<a class="hover:text-white transition-colors" href="#">Dashboard</a>
+<a class="hover:text-white transition-colors" href="#">Sales</a>
+<a class="text-white" href="#">Architects</a>
+<a class="hover:text-white transition-colors" href="#">Commissions</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white/80">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfjxD5xmS1mGkvjBBLQTPJ1GRCHjtZrhsBvdZ-2aDkpXkLKnuvl-cPXEB5CuRGpsTjTCB1xDotEtPxKcQbmkc0O9sbfuJGZq7ynnxEFJKPxqRSH6bs0DnTb7Zla6ypeiQiIj1y1TfE1KfWwDnmJqbd-lyxN_id6OnLMTEustkTR8_REiAgA6GmhG8X6LFDMVBrraIXTelfLPK7Tv6vE2AnTea8qVjNWtgijOZQr7eqpTtixfIUfCxwfKfljgf24PjYRND9kyjeDL8");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
+<div class="w-full max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
+<div class="lg:col-span-3">
+<div class="glassmorphic rounded-xl p-8">
+<div class="mb-8">
+<h1 class="text-2xl font-bold tracking-tight">Register Architect Manually</h1>
+<p class="mt-1 text-white/60">Fill in the details below.</p>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 gap-6">
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Architect Name</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="Enter architect's full name" type="text"/>
+</label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Email</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="Enter architect's email" type="email"/>
+</label>
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Phone Number</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="Enter architect's phone" type="tel"/>
+</label>
+</div>
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Company</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="Enter architect's company name" type="text"/>
+</label>
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Address</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="Enter architect's address" type="text"/>
+</label>
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Status</span>
+<select class="form-select w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base text-white/80 focus:ring-2 focus:ring-primary/50 transition appearance-none" style="background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3e%3cpath stroke=%27%23ffffffbf%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3e%3c/svg%3e'); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;">
+<option class="bg-background-dark">Active</option>
+<option class="bg-background-dark">Inactive</option>
+<option class="bg-background-dark">Pending</option>
+</select>
+</label>
+</div>
+<div class="flex justify-end gap-4 pt-4">
+<button class="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition" type="button">
+                          Cancel
+                        </button>
+<button class="px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-sm transition" type="submit">
+                          Register Architect
+                        </button>
+</div>
+</form>
+</div>
+</div>
+<div class="lg:col-span-2">
+<div class="glassmorphic rounded-xl p-8 h-full flex flex-col justify-center">
+<div class="text-center">
+<div class="flex justify-center mb-4">
+<div class="p-4 rounded-full bg-primary/20">
+<span class="material-symbols-outlined text-primary text-4xl">upload_file</span>
+</div>
+</div>
+<h2 class="text-xl font-bold">Import from Spreadsheet</h2>
+<p class="mt-2 text-white/60">Drag and drop your file here or click to browse.</p>
+<div class="mt-6 border-2 border-dashed border-white/20 rounded-lg p-12 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition">
+<span class="material-symbols-outlined text-white/40 text-5xl">cloud_upload</span>
+<p class="mt-2 text-sm text-white/60">Supports .XLS, .XLSX, .CSV</p>
+</div>
+<button class="mt-6 w-full px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-sm transition" type="button">
+                        Import
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope:wght@400;500;700;800&amp;family=Manrope:wght@400;500;700;900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+    :root {
+      --background-image-light: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23137fec'/%3E%3Cstop offset='100%25' stop-color='%23101922'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E");
+      --background-image-dark: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%23137fec'/%3E%3Cstop offset='100%25' stop-color='%23101922'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23g)'/%3E%3C/svg%3E");
+    }
+  </style>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}, backgroundImage: {"gradient-light": "var(--background-image-light)", "gradient-dark": "var(--background-image-dark)"}}}};</script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative min-h-screen w-full">
+<div class="absolute inset-0 bg-gradient-dark bg-cover bg-center opacity-30 dark:opacity-50"></div>
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="flex h-full grow flex-col">
+<div class="flex flex-1">
+<aside class="w-72 bg-white/10 dark:bg-black/20 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col justify-between">
+<div class="flex flex-col gap-8">
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Acme Co.</h1>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white bg-primary rounded-lg" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path>
+</svg>
+<span class="font-medium">Architects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path>
+</svg>
+<span class="font-medium">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+</svg>
+<span class="font-medium">Commissions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+</div>
+</aside>
+<main class="flex-1 p-6 lg:p-8">
+<div class="max-w-7xl mx-auto">
+<div class="flex items-center justify-between">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white">Architects Ranking</h1>
+<button class="bg-primary text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2">
+<svg class="w-5 h-5" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><line x1="12" x2="12" y1="5" y2="19"></line><line x1="5" x2="19" y1="12" y2="12"></line></svg>
+                                New Architect
+                            </button>
+</div>
+<div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2">
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden shadow-lg">
+<table class="w-full">
+<thead class="bg-white/10 dark:bg-black/20">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-300 dark:text-gray-400 uppercase tracking-wider" scope="col">Rank</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-300 dark:text-gray-400 uppercase tracking-wider" scope="col">Architect</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-300 dark:text-gray-400 uppercase tracking-wider" scope="col">Points</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-300 dark:text-gray-400 uppercase tracking-wider" scope="col">Last Change</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-300 dark:text-gray-400 uppercase tracking-wider" scope="col">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/10">
+<tr class="hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100 dark:text-white">1</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 dark:text-white">Sophia Bennett</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 dark:text-gray-400">1250</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-green-400 flex items-center gap-1">
+<svg class="w-4 h-4" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                                                    +50
+                                                </td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+</td>
+</tr>
+<tr class="hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100 dark:text-white">2</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 dark:text-white">Ethan Carter</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 dark:text-gray-400">1180</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-red-400 flex items-center gap-1">
+<svg class="w-4 h-4" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                                                    -20
+                                                </td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+</td>
+</tr>
+<tr class="hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100 dark:text-white">3</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 dark:text-white">Olivia Davis</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 dark:text-gray-400">1120</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-green-400 flex items-center gap-1">
+<svg class="w-4 h-4" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                                                    +10
+                                                </td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+</td>
+</tr>
+<tr class="hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100 dark:text-white">4</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 dark:text-white">Liam Foster</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 dark:text-gray-400">1050</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 flex items-center gap-1">-</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">On Hold</span>
+</td>
+</tr>
+<tr class="hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100 dark:text-white">5</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 dark:text-white">Ava Green</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 dark:text-gray-400">980</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-red-400 flex items-center gap-1">
+<svg class="w-4 h-4" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                                                    -40
+                                                </td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div>
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-lg">
+<h2 class="text-xl font-bold text-white mb-4">Manual Point Adjustment</h2>
+<form class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-300" for="architect">Architect</label>
+<select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-600 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md bg-white/10 dark:bg-black/20 text-white border" id="architect" name="architect">
+<option>Sophia Bennett</option>
+<option>Ethan Carter</option>
+<option>Olivia Davis</option>
+<option>Liam Foster</option>
+<option>Ava Green</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-300" for="points">Points</label>
+<input class="mt-1 block w-full border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-white/10 dark:bg-black/20 text-white border" id="points" name="points" placeholder="e.g., 50 or -20" type="number"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-300" for="reason">Reason</label>
+<textarea class="mt-1 block w-full border-gray-600 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm bg-white/10 dark:bg-black/20 text-white border" id="reason" name="reason" placeholder="Reason for adjustment" rows="3"></textarea>
+</div>
+<button class="w-full bg-primary text-white py-2 px-4 rounded-md font-semibold hover:bg-primary/90 transition-colors" type="submit">Apply Adjustment</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border-r border-white/10 dark:border-black/20">
+<div class="flex h-full flex-col p-6">
+<div class="flex items-center gap-2 mb-10">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+<svg class="text-white" fill="currentColor" height="20" viewbox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm28-56a12,12,0,1,1-12-12A12,12,0,0,1,148,80Z"></path>
+</svg>
+</div>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">SalesPro</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"></path>
+</svg>
+<span class="text-sm font-medium">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg bg-primary text-white" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path>
+</svg>
+<span class="text-sm font-medium">Architects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+</svg>
+<span class="text-sm font-medium">Commissions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-4">
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+<span class="truncate">New Sale</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path>
+</svg>
+<span class="text-sm font-medium">Help &amp; Docs</span>
+</a>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<div class="p-8">
+<div class="max-w-4xl mx-auto">
+<header class="mb-8">
+<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Architect Details</h1>
+<p class="text-gray-500 dark:text-gray-400">Manage architect information, RT values, and sales configurations.</p>
+</header>
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-lg rounded-xl p-6 mb-8 border border-white/20 dark:border-black/30 shadow-lg">
+<div class="flex items-center gap-6">
+<div class="w-32 h-32 rounded-full bg-cover bg-center border-4 border-primary/20" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAbyPjIBPnZ2wuLVK1lnFw9wqjlcqSuoodJAImqAw-Nzu5TiYjW-dC4sE1DmY41ZYr1DVdqOQdi1UMe1dNObn98JTVPFKs06rKM7wB9q4vtlypndvz58cG-mjjKkmyF0Gqc4pjkaojzJg_FS7iX5i4ZbczfmvcfKPV4rAttwTHaV0ZxDMw_pqv48xqsL7rpV9Z2vZrulW2jbQoFPwL79bSpKQrbSOuvxFtJCrBYJ7nCJQjijxniI__Fa0Fc8arqRaxRaDBzu4iFwCw");'></div>
+<div>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Sophia Bennett</h2>
+<p class="text-gray-500 dark:text-gray-400">Architect ID: AB12345</p>
+<p class="text-gray-500 dark:text-gray-400">Joined: 2022-05-15</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-white/20 dark:border-black/30 shadow-lg">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Personal Information</h3>
+<p class="text-sm text-gray-600 dark:text-gray-400">Name: Sophia Bennett</p>
+<p class="text-sm text-gray-600 dark:text-gray-400">Email: sophia.bennett@example.com</p>
+<p class="text-sm text-gray-600 dark:text-gray-400">Phone: +1 234 567 890</p>
+</div>
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-white/20 dark:border-black/30 shadow-lg">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">RT Values</h3>
+<p class="text-sm text-gray-600 dark:text-gray-400">Total RT: 1500</p>
+<p class="text-sm text-gray-600 dark:text-gray-400">Current Month RT: 120</p>
+<p class="text-sm text-gray-600 dark:text-gray-400">Previous Month RT: 250</p>
+</div>
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-white/20 dark:border-black/30 shadow-lg">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Total Sales</h3>
+<p class="text-3xl font-bold text-gray-900 dark:text-white">$1,250,000</p>
+<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Last sale: 2023-10-26</p>
+</div>
+</div>
+<section class="bg-white/10 dark:bg-black/20 backdrop-blur-lg rounded-xl p-6 border border-white/20 dark:border-black/30 shadow-lg">
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Sales Configuration</h2>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="commission-rate">Commission Rate (%)</label>
+<input class="form-input w-full rounded-lg bg-white/20 dark:bg-black/30 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="commission-rate" name="commission-rate" placeholder="e.g. 5" type="number" value="10"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="payment-method">Payment Method</label>
+<select class="form-select w-full rounded-lg bg-white/20 dark:bg-black/30 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white" id="payment-method" name="payment-method">
+<option>Bank Transfer</option>
+<option>PayPal</option>
+<option>Check</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="bank-details">Bank Details</label>
+<textarea class="form-textarea w-full rounded-lg bg-white/20 dark:bg-black/30 border-gray-300 dark:border-gray-600 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="bank-details" name="bank-details" placeholder="Enter bank name, account number, routing number..." rows="3">Global Bank, Acc: •••• 1234, Routing: 987654321</textarea>
+</div>
+<div class="flex justify-end pt-4">
+<button class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all" type="submit">
+                Save Configuration
+              </button>
+</div>
+</form>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+    .glassmorphic {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glassmorphic {
+       background: rgba(16, 25, 34, 0.5);
+       border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center bg-cover bg-center p-4" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAdsaVZMszvmSheSv_GaCItQdk6KH4OrnV1OEXQA_lSyeUeqZL6ByiQXrPsuV7BZ42Qe__lWxKggSIygiPOXNUhIDzzjJnFvS1WuRNzbVT634wbI2eiAClPmF_06fY90thQWZeioY4K9knGeJDQVKKJFBETZsaUf_38l1c3Z02_Scqy5EbyKIMpq0me9eNCspdUUy2p2HE5wwm9ac_15lmzgJUEbchSOP8ylwbGgMjb1ZR46PxpS_9nVBgwCD300Rc8CUoXK8kMZ1o')">
+<div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+<div class="relative z-10 w-full max-w-4xl rounded-xl glassmorphic">
+<div class="p-8">
+<h2 class="text-2xl font-bold text-white mb-2">Mapear Colunas de Vendas</h2>
+<p class="text-gray-300 mb-6">Associe as colunas do seu arquivo com os campos do nosso sistema.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1" for="data-venda">Data da Venda</label>
+<select class="form-select w-full rounded-lg border-0 bg-white/10 dark:bg-black/20 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" id="data-venda">
+<option>Selecione a coluna</option>
+<option selected="">Data da Venda</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1" for="valor-venda">Valor da Venda</label>
+<select class="form-select w-full rounded-lg border-0 bg-white/10 dark:bg-black/20 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" id="valor-venda">
+<option>Selecione a coluna</option>
+<option selected="">Valor</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1" for="nome-cliente">Nome do Cliente</label>
+<select class="form-select w-full rounded-lg border-0 bg-white/10 dark:bg-black/20 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" id="nome-cliente">
+<option>Selecione a coluna</option>
+<option selected="">Nome do Cliente</option>
+</select>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1" for="cpf-cliente">CPF do Cliente</label>
+<select class="form-select w-full rounded-lg border-0 bg-white/10 dark:bg-black/20 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" id="cpf-cliente">
+<option>Selecione a coluna</option>
+<option selected="">CPF</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1" for="email-arquiteto">Email do Arquiteto</label>
+<select class="form-select w-full rounded-lg border-0 bg-white/10 dark:bg-black/20 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" id="email-arquiteto">
+<option>Selecione a coluna</option>
+<option selected="">Email Arquiteto</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1" for="nome-produto">Nome do Produto</label>
+<select class="form-select w-full rounded-lg border-0 bg-white/10 dark:bg-black/20 px-4 py-3 text-white placeholder-gray-400 focus:ring-2 focus:ring-primary focus:outline-none" id="nome-produto">
+<option>Selecione a coluna</option>
+<option selected="">Produto</option>
+</select>
+</div>
+</div>
+</div>
+<div class="flex justify-end gap-4 p-6 bg-white/5 rounded-b-xl">
+<button class="rounded-lg bg-white/10 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button>
+<button class="flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark">Confirmar e Importar</button>
+</div>
+</div>
+</div>
+</div></body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+      .glass-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .dark .glass-card {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      .light .glass-card {
+        background-color: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .glass-modal {
+        background-color: rgba(38, 50, 56, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .glass-form-element {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .glass-button {
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .glass-button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex min-h-screen w-full flex-col">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 dark:border-white/10 px-10 py-4">
+<div class="flex items-center gap-4 text-slate-800 dark:text-white">
+<svg class="h-6 w-6 text-primary" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 11.5L5 8.5L12 5.5L19 8.5L12 11.5ZM4 15.5V9.5L11 13V19L4 15.5Z"></path>
+</svg>
+<h2 class="text-lg font-bold">Sales Management</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Reports</a>
+<a class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-primary/10">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmEAkZo8CBW9sJNVpybSoCsOfVMQc7C3JTMhJ3kHnTF9E9ZPrYFYbUqykhpFSlZtZqaPEZohWPvWGWUhCl8MDoyvoewB6aCGMGmGew8_o_XTQTIBDg4BqbDwrEsc2su06tExKLGmCKLCfEyXhfrXYeL5RGJjs1gEgOj51ogPca0kLhGwkTbwgDNEU421UlQ62e0EuYtHou_CRB_nLTnrjrZ3BZFjnEBOgQbPkzi-WjOQJsjl6w9ELyUVY2R2zKFshfVNfxeoe_12Q");'></div>
+</div>
+</header>
+<main class="flex-1 px-4 sm:px-6 lg:px-8 py-8">
+<div class="mx-auto max-w-7xl">
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-8">Dashboard</h1>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">cloud_upload</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Import Sales</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">support_agent</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Consultation Sysled</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">add_circle</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Manual Inclusion</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">groups</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Architects</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">monitoring</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Scoring</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">confirmation_number</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Vouchers</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">redeem</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Redemptions</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">draft</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Imported Files</h2>
+</a>
+<a class="group flex flex-col items-center justify-center p-6 rounded-xl glass-card text-center transition-all duration-300 hover:bg-primary/20 dark:hover:bg-primary/20 hover:scale-105" href="#">
+<span class="material-symbols-outlined text-4xl text-primary mb-3">event</span>
+<h2 class="text-sm font-semibold text-slate-800 dark:text-white">Events</h2>
+</a>
+</div>
+</div>
+</main>
+</div>
+<div class="absolute inset-0 flex items-center justify-center bg-black/50">
+<div class="glass-modal rounded-xl w-full max-w-lg p-8 m-4">
+<h2 class="text-2xl font-bold text-white mb-6">Mapear Colunas de Arquitetos</h2>
+<form class="space-y-6">
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="documento">Documento</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="documento">
+<option>documento</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="nome_completo">Nome completo</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="nome_completo">
+<option>nome_completo</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="celular">Celular</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="celular">
+<option>celular</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="email">E-mail</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="email">
+<option>email</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="data_nascimento">Data de Nascimento</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="data_nascimento">
+<option>data_nascimento</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="uf">UF</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="uf">
+<option>uf</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2" for="cidade">Cidade</label>
+<select class="form-select w-full rounded-md glass-form-element text-white" id="cidade">
+<option>cidade</option>
+</select>
+</div>
+<div class="flex justify-end gap-4 pt-4">
+<button class="px-6 py-2 rounded-md text-white font-semibold glass-button transition-colors" type="button">Cancelar</button>
+<button class="px-6 py-2 rounded-md text-white font-semibold bg-primary hover:bg-primary/80 transition-colors" type="submit">Confirmar Importação</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>
+
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+      .glassmorphic {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .dark .glassmorphic {
+        background: rgba(16, 25, 34, 0.5);
+      }
+      .dark .glassmorphic-input {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="relative flex min-h-screen w-full flex-col">
+<div class="absolute inset-0 h-full w-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBD8sbYVPlZyGDjwLEmUOOqvVe-77sBgE0kpk3xFU5nnRrzP5zbxDra_0IKzrqIeeZlsuU08dM_B1a8KHHM-USwR_ZEhCbop1MWRGljXN85OCkFP-zmJNSB9DSCiZOS-qNPf_TDyNRNdxUZuMJ9ST6ksqA5Ri2p7poEGS5cuoDyVyozultML0uDV_OWHsuzz6W8hnYu-2RUFvzE4cEWWy6XmDVPBc7A1fV-6SH6LirRyj8Je6ah7OhX9V8esk3A8b8LiCWt1nxHC1Y");'></div>
+<div class="absolute inset-0 h-full w-full bg-black/50"></div>
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+<div class="relative w-full max-w-4xl">
+<div class="overflow-hidden rounded-xl border border-white/20 shadow-2xl glassmorphic">
+<div class="p-8">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-4">
+<div class="h-16 w-16 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBD8sbYVPlZyGDjwLEmUOOqvVe-77sBgE0kpk3xFU5nnRrzP5zbxDra_0IKzrqIeeZlsuU08dM_B1a8KHHM-USwR_ZEhCbop1MWRGljXN85OCkFP-zmJNSB9DSCiZOS-qNPf_TDyNRNdxUZuMJ9ST6ksqA5Ri2p7poEGS5cuoDyVyozultML0uDV_OWHsuzz6W8hnYu-2RUFvzE4cEWWy6XmDVPBc7A1fV-6SH6LirRyj8Je6ah7OhX9V8esk3A8b8LiCWt1nxHC1Y");'></div>
+<div>
+<h2 class="text-2xl font-bold text-white">Ficha do Arquiteto</h2>
+<p class="text-gray-300">Camila Silva</p>
+</div>
+</div>
+<button class="text-gray-300 hover:text-white">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+<div class="space-y-4 rounded-lg p-6 glassmorphic">
+<h3 class="text-lg font-semibold text-white">Informações Pessoais</h3>
+<div>
+<label class="text-sm font-medium text-gray-300" for="name">Nome</label>
+<input class="mt-1 w-full rounded-md border-white/20 bg-transparent px-3 py-2 text-white glassmorphic-input focus:border-primary focus:ring-primary" id="name" type="text" value="Camila Silva"/>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-300" for="cpf">CPF</label>
+<input class="mt-1 w-full rounded-md border-white/20 bg-transparent px-3 py-2 text-white glassmorphic-input focus:border-primary focus:ring-primary" id="cpf" type="text" value="123.456.789-00"/>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-300" for="cau">CAU</label>
+<input class="mt-1 w-full rounded-md border-white/20 bg-transparent px-3 py-2 text-white glassmorphic-input focus:border-primary focus:ring-primary" id="cau" type="text" value="A123456-7"/>
+</div>
+</div>
+<div class="space-y-4 rounded-lg p-6 glassmorphic">
+<h3 class="text-lg font-semibold text-white">Contato</h3>
+<div>
+<label class="text-sm font-medium text-gray-300" for="email">E-mail</label>
+<input class="mt-1 w-full rounded-md border-white/20 bg-transparent px-3 py-2 text-white glassmorphic-input focus:border-primary focus:ring-primary" id="email" type="email" value="camila.silva@example.com"/>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-300" for="phone">Telefone</label>
+<input class="mt-1 w-full rounded-md border-white/20 bg-transparent px-3 py-2 text-white glassmorphic-input focus:border-primary focus:ring-primary" id="phone" type="tel" value="(11) 98765-4321"/>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-300" for="address">Endereço</label>
+<input class="mt-1 w-full rounded-md border-white/20 bg-transparent px-3 py-2 text-white glassmorphic-input focus:border-primary focus:ring-primary" id="address" type="text" value="Rua das Flores, 123, São Paulo, SP"/>
+</div>
+</div>
+</div>
+<div class="mt-6 rounded-lg p-6 glassmorphic">
+<h3 class="text-lg font-semibold text-white">Ações</h3>
+<div class="mt-4 flex flex-wrap gap-4">
+<button class="flex min-w-[120px] items-center justify-center rounded-lg bg-primary/80 px-4 py-2 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-primary">Vendas Pilar</button>
+<button class="flex min-w-[120px] items-center justify-center rounded-lg bg-green-500/80 px-4 py-2 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-green-500">Gerar Resgate</button>
+<button class="flex min-w-[120px] items-center justify-center rounded-lg bg-amber-500/80 px-4 py-2 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-amber-500">Gerar Pagamento</button>
+</div>
+</div>
+<div class="mt-8 flex justify-end gap-4">
+<button class="flex min-w-[120px] items-center justify-center rounded-lg border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20">Salvar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+    .glassmorphic-input {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glassmorphic-input {
+      background: rgba(16, 25, 34, 0.5);
+    }
+    .glassmorphic-modal {
+      background: rgba(16, 25, 34, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white">
+<div class="flex flex-col min-h-screen bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBk5WpgkugoAF8gyibG5oFBtQaOxOakVV26Vvog0fUPly3UsfKJFSZmEEuMO1QquGxHWiyYG3B2GSDVKCMr4b_vXbeBN3acW3sfh0HseCXTq4wkyqxnGEdzGEKiRPzdELJKfSM6ITk6lGZ3E6TgaRPqviFbhulYP7H8NqAotDJQyPSlzACTZmt6TZRe8Dm5RVZ1ElSJYskmCP08coOhiO_ueN6lBU4f04Jpe8-sFwXOeDK3ptLQiHev9vubnlyzLH3MsanGKty8QTU");'>
+<header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-10 py-3">
+<div class="flex items-center gap-4">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold">SalesTracker</h2>
+</div>
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-6 text-sm font-medium text-white/70">
+<a class="hover:text-white transition-colors" href="#">Dashboard</a>
+<a class="hover:text-white transition-colors" href="#">Sales</a>
+<a class="text-white" href="#">Architects</a>
+<a class="hover:text-white transition-colors" href="#">Commissions</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white/80">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfjxD5xmS1mGkvjBBLQTPJ1GRCHjtZrhsBvdZ-2aDkpXkLKnuvl-cPXEB5CuRGpsTjTCB1xDotEtPxKcQbmkc0O9sbfuJGZq7ynnxEFJKPxqRSH6bs0DnTb7Zla6ypeiQiIj1y1TfE1KfWwDnmJqbd-lyxN_id6OnLMTEustkTR8_REiAgA6GmhG8X6LFDMVBrraIXTelfLPK7Tv6vE2AnTea8qVjNWtgijOZQr7eqpTtixfIUfCxwfKfljgf24PjYRND9kyjeDL8");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
+<div class="w-full max-w-md mx-auto">
+<div class="glassmorphic-modal rounded-xl p-8">
+<div class="text-center mb-6">
+<h2 class="text-2xl font-bold">Adicionar Valor de Venda Manual</h2>
+</div>
+<form class="space-y-6">
+<div>
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Valor da Venda</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="R$ 0,00" type="text"/>
+</label>
+</div>
+<div class="flex justify-end gap-4 pt-4">
+<button class="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition" type="button">
+              Cancelar
+            </button>
+<button class="px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-sm transition" type="submit">
+              Adicionar
+            </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope:wght@400;500;700;800&amp;family=Manrope:wght@400;500;700;900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+</head>
+<body class="font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
+<div class="flex h-full grow flex-col">
+<div class="flex flex-1">
+<aside class="w-72 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col justify-between">
+<div class="flex flex-col gap-8">
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Acme Co.</h1>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white bg-primary rounded-lg" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path>
+</svg>
+<span class="font-medium">Architects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path>
+</svg>
+<span class="font-medium">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+</svg>
+<span class="font-medium">Commissions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+</div>
+</aside>
+<main class="flex-1 p-6 lg:p-8">
+<div class="max-w-4xl mx-auto">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white">Architects</h1>
+<div class="mt-6 border-b border-gray-200 dark:border-gray-700">
+<nav class="flex -mb-px gap-8">
+<a class="py-4 px-1 border-b-2 border-primary text-primary font-semibold" href="#">All</a>
+<a class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 font-semibold" href="#">Active</a>
+<a class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 font-semibold" href="#">Inactive</a>
+</nav>
+</div>
+<div class="mt-6">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<svg class="h-5 w-5 text-gray-400" fill="currentColor" viewbox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+<path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+</svg>
+</div>
+<input class="w-full pl-10 pr-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" placeholder="Search architects" type="text"/>
+</div>
+</div>
+<div class="mt-8">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Architect Rankings</h2>
+<div class="mt-4 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50 dark:bg-gray-800/50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Rank</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Architect</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Points</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Adjust Points</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700/50">
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">1</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Sophia Bennett</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1250</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">2</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Ethan Carter</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1180</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">3</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Olivia Davis</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1120</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">4</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Liam Foster</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1050</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">5</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Ava Green</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">980</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+<div class="w-full max-w-lg rounded-xl border border-white/10 bg-white/10 p-6 text-white shadow-lg backdrop-blur-lg">
+<h2 class="text-2xl font-bold">Detalhes do Pagamento</h2>
+<div class="mt-6 space-y-4">
+<div class="rounded-lg bg-black/20 p-4">
+<label class="text-sm font-medium text-gray-300">Data de Vencimento</label>
+<p class="text-lg font-semibold">25/07/2024</p>
+</div>
+<div class="rounded-lg bg-black/20 p-4">
+<label class="text-sm font-medium text-gray-300">Valor do Pagamento</label>
+<p class="text-3xl font-bold text-green-400">R$ 2.500,00</p>
+</div>
+<div class="rounded-lg bg-black/20 p-4">
+<label class="text-sm font-medium text-gray-300">Comprovante</label>
+<p class="mt-2 text-sm text-gray-400">Nenhum comprovante anexado.</p>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="rounded-lg bg-white/10 px-4 py-2 font-semibold text-white transition-colors hover:bg-white/20">Fechar</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Manrope"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border-r border-white/10 dark:border-black/20">
+<div class="flex h-full flex-col p-6">
+<div class="flex items-center gap-2 mb-10">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+<svg class="text-white" fill="currentColor" height="20" viewbox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm28-56a12,12,0,1,1-12-12A12,12,0,0,1,148,80Z"></path>
+</svg>
+</div>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">SalesPro</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"></path>
+</svg>
+<span class="text-sm font-medium">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg bg-primary text-white" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path>
+</svg>
+<span class="text-sm font-medium">Architects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+</svg>
+<span class="text-sm font-medium">Commissions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-4">
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+<span class="truncate">New Sale</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path>
+</svg>
+<span class="text-sm font-medium">Help &amp; Docs</span>
+</a>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<div class="relative min-h-screen">
+<div class="p-8">
+<div class="max-w-4xl mx-auto">
+<header class="mb-8">
+<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Architect Profile</h1>
+<p class="text-gray-500 dark:text-gray-400">View and manage architect details, sales data, and payment settings.</p>
+</header>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 mb-8 border border-white/10 dark:border-black/20">
+<div class="flex items-center gap-6">
+<div class="w-32 h-32 rounded-full bg-cover bg-center border-4 border-primary/20" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAbyPjIBPnZ2wuLVK1lnFw9wqjlcqSuoodJAImqAw-Nzu5TiYjW-dC4sE1DmY41ZYr1DVdqOQdi1UMe1dNObn98JTVPFKs06rKM7wB9q4vtlypndvz58cG-mjjKkmyF0Gqc4pjkaojzJg_FS7iX5i4ZbczfmvcfKPV4rAttwTHaV0ZxDMw_pqv48xqsL7rpV9Z2vZrulW2jbQoFPwL79bSpKQrbSOuvxFtJCrBYJ7nCJQjijxniI__Fa0Fc8arqRaxRaDBzu4iFwCw");'></div>
+<div>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Sophia Bennett</h2>
+<p class="text-gray-500 dark:text-gray-400">Architect ID: AB12345</p>
+<p class="text-gray-500 dark:text-gray-400">Joined: 2022-05-15</p>
+</div>
+</div>
+</div>
+<section class="mb-8">
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Sales Overview</h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Sales</p>
+<p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">$500,000</p>
+</div>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">RT Value</p>
+<p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">120</p>
+</div>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Average Commission</p>
+<p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">$5,000</p>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Payment Settings</h2>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="bankName">Bank Name</label>
+<input class="form-input w-full rounded-lg bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="bankName" name="bankName" placeholder="e.g. Chase Bank" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="accountNumber">Account Number</label>
+<input class="form-input w-full rounded-lg bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="accountNumber" name="accountNumber" placeholder="•••• •••• •••• 1234" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="routingNumber">Routing Number</label>
+<input class="form-input w-full rounded-lg bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="routingNumber" name="routingNumber" placeholder="e.g. 123456789" type="text"/>
+</div>
+<div class="flex justify-end pt-4">
+<button class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all" type="submit">
+                      Update Payment Settings
+                    </button>
+</div>
+</form>
+</div>
+</section>
+</div>
+</div>
+<div class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-2xl rounded-xl w-full max-w-2xl border border-white/10 dark:border-black/20 shadow-2xl">
+<div class="p-6">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Gerar Pagamentos Pendentes</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Selecione os arquitetos para gerar os comprovantes de pagamento.</p>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-lg p-4 border border-white/10 dark:border-black/20 max-h-64 overflow-y-auto">
+<table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
+<thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-transparent">
+<tr>
+<th class="p-3" scope="col"><input class="form-checkbox h-4 w-4 rounded bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 text-primary focus:ring-primary" type="checkbox"/></th>
+<th class="p-3" scope="col">Arquiteto</th>
+<th class="p-3" scope="col">Valor</th>
+<th class="p-3" scope="col">Data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-t border-white/10 dark:border-black/20">
+<td class="p-3"><input class="form-checkbox h-4 w-4 rounded bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-3 font-medium text-gray-900 dark:text-white">Isabella Costa</td>
+<td class="p-3">R$ 1.250,00</td>
+<td class="p-3">2023-08-15</td>
+</tr>
+<tr class="border-t border-white/10 dark:border-black/20">
+<td class="p-3"><input class="form-checkbox h-4 w-4 rounded bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-3 font-medium text-gray-900 dark:text-white">Lucas Martins</td>
+<td class="p-3">R$ 870,50</td>
+<td class="p-3">2023-08-15</td>
+</tr>
+<tr class="border-t border-white/10 dark:border-black/20">
+<td class="p-3"><input class="form-checkbox h-4 w-4 rounded bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-3 font-medium text-gray-900 dark:text-white">Beatriz Almeida</td>
+<td class="p-3">R$ 2.300,00</td>
+<td class="p-3">2023-08-15</td>
+</tr>
+<tr class="border-t border-white/10 dark:border-black/20">
+<td class="p-3"><input class="form-checkbox h-4 w-4 rounded bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="p-3 font-medium text-gray-900 dark:text-white">Gabriel Pereira</td>
+<td class="p-3">R$ 550,00</td>
+<td class="p-3">2023-08-15</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex justify-end gap-4 mt-6">
+<button class="px-4 py-2 rounded-lg text-sm font-semibold bg-white/10 dark:bg-black/20 text-gray-800 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-black/30 transition-all">Cancelar</button>
+<button class="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/30">Gerar Comprovantes</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter:wght@400;500;700;800&amp;family=Inter:wght@400;500;700;900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+</head>
+<body class="font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
+<div class="flex h-full grow flex-col">
+<div class="flex flex-1">
+<aside class="w-72 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col justify-between">
+<div class="flex flex-col gap-8">
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Acme Co.</h1>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white bg-primary rounded-lg" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path>
+</svg>
+<span class="font-medium">Architects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M244.8,150.4a8,8,0,0,1-11.2-1.6A51.6,51.6,0,0,0,192,128a8,8,0,0,1-7.37-4.89,8,8,0,0,1,0-6.22A8,8,0,0,1,192,112a24,24,0,1,0-23.24-30,8,8,0,1,1-15.5-4A40,40,0,1,1,219,117.51a67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,244.8,150.4ZM190.92,212a8,8,0,1,1-13.84,8,57,57,0,0,0-98.16,0,8,8,0,1,1-13.84-8,72.06,72.06,0,0,1,33.74-29.92,48,48,0,1,1,58.36,0A72.06,72.06,0,0,1,190.92,212ZM128,176a32,32,0,1,0-32-32A32,32,0,0,0,128,176ZM72,120a8,8,0,0,0-8-8A24,24,0,1,1,87.24,82a8,8,0,1,0,15.5-4A40,40,0,1,0,37,117.51,67.94,67.94,0,0,0,9.6,139.19a8,8,0,1,0,12.8,9.61A51.6,51.6,0,0,1,64,128,8,8,0,0,0,72,120Z"></path>
+</svg>
+<span class="font-medium">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+</svg>
+<span class="font-medium">Commissions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+</div>
+</aside>
+<main class="flex-1 p-6 lg:p-8">
+<div class="max-w-4xl mx-auto">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white">Architects</h1>
+<div class="mt-6 border-b border-gray-200 dark:border-gray-700">
+<nav class="flex -mb-px gap-8">
+<a class="py-4 px-1 border-b-2 border-primary text-primary font-semibold" href="#">All</a>
+<a class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 font-semibold" href="#">Active</a>
+<a class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 font-semibold" href="#">Inactive</a>
+</nav>
+</div>
+<div class="mt-6">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<svg class="h-5 w-5 text-gray-400" fill="currentColor" viewbox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+<path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+</svg>
+</div>
+<input class="w-full pl-10 pr-4 py-3 rounded-lg bg-background-light dark:bg-background-dark border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" placeholder="Search architects" type="text"/>
+</div>
+</div>
+<div class="mt-8">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white">Architect Rankings</h2>
+<div class="mt-4 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50 dark:bg-gray-800/50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Rank</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Architect</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Points</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider" scope="col">Adjust Points</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700/50">
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">1</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Sophia Bennett</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1250</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">2</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Ethan Carter</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1180</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">3</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Olivia Davis</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1120</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">4</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Liam Foster</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">1050</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">5</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">Ava Green</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">980</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+<button class="font-semibold text-primary hover:text-primary/80 transition-colors">Adjust</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+<div class="w-full max-w-4xl rounded-xl border border-white/10 bg-black/20 p-6 text-white shadow-lg backdrop-blur-lg">
+<h2 class="text-2xl font-bold">Histórico de Vendas</h2>
+<div class="mt-6">
+<div class="overflow-hidden rounded-lg border border-white/10 bg-black/20 backdrop-blur-xl">
+<table class="min-w-full divide-y divide-white/10">
+<thead class="bg-white/5">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300" scope="col">Data</th>
+<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300" scope="col">Produto</th>
+<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300" scope="col">Valor</th>
+<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300" scope="col">Pontos</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/10">
+<tr>
+<td class="px-6 py-4" colspan="4">
+<p class="text-center text-gray-400">Nenhum histórico de vendas encontrado.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="mt-6 flex justify-end">
+<button class="rounded-lg bg-white/10 px-4 py-2 font-semibold text-white transition-colors hover:bg-white/20">Fechar</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen">
+<aside class="w-64 flex-shrink-0 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-xl border-r border-white/10 dark:border-black/20">
+<div class="flex h-full flex-col p-6">
+<div class="flex items-center gap-2 mb-10">
+<div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+<svg class="text-white" fill="currentColor" height="20" viewbox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V96a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm28-56a12,12,0,1,1-12-12A12,12,0,0,1,148,80Z"></path>
+</svg>
+</div>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">SalesPro</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M218.83,103.77l-80-75.48a1.14,1.14,0,0,1-.11-.11,16,16,0,0,0-21.53,0l-.11.11L37.17,103.77A16,16,0,0,0,32,115.55V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V160h32v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V115.55A16,16,0,0,0,218.83,103.77ZM208,208H160V160a16,16,0,0,0-16-16H112a16,16,0,0,0-16,16v48H48V115.55l.11-.1L128,40l79.9,75.43.11.1Z"></path>
+</svg>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,40H136V24a8,8,0,0,0-16,0V40H40A16,16,0,0,0,24,56V176a16,16,0,0,0,16,16H79.36L57.75,219a8,8,0,0,0,12.5,10l29.59-37h56.32l29.59,37a8,8,0,1,0,12.5-10l-21.61-27H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,136H40V56H216V176ZM104,120v24a8,8,0,0,1-16,0V120a8,8,0,0,1,16,0Zm32-16v40a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm32-16v56a8,8,0,0,1-16,0V88a8,8,0,0,1,16,0Z"></path>
+</svg>
+<span class="text-sm font-medium">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg bg-primary text-white" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M164.47,195.63a8,8,0,0,1-6.7,12.37H10.23a8,8,0,0,1-6.7-12.37,95.83,95.83,0,0,1,47.22-37.71,60,60,0,1,1,66.5,0A95.83,95.83,0,0,1,164.47,195.63Zm87.91-.15a95.87,95.87,0,0,0-47.13-37.56A60,60,0,0,0,144.7,54.59a4,4,0,0,0-1.33,6A75.83,75.83,0,0,1,147,150.53a4,4,0,0,0,1.07,5.53,112.32,112.32,0,0,1,29.85,30.83,23.92,23.92,0,0,1,3.65,16.47,4,4,0,0,0,3.95,4.64h60.3a8,8,0,0,0,7.73-5.93A8.22,8.22,0,0,0,252.38,195.48Z"></path>
+</svg>
+<span class="text-sm font-medium">Architects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152,120H136V56h8a32,32,0,0,1,32,32,8,8,0,0,0,16,0,48.05,48.05,0,0,0-48-48h-8V24a8,8,0,0,0-16,0V40h-8a48,48,0,0,0,0,96h8v64H104a32,32,0,0,1-32-32,8,8,0,0,0-16,0,48.05,48.05,0,0,0,48,48h16v16a8,8,0,0,0,16,0V216h16a48,48,0,0,0,0-96Zm-40,0a32,32,0,0,1,0-64h8v64Zm40,80H136V136h16a32,32,0,0,1,0,64Z"></path>
+</svg>
+<span class="text-sm font-medium">Commissions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path>
+</svg>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-4">
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+<span class="truncate">New Sale</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary" href="#">
+<svg fill="currentColor" height="24" viewbox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path>
+</svg>
+<span class="text-sm font-medium">Help &amp; Docs</span>
+</a>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<div class="relative min-h-screen">
+<div class="p-8">
+<div class="max-w-4xl mx-auto">
+<header class="mb-8">
+<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Architect Profile</h1>
+<p class="text-gray-500 dark:text-gray-400">View and manage architect details, sales data, and payment settings.</p>
+</header>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 mb-8 border border-white/10 dark:border-black/20">
+<div class="flex items-center gap-6">
+<div class="w-32 h-32 rounded-full bg-cover bg-center border-4 border-primary/20" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAbyPjIBPnZ2wuLVK1lnFw9wqjlcqSuoodJAImqAw-Nzu5TiYjW-dC4sE1DmY41ZYr1DVdqOQdi1UMe1dNObn98JTVPFKs06rKM7wB9q4vtlypndvz58cG-mjjKkmyF0Gqc4pjkaojzJg_FS7iX5i4ZbczfmvcfKPV4rAttwTHaV0ZxDMw_pqv48xqsL7rpV9Z2vZrulW2jbQoFPwL79bSpKQrbSOuvxFtJCrBYJ7nCJQjijxniI__Fa0Fc8arqRaxRaDBzu4iFwCw");'></div>
+<div>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Sophia Bennett</h2>
+<p class="text-gray-500 dark:text-gray-400">Architect ID: AB12345</p>
+<p class="text-gray-500 dark:text-gray-400">Joined: 2022-05-15</p>
+</div>
+</div>
+</div>
+<section class="mb-8">
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Sales Overview</h2>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Sales</p>
+<p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">$500,000</p>
+</div>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">RT Value</p>
+<p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">120</p>
+</div>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Average Commission</p>
+<p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">$5,000</p>
+</div>
+</div>
+</section>
+<section>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Payment Settings</h2>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 dark:border-black/20">
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="bankName">Bank Name</label>
+<input class="form-input w-full rounded-lg bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="bankName" name="bankName" placeholder="e.g. Chase Bank" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="accountNumber">Account Number</label>
+<input class="form-input w-full rounded-lg bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="accountNumber" name="accountNumber" placeholder="•••• •••• •••• 1234" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" for="routingNumber">Routing Number</label>
+<input class="form-input w-full rounded-lg bg-background-light/50 dark:bg-background-dark/50 border-gray-300 dark:border-gray-700 focus:ring-primary focus:border-primary transition-all text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" id="routingNumber" name="routingNumber" placeholder="e.g. 123456789" type="text"/>
+</div>
+<div class="flex justify-end pt-4">
+<button class="flex cursor-pointer items-center justify-center rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-wide shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all" type="submit">
+                      Update Payment Settings
+                    </button>
+</div>
+</form>
+</div>
+</section>
+</div>
+</div>
+<div class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4">
+<div class="bg-white/10 dark:bg-black/20 backdrop-blur-2xl rounded-xl w-full max-w-2xl border border-white/10 dark:border-black/20 shadow-2xl">
+<div class="p-6">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Detalhes da Inclusão Manual</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-lg p-4 border border-white/10 dark:border-black/20">
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Venda</p>
+<p class="text-lg font-semibold text-gray-900 dark:text-white mt-1">#12345</p>
+</div>
+<div class="bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-lg p-4 border border-white/10 dark:border-black/20">
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Arquiteto</p>
+<p class="text-lg font-semibold text-gray-900 dark:text-white mt-1">Sophia Bennett</p>
+</div>
+<div class="col-span-1 md:col-span-2 bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-lg p-4 border border-white/10 dark:border-black/20">
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Valor</p>
+<p class="text-lg font-semibold text-gray-900 dark:text-white mt-1">R$ 5.000,00</p>
+</div>
+<div class="col-span-1 md:col-span-2 bg-white/5 dark:bg-black/10 backdrop-blur-xl rounded-lg p-4 border border-white/10 dark:border-black/20">
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Observação</p>
+<p class="text-base text-gray-900 dark:text-white mt-1">Inclusão manual de comissão referente ao projeto X, aprovado em 10/08/2023.</p>
+</div>
+</div>
+<div class="flex justify-end gap-4 mt-6">
+<button class="px-4 py-2 rounded-lg text-sm font-semibold bg-white/10 dark:bg-black/20 text-gray-800 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-black/30 transition-all">Fechar</button>
+<button class="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-all shadow-lg shadow-primary/30">Aprovar Inclusão</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+    .glassmorphic-input {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glassmorphic-input {
+      background: rgba(16, 25, 34, 0.5);
+    }
+    .glassmorphic-modal {
+      background: rgba(16, 25, 34, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glassmorphic-button {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white">
+<div class="flex flex-col min-h-screen bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBk5WpgkugoAF8gyibG5oFBtQaOxOakVV26Vvog0fUPly3UsfKJFSZmEEuMO1QquGxHWiyYG3B2GSDVKCMr4b_vXbeBN3acW3sfh0HseCXTq4wkyqxnGEdzGEKiRPzdELJKfSM6ITk6lGZ3E6TgaRPqviFbhulYP7H8NqAotDJQyPSlzACTZmt6TZRe8Dm5RVZ1ElSJYskmCP08coOhiO_ueN6lBU4f04Jpe8-sFwXOeDK3ptLQiHev9vubnlyzLH3MsanGKty8QTU");'>
+<header class="flex items-center justify-between whitespace-nowrap border-b border-white/10 px-10 py-3">
+<div class="flex items-center gap-4">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold">SalesTracker</h2>
+</div>
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-6 text-sm font-medium text-white/70">
+<a class="hover:text-white transition-colors" href="#">Dashboard</a>
+<a class="hover:text-white transition-colors" href="#">Sales</a>
+<a class="text-white" href="#">Architects</a>
+<a class="hover:text-white transition-colors" href="#">Commissions</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white/80">notifications</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAfjxD5xmS1mGkvjBBLQTPJ1GRCHjtZrhsBvdZ-2aDkpXkLKnuvl-cPXEB5CuRGpsTjTCB1xDotEtPxKcQbmkc0O9sbfuJGZq7ynnxEFJKPxqRSH6bs0DnTb7Zla6ypeiQiIj1y1TfE1KfWwDnmJqbd-lyxN_id6OnLMTEustkTR8_REiAgA6GmhG8X6LFDMVBrraIXTelfLPK7Tv6vE2AnTea8qVjNWtgijOZQr7eqpTtixfIUfCxwfKfljgf24PjYRND9kyjeDL8");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
+<div class="w-full max-w-md mx-auto">
+<div class="glassmorphic-modal rounded-xl p-8">
+<div class="text-center mb-6">
+<h2 class="text-2xl font-bold">Editar Valor do RT</h2>
+</div>
+<form class="space-y-6">
+<div>
+<label class="flex flex-col gap-2">
+<span class="text-sm font-medium text-white/80">Valor do RT</span>
+<input class="form-input w-full rounded-lg border-0 bg-transparent glassmorphic-input h-14 px-4 text-base placeholder:text-white/40 focus:ring-2 focus:ring-primary/50 transition" placeholder="R$ 0,00" type="text"/>
+</label>
+</div>
+<div class="flex justify-end gap-4 pt-4">
+<button class="px-6 py-3 rounded-lg glassmorphic-button hover:bg-white/20 text-white font-bold text-sm transition" type="button">
+              Cancelar
+            </button>
+<button class="px-6 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-bold text-sm transition" type="submit">
+              Salvar
+            </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+</div>
+</body></html>
+
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta charset="utf-8"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#39E079", "background-light": "#f6f8f7", "background-dark": "#122017"}, fontFamily: {display: "Inter"}, borderRadius: {DEFAULT: "0.5rem", lg: "1rem", xl: "1.5rem", full: "9999px"}}}};</script>
+<style>
+        .glassmorphic {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glassmorphic {
+            background: rgba(16, 25, 34, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-glassmorphic {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dark .modal-glassmorphic {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+<div class="w-full max-w-2xl rounded-xl modal-glassmorphic">
+<div class="p-8">
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Detalhes da Venda</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-600 dark:text-gray-300">
+<div>
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">ID da Venda</label>
+<p class="mt-1 text-base">#12345</p>
+</div>
+<div>
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">Data</label>
+<p class="mt-1 text-base">23/10/2023</p>
+</div>
+<div>
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">Cliente</label>
+<p class="mt-1 text-base">João da Silva</p>
+</div>
+<div>
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">Arquiteto</label>
+<p class="mt-1 text-base">Maria Oliveira</p>
+</div>
+<div>
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">Valor Total</label>
+<p class="mt-1 text-base font-semibold text-primary">R$ 5,000.00</p>
+</div>
+<div>
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">Comissão</label>
+<p class="mt-1 text-base font-semibold text-green-500">R$ 500.00</p>
+</div>
+<div class="md:col-span-2">
+<label class="text-sm font-semibold text-gray-500 dark:text-gray-400">Produtos</label>
+<ul class="mt-1 list-disc list-inside text-base">
+<li>Produto A - R$ 2,000.00</li>
+<li>Produto B - R$ 3,000.00</li>
+</ul>
+</div>
+</div>
+<div class="mt-8 flex justify-end space-x-4">
+<button class="flex items-center justify-center rounded-lg bg-white/20 dark:bg-black/20 px-4 py-2 text-base font-bold text-gray-900 dark:text-white shadow-lg transition-all duration-300 hover:bg-white/30 dark:hover:bg-black/30 focus:outline-none focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined mr-2">upload_file</span>
+                    Importar Venda
+                </button>
+<button class="flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-base font-bold text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark">
+                    Fechar
+                </button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

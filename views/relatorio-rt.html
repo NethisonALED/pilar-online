@@ -1,0 +1,22 @@
+<div class="container mx-auto max-w-4xl">
+    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Importar Vendas</h1>
+            <p class="text-gray-500 mt-2">Faça o upload do seu arquivo Excel ou CSV para registrar vendas e acumular os valores de RT para os arquitetos.</p>
+        </header>
+        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-8" role="alert">
+            <p class="font-bold">Instruções</p>
+            <p class="mt-2 text-sm">
+                1. Selecione seu arquivo (.xlsx, .xls, ou .csv).<br>
+                2. Na tela seguinte, associe as colunas da sua planilha aos campos do sistema.<br>
+                3. Os valores de RT serão calculados e somados ao saldo de cada arquiteto.
+            </p>
+        </div>
+        <div class="text-center">
+            <label for="rt-file-input" class="file-input-label bg-indigo-600 hover:bg-indigo-700"><i class="fas fa-upload mr-2"></i>Escolher Arquivo</label>
+            <input type="file" id="rt-file-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="file-input">
+            <p id="rt-file-name" class="text-sm text-gray-500 mt-2"></p>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,25 @@
+<h1 class="text-3xl font-bold text-gray-900 mb-6">Pontuação</h1>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Ranking de Arquitetos</h2>
+        <div id="ranking-table-container">
+            <!-- O ranking de arquitetos será renderizado aqui via JavaScript -->
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Ajuste Manual de Pontos</h2>
+        <form id="add-pontos-form" class="space-y-4">
+            <div>
+                <label for="arquiteto-select" class="block text-sm font-medium text-gray-600 mb-1">Arquiteto</label>
+                <select id="arquiteto-select" class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                    <!-- As opções de arquitetos serão populadas aqui via JavaScript -->
+                </select>
+            </div>
+            <div>
+                <label for="pontos-valor" class="block text-sm font-medium text-gray-600 mb-1">Pontos (use negativo para remover)</label>
+                <input type="number" id="pontos-valor" class="w-full p-3 bg-gray-50 border rounded-lg" required>
+            </div>
+            <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-lg">Adicionar</button>
+        </form>
+    </div>
+</div>
