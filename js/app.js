@@ -2127,36 +2127,126 @@ class RelacionamentoApp {
     }
 
     /**
+     * Calcula os KPIs do parceiro com base nos dados brutos da API Sysled (Memória apenas).
+     */
+    /**
+     * Calcula os KPIs do parceiro com base nos dados brutos da API Sysled (Memória apenas).
+     * Lógica de Saúde atualizada para considerar apenas o MÊS ATUAL.
+     */
+    /**
+     * Calcula os KPIs do parceiro com base nos dados brutos da API Sysled (Memória apenas).
+     * Lógica de Saúde atualizada para considerar apenas o MÊS ATUAL.
+     * AGORA: As colunas de Projetos também retornam apenas os dados do mês para a conta bater.
+     */
+    calculatePartnerKPIs(partnerId, apiData) {
+        // Se a API ainda não foi carregada, retorna traços
+        if (!apiData || apiData.length === 0) {
+            return {
+                saude_carteira: '-',
+                tempo_sem_envio: '-',
+                projeto_fechado: '-',
+                projeto_enviado: '-',
+                data_envio: null,
+                data_fechamento: null
+            };
+        }
+
+        // 1. Filtra todos os registros da API para este parceiro
+        const partnerRecords = apiData.filter(row => String(row.idParceiro) === String(partnerId));
+
+        if (partnerRecords.length === 0) {
+            return {
+                saude_carteira: '0%',
+                tempo_sem_envio: 'N/A',
+                projeto_fechado: 0,
+                projeto_enviado: 0,
+                data_envio: null,
+                data_fechamento: null
+            };
+        }
+
+        // --- DEFINIÇÃO DO MÊS ATUAL ---
+        const hoje = new Date();
+        const mesAtual = hoje.getMonth(); // 0 a 11
+        const anoAtual = hoje.getFullYear();
+
+        // Helper para verificar se uma data string (YYYY-MM-DD) cai no mês atual
+        const isMesAtual = (dateString) => {
+            if (!dateString) return false;
+            const d = new Date(dateString + 'T12:00:00');
+            return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+        };
+
+        // --- CÁLCULO DA SAÚDE E TOTAIS (APENAS MÊS ATUAL) ---
+        
+        // Fechados no Mês
+        const fechadosMes = partnerRecords.filter(p => 
+            String(p.pedidoStatus) === '9' && 
+            isMesAtual(p.dataFinalizacaoPrevenda)
+        ).length;
+
+        // Enviados no Mês
+        const enviadosMes = partnerRecords.filter(p => 
+            (p.versaoPedido === null || p.versaoPedido === 'null' || p.versaoPedido === '') && 
+            isMesAtual(p.dataEmissaoPrevenda)
+        ).length;
+
+        // Saúde Carteira
+        let saude = 0;
+        if (enviadosMes > 0) {
+            saude = (fechadosMes / enviadosMes) * 100;
+        }
+
+        // Explicação do 108%: Se o arquiteto enviou 10 projetos ESTE mês, mas fechou 11 (alguns eram do mês passado), a saúde será 110%.
+
+        // --- DATAS E TEMPO SEM ENVIO (MANTIDO) ---
+        const datasEnvio = partnerRecords
+            .map(p => p.dataEmissaoPrevenda)
+            .filter(d => d)
+            .sort((a, b) => new Date(b) - new Date(a));
+        const lastDataEnvio = datasEnvio.length > 0 ? datasEnvio[0] : null;
+
+        const datasFechamento = partnerRecords
+            .map(p => p.dataFinalizacaoPrevenda)
+            .filter(d => d)
+            .sort((a, b) => new Date(b) - new Date(a));
+        const lastDataFechamento = datasFechamento.length > 0 ? datasFechamento[0] : null;
+
+        let diasSemEnvio = '-';
+        if (lastDataEnvio) {
+            const ultimoEnvio = new Date(lastDataEnvio + 'T12:00:00');
+            const diffTime = Math.abs(hoje - ultimoEnvio);
+            diasSemEnvio = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + ' dias'; 
+        }
+
+        return {
+            saude_carteira: saude.toFixed(1) + '%',
+            
+            // ALTERAÇÃO AQUI: Agora mostramos as contagens DO MÊS, para bater com a porcentagem
+            projeto_fechado: fechadosMes, 
+            projeto_enviado: enviadosMes,
+            
+            tempo_sem_envio: diasSemEnvio,
+            data_envio: lastDataEnvio,
+            data_fechamento: lastDataFechamento
+        };
+    }
+
+    /**
      * Renderiza a aba de Carteira.
      */
-    renderCarteiraTab() {
+    async renderCarteiraTab() {
         const container = document.getElementById('carteira-container');
         if (!container) return;
 
-        // Injeta o modal de mapeamento se ainda não existir
-        if (!document.getElementById('carteira-mapping-modal')) {
-            this.injectCarteiraModal();
-        }
-        
-        // Injeta o modal manual se ainda não existir
-        if (!document.getElementById('carteira-manual-modal')) {
-            this.injectCarteiraManualModal();
-        }
-
-        // Combina dados da carteira com dados dos arquitetos (vendas e comissões)
-        const combinedData = this.carteira.map(c => {
-            const arq = this.arquitetos.find(a => String(a.id) === String(c.id_parceiro));
-            return {
-                ...c,
-                vendas: arq ? arq.valorVendasTotal : 0,
-                comissoes: arq ? arq.rt_acumulado : 0
-            };
-        });
-
+        // 1. Estrutura HTML (Controles + Área de Loading + Tabela)
         const controlsHtml = `
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-white">Carteira de Parceiros</h2>
                 <div class="flex items-center gap-2">
+                    <button id="btn-refresh-carteira" class="btn-modal py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer text-sm font-medium transition-colors">
+                        <span class="material-symbols-outlined align-middle text-lg mr-1">refresh</span>Atualizar Dados
+                    </button>
                     <button id="btn-open-carteira-manual" class="btn-modal py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded cursor-pointer text-sm font-medium transition-colors">
                         <span class="material-symbols-outlined align-middle text-lg mr-1">add_circle</span>Cadastrar Manualmente
                     </button>
@@ -2166,50 +2256,185 @@ class RelacionamentoApp {
                     <input type="file" id="carteira-file-input" class="hidden" accept=".xlsx, .xls">
                 </div>
             </div>
+
+            <div id="carteira-loading-status" class="hidden mb-4 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg backdrop-blur-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined animate-spin text-blue-400">progress_activity</span>
+                        <span id="carteira-loading-text" class="text-blue-100 font-medium">Iniciando...</span>
+                    </div>
+                    <span id="carteira-counter-text" class="text-sm text-blue-300 font-mono">0/${this.carteira.length}</span>
+                </div>
+                <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                    <div id="carteira-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                </div>
+            </div>
         `;
 
-        const rows = combinedData.map(item => `
-            <tr>
+        const tableHtml = `
+            <div class="glass-card rounded-lg p-0 overflow-hidden">
+                <div class="overflow-x-auto max-h-[65vh]">
+                    <table class="w-full whitespace-nowrap">
+                        <thead class="sticky top-0 z-10 bg-background-dark">
+                            <tr>
+                                <th>ID Parceiro</th>
+                                <th>Nome (Carteira)</th>
+                                <th class="text-right">Vendas Totais</th>
+                                <th class="text-right">Comissões</th>
+                                <th class="text-center">Saúde Carteira</th>
+                                <th class="text-center">Tempo s/ Envio</th>
+                                <th class="text-center">Proj. Fechado</th>
+                                <th class="text-center">Proj. Enviado</th>
+                                <th class="text-center">Data Envio</th>
+                                <th class="text-center">Data Fechamento</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carteira-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = controlsHtml + tableHtml;
+
+        // Injeta os modais se não existirem
+        if (!document.getElementById('carteira-mapping-modal')) this.injectCarteiraModal();
+        if (!document.getElementById('carteira-manual-modal')) this.injectCarteiraManualModal();
+
+        // Configura eventos (botões, inputs)
+        this.setupCarteiraEventListeners();
+
+        // INICIA O PROCESSO AUTOMÁTICO (Fetch + Cálculo com Progresso)
+        await this.loadCarteiraWithProgress();
+    }
+
+    /**
+     * Gerencia o fluxo de buscar dados e atualizar a tabela linha a linha.
+     */
+    async loadCarteiraWithProgress() {
+        const statusDiv = document.getElementById('carteira-loading-status');
+        const statusText = document.getElementById('carteira-loading-text');
+        const counterText = document.getElementById('carteira-counter-text');
+        const progressBar = document.getElementById('carteira-progress-bar');
+        const tbody = document.getElementById('carteira-table-body');
+
+        if (!statusDiv) return;
+
+        // Limpa a tabela e mostra o loading
+        tbody.innerHTML = ''; 
+        statusDiv.classList.remove('hidden');
+        statusText.textContent = "Conectando à API Sysled...";
+        progressBar.style.width = '5%';
+
+        try {
+            // 1. Busca dados da API se estiver vazia (Cenário de F5)
+            if (this.sysledData.length === 0) {
+                await this.fetchSysledData();
+            }
+
+            if (!this.sysledData || this.sysledData.length === 0) {
+                throw new Error("Nenhum dado retornado da API.");
+            }
+
+            // 2. Loop de Processamento com Atualização Visual
+            const total = this.carteira.length;
+            
+            if (total === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro na carteira.</td></tr>';
+                statusDiv.classList.add('hidden');
+                return;
+            }
+
+            for (let i = 0; i < total; i++) {
+                const parceiro = this.carteira[i];
+                const currentCount = i + 1;
+
+                // Atualiza UI de progresso
+                const progressPercent = Math.round((currentCount / total) * 100);
+                statusText.textContent = `Calculando indicadores...`;
+                counterText.textContent = `${currentCount}/${total}`;
+                progressBar.style.width = `${progressPercent}%`;
+
+                // TRUQUE: Pequeno delay (5ms) para liberar a thread da UI e atualizar o texto na tela
+                await new Promise(resolve => setTimeout(resolve, 5));
+
+                // Cálculos
+                const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
+                
+                // Chama seu método de cálculo (memória)
+                const kpis = this.calculatePartnerKPIs(parceiro.id_parceiro, this.sysledData);
+
+                const item = {
+                    ...parceiro,
+                    vendas: arq ? arq.valorVendasTotal : 0,
+                    comissoes: arq ? arq.rt_acumulado : 0,
+                    ...kpis
+                };
+
+                // Cria o HTML da linha e insere
+                const rowHtml = this.createCarteiraRow(item);
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            }
+
+            // Finalização
+            statusText.textContent = "Atualização concluída!";
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 1500);
+
+        } catch (error) {
+            console.error(error);
+            statusText.textContent = `Erro: ${error.message}`;
+            statusDiv.classList.replace('bg-blue-900/30', 'bg-red-900/30');
+            statusDiv.classList.replace('border-blue-500/50', 'border-red-500/50');
+        }
+    }
+
+    /**
+     * Helper para gerar o HTML de uma linha da tabela Carteira.
+     */
+    createCarteiraRow(item) {
+        return `
+            <tr class="animate-fade-in">
                 <td>${item.id_parceiro}</td>
                 <td>${item.nome}</td>
                 <td class="text-right">${formatCurrency(item.vendas || 0)}</td>
                 <td class="text-right font-semibold text-primary">${formatCurrency(item.comissoes || 0)}</td>
+                
+                <td class="text-center font-medium ${parseFloat(item.saude_carteira) > 30 ? 'text-green-400' : 'text-gray-300'}">${item.saude_carteira}</td>
+                <td class="text-center">${item.tempo_sem_envio}</td>
+                <td class="text-center">${item.projeto_fechado}</td>
+                <td class="text-center">${item.projeto_enviado}</td>
+                <td class="text-center text-xs">${item.data_envio ? formatApiDateToBR(item.data_envio) : '-'}</td>
+                <td class="text-center text-xs">${item.data_fechamento ? formatApiDateToBR(item.data_fechamento) : '-'}</td>
+
                 <td class="text-center">
                     <button class="delete-carteira-btn text-red-500 hover:text-red-400 transition-colors" title="Remover da Carteira" data-id="${item.id_parceiro}">
                         <span class="material-symbols-outlined">delete</span>
                     </button>
                 </td>
             </tr>
-        `).join('');
-
-        container.innerHTML = `
-            ${controlsHtml}
-            <div class="glass-card rounded-lg p-0 overflow-hidden">
-                <div class="overflow-x-auto max-h-[65vh]">
-                    <table class="w-full">
-                        <thead class="sticky top-0 z-10 bg-background-dark">
-                            <tr>
-                                <th>ID Parceiro</th>
-                                <th>Nome (Carteira)</th>
-                                <th class="text-right">Vendas Totais</th>
-                                <th class="text-right">Comissões Pendentes</th>
-                                <th class="text-center">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.length > 0 ? rows : '<tr><td colspan="5" class="text-center text-gray-400 py-8">Nenhum parceiro na carteira.</td></tr>'}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         `;
+    }
 
-        // Adiciona listener para o input de arquivo
+    /**
+     * Configura os listeners da aba Carteira.
+     */
+    setupCarteiraEventListeners() {
+        const container = document.getElementById('carteira-container');
+        
+        // Input de Arquivo
         const fileInput = document.getElementById('carteira-file-input');
         if (fileInput) {
-            fileInput.addEventListener('change', (e) => this.handleCarteiraFileUpload(e));
+            // Remove listener antigo para evitar duplicação (cloneNode truque) ou apenas reatribui
+            const newFileInput = fileInput.cloneNode(true);
+            fileInput.parentNode.replaceChild(newFileInput, fileInput);
+            newFileInput.addEventListener('change', (e) => this.handleCarteiraFileUpload(e));
         }
 
+        // Botão Manual
         const btnManual = document.getElementById('btn-open-carteira-manual');
         if (btnManual) {
             btnManual.addEventListener('click', () => {
@@ -2217,12 +2442,28 @@ class RelacionamentoApp {
             });
         }
 
-        container.querySelectorAll('.delete-carteira-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.currentTarget.dataset.id;
-                this.deleteCarteiraParceiro(id);
+        // Botão Atualizar (Refresh)
+        const btnRefresh = document.getElementById('btn-refresh-carteira');
+        if (btnRefresh) {
+            btnRefresh.addEventListener('click', async () => {
+                this.sysledData = []; // Força limpar para obrigar nova busca na API
+                await this.loadCarteiraWithProgress();
             });
-        });
+        }
+
+        // Delegação de eventos para o botão Delete (elementos dinâmicos)
+        if (container) {
+            // Remove listener anterior se houver (para não acumular calls se renderizar 2x)
+            container.removeEventListener('click', this._carteiraClickListener); 
+            
+            this._carteiraClickListener = (e) => {
+                const btn = e.target.closest('.delete-carteira-btn');
+                if (btn) {
+                    this.deleteCarteiraParceiro(btn.dataset.id);
+                }
+            };
+            container.addEventListener('click', this._carteiraClickListener);
+        }
     }
 
     injectCarteiraModal() {
@@ -2385,6 +2626,20 @@ class RelacionamentoApp {
             return;
         }
 
+        // Tenta garantir que temos dados da Sysled para mostrar o feedback no alert
+        if (this.sysledData.length === 0) {
+            try {
+                // Tenta buscar silenciosamente se não tiver dados
+                const response = await fetch(this.sysledApiUrl, { headers: { 'Authorization': this.sysledAuthToken } });
+                if (response.ok) this.sysledData = await response.json();
+            } catch (e) {
+                console.warn("Não foi possível buscar dados da Sysled para preview.", e);
+            }
+        }
+
+        // Calcula KPIs apenas para mostrar no alerta (NÃO SALVA NO DB)
+        const kpis = this.calculatePartnerKPIs(id, this.sysledData);
+
         // Verifica se já existe
         const { data: existing, error: checkError } = await supabase.from('carteira').select('id_parceiro').eq('id_parceiro', id).maybeSingle();
         
@@ -2394,18 +2649,23 @@ class RelacionamentoApp {
         }
 
         let actionError;
+        // Salva APENAS id e nome no Supabase
+        const payload = { id_parceiro: id, nome: nome };
+
         if (existing) {
-            const { error } = await supabase.from('carteira').update({ nome: nome }).eq('id_parceiro', id);
+            const { error } = await supabase.from('carteira').update(payload).eq('id_parceiro', id);
             actionError = error;
         } else {
-            const { error } = await supabase.from('carteira').insert([{ id_parceiro: id, nome: nome }]);
+            const { error } = await supabase.from('carteira').insert([payload]);
             actionError = error;
         }
 
         if (actionError) {
             alert("Erro ao cadastrar parceiro: " + actionError.message);
         } else {
-            alert("Parceiro cadastrado/atualizado com sucesso!");
+            // Feedback rico para o usuário
+            alert(`Parceiro cadastrado com sucesso!\n\nDados da Sysled:\n- Projetos Fechados: ${kpis.projeto_fechado}\n- Projetos Enviados: ${kpis.projeto_enviado}\n- Saúde: ${kpis.saude_carteira}`);
+            
             await this.logAction(`Cadastrou manualmente parceiro na Carteira: ${nome} (ID: ${id})`);
             document.getElementById('carteira-manual-modal').classList.remove('active');
             document.getElementById('carteira-manual-form').reset();

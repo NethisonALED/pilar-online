@@ -15,10 +15,10 @@
  */
 
 // URL da API Sysled (Codificada em Base64)
-const _x1 = "COLE_AQUI_SUA_URL_BASE64"; 
+const _x1 = "aHR0cHM6Ly9pbnRlZ3JhdGlvbi5zeXNsZWQuY29tLmJyL244bi9hcGkvP3ZfY3JtX29wb3J0dW5pZGFkZXNfcHJvcG9zdGFzX3VwMTgwZGQ9bnVsbA=="; 
 
 // Token de Autenticação Sysled (Codificado em Base64)
-const _x2 = "COLE_AQUI_SEU_TOKEN_BASE64";
+const _x2 = "QmVhcmVyIGU0YjZmOTA4MmYxYjhhMWYzN2FkNWI1NmU2MzdmM2VjNzE5ZWM4ZjBiNmFjZGQwOTM5NzJmOWM1YmIyOWI5ZWQ=";
 
 export function getSecureContext() {
     try {
