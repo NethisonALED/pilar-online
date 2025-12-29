@@ -2250,16 +2250,31 @@ class RelacionamentoApp {
         // Verifica se já temos dados da API carregados em memória
         const hasApiData = this.sysledData && this.sysledData.length > 0;
 
-        // 1. PREPARAÇÃO DOS DADOS (Se houver dados, prepara para exibição, senão array vazio)
+        // 1. PREPARAÇÃO DOS DADOS
         let combinedData = [];
         if (hasApiData) {
+            // --- CORREÇÃO AQUI: Indexação e Uso do Novo Cálculo ---
+            
+            // 1. Cria o Índice (Map) igual fazemos no loadCarteiraWithProgress
+            const sysledMap = new Map();
+            this.sysledData.forEach(row => {
+                const pId = String(row.idParceiro);
+                if (!sysledMap.has(pId)) sysledMap.set(pId, []);
+                sysledMap.get(pId).push(row);
+            });
+
+            // 2. Mapeia usando calculateKPIsFromSubset (que respeita o filtro de data)
             combinedData = this.carteira.map(c => {
                 const arq = this.arquitetos.find(a => String(a.id) === String(c.id_parceiro));
-                const kpis = this.calculatePartnerKPIs(c.id_parceiro, this.sysledData);
+                const partnerApiData = sysledMap.get(String(c.id_parceiro)) || [];
+                
+                // Usa a função correta que calcula vendas do período
+                const kpis = this.calculateKPIsFromSubset(partnerApiData, this.carteiraPeriod);
 
                 return {
                     ...c,
-                    vendas: arq ? arq.valorVendasTotal : 0,
+                    // CORREÇÃO: Pega o valor calculado do período, não o total do banco
+                    vendas: kpis.vendas_periodo, 
                     comissoes: arq ? arq.rt_acumulado : 0,
                     ...kpis
                 };
@@ -2278,10 +2293,13 @@ class RelacionamentoApp {
                         };
                         valA = parseDays(valA);
                         valB = parseDays(valB);
-                    } 
-                    else if (this.carteiraSortColumn === 'saude_carteira') {
+                    } else if (this.carteiraSortColumn === 'saude_carteira') {
                         valA = parseFloat(valA) || 0;
                         valB = parseFloat(valB) || 0;
+                    }
+                    else if (['projeto_fechado', 'projeto_enviado', 'vendas', 'comissoes'].includes(this.carteiraSortColumn)) {
+                        valA = Number(valA) || 0;
+                        valB = Number(valB) || 0;
                     }
 
                     if (valA < valB) return this.carteiraSortDirection === 'asc' ? -1 : 1;
@@ -2291,7 +2309,7 @@ class RelacionamentoApp {
             }
         }
 
-        // 3. RENDERIZAÇÃO (DESIGN PREMIUM FIXO)
+        // 3. RENDERIZAÇÃO (MANTÉM IGUAL)
         const getSortIcon = (col) => {
             if (this.carteiraSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
             return this.carteiraSortDirection === 'asc' 
@@ -2336,7 +2354,8 @@ class RelacionamentoApp {
                         </button>
                     </div>
 
-                    <div class="h-6 w-px bg-white/10 mx-1"></div> <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar">
+                    <div class="h-6 w-px bg-white/10 mx-1"></div> 
+                    <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar">
                         <span class="material-symbols-outlined text-lg">refresh</span>
                     </button>
                     
@@ -2366,15 +2385,11 @@ class RelacionamentoApp {
             </div>
         `;
 
-        // Gera as linhas SE tiver dados, senão deixa vazio (será preenchido pelo loader ou mensagem vazia)
-        const rows = combinedData.map(item => this.createCarteiraRow(item)).join(''); // Usa o helper createCarteiraRow que criamos antes
+        const rows = combinedData.map((item, index) => this.createCarteiraRow(item, index)).join('');
 
         let contentHtml = '';
 
         if (this.carteiraViewMode === 'dashboard') {
-            // --- MODO DASHBOARD ---
-            // Aqui montamos o layout dos gráficos (Canvas para Chart.js)
-            // OBS: A lógica para desenhar os gráficos deve ser chamada DEPOIS de inserir no DOM
             contentHtml = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
                     <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-indigo-900/40 to-gray-900/40">
@@ -2382,7 +2397,7 @@ class RelacionamentoApp {
                         <p class="text-3xl font-bold text-white mt-2" id="kpi-vendas-total">R$ 0,00</p>
                     </div>
                     <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-emerald-900/40 to-gray-900/40">
-                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Comissões</h3>
+                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Comissões (Geral)</h3>
                         <p class="text-3xl font-bold text-emerald-400 mt-2" id="kpi-comissoes-total">R$ 0,00</p>
                     </div>
                     <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-blue-900/40 to-gray-900/40">
@@ -2412,7 +2427,6 @@ class RelacionamentoApp {
                 </div>
             `;
         } else {
-            // --- MODO LISTA (Tabela Original) ---
             contentHtml = `
                 <div class="glass-card rounded-xl p-0 overflow-hidden border border-white/10 shadow-2xl animate-fade-in">
                     <div class="overflow-x-auto max-h-[70vh]">
@@ -2421,8 +2435,8 @@ class RelacionamentoApp {
                                 <tr>
                                     <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="id_parceiro">ID ${getSortIcon('id_parceiro')}</th>
                                     <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="nome">Nome ${getSortIcon('nome')}</th>
-                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Vendas</th>
-                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Comissões</th>
+                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="vendas">Vendas (Período) ${getSortIcon('vendas')}</th>
+                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="comissoes">Comissões (Geral) ${getSortIcon('comissoes')}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Saúde ${getSortIcon('saude_carteira')}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="tempo_sem_envio">Tempo s/ Envio ${getSortIcon('tempo_sem_envio')}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Fechados</th>
@@ -2445,12 +2459,12 @@ class RelacionamentoApp {
 
         this.setupCarteiraEventListeners();
 
-        // SE ESTIVER NO MODO DASHBOARD, DESENHA OS GRÁFICOS AGORA
         if (this.carteiraViewMode === 'dashboard' && combinedData.length > 0) {
             this.renderDashboardCharts(combinedData);
         }
         
-        // AUTO-LOAD (Mantido)
+        // AUTO-LOAD:
+        // Se NÃO tiver dados da API, chama o carregamento que busca e recalcula
         if (!hasApiData && this.carteira.length > 0) {
              await this.loadCarteiraWithProgress();
         }
@@ -2511,13 +2525,18 @@ class RelacionamentoApp {
                 const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
                 const partnerApiData = sysledMap.get(String(parceiro.id_parceiro)) || [];
                 
-                // Calcula usando o período atual (this.carteiraPeriod)
+                // Calcula KPIs do período
                 const kpis = this.calculateKPIsFromSubset(partnerApiData, this.carteiraPeriod);
 
                 combinedData.push({
                     ...parceiro,
-                    vendas: arq ? arq.valorVendasTotal : 0,
-                    comissoes: arq ? arq.rt_acumulado : 0,
+                    
+                    // VENDAS: Usa o valor calculado do período (baseado em valorFinanceiro)
+                    vendas: kpis.vendas_periodo, 
+                    
+                    // COMISSÕES: Mantém o valor GERAL do banco de dados (saldo acumulado)
+                    comissoes: arq ? arq.rt_acumulado : 0, 
+                    
                     ...kpis
                 });
             }
@@ -2566,8 +2585,8 @@ class RelacionamentoApp {
     }
 
     /**
-     * NOVO MÉTODO AUXILIAR: Calcula KPIs recebendo já o array filtrado do parceiro.
-     * Isso evita conflito com o método antigo calculatePartnerKPIs que fazia o filter internamente.
+     * Calcula KPIs filtrando por período (Mensal, Trimestral, Semestral).
+     * AGORA: Vendas baseadas em 'valorFinanceiro' da API.
      */
     calculateKPIsFromSubset(partnerRecords, period = 'mensal') {
         if (!partnerRecords || partnerRecords.length === 0) {
@@ -2576,65 +2595,64 @@ class RelacionamentoApp {
                 tempo_sem_envio: 'N/A',
                 projeto_fechado: 0,
                 projeto_enviado: 0,
+                vendas_periodo: 0, // Novo retorno zerado
                 data_envio: null,
                 data_fechamento: null
             };
         }
 
         const hoje = new Date();
-        // Zera as horas para evitar problemas de fuso na comparação simples
         hoje.setHours(0,0,0,0);
 
-        // Define a Data de Início baseada no filtro
-        let dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1); // Padrão: 1º dia do mês atual
+        let dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1); 
 
         if (period === 'trimestral') {
-            // Volta 2 meses (ex: Se estamos em Dezembro, pega Out, Nov, Dez)
             dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
         } else if (period === 'semestral') {
-            // Volta 5 meses (ex: Últimos 6 meses)
             dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
         }
 
-        // Função auxiliar que verifica se a data está DENTRO do período selecionado
         const isInPeriod = (dateString) => {
             if (!dateString) return false;
-            const d = new Date(dateString + 'T12:00:00'); // Compensação de fuso
-            return d >= dataInicio && d <= new Date(); // Do inicio até hoje
+            const d = new Date(dateString + 'T12:00:00');
+            return d >= dataInicio && d <= new Date();
         };
 
-        // --- CÁLCULOS FILTRADOS PELO PERÍODO ---
+        // --- CÁLCULOS ---
         
-        // Fechados no Período
-        const fechados = partnerRecords.filter(p => 
+        // 1. Filtrar Vendas Fechadas no Período
+        const vendasFechadas = partnerRecords.filter(p => 
             String(p.pedidoStatus) === '9' && 
             isInPeriod(p.dataFinalizacaoPrevenda)
-        ).length;
+        );
 
-        // Enviados no Período
-        const enviados = partnerRecords.filter(p => 
+        const fechadosCount = vendasFechadas.length;
+
+        // 2. MUDANÇA AQUI: Soma do Valor Financeiro (Dinheiro Real)
+        const volumeVendasPeriodo = vendasFechadas.reduce((acc, curr) => {
+            // Usa valorFinanceiro vindo do Sysled
+            return acc + (parseApiNumber(curr.valorFinanceiro) || 0);
+        }, 0);
+
+        // 3. Enviados
+        const enviadosCount = partnerRecords.filter(p => 
             (p.versaoPedido === null || p.versaoPedido === 'null' || p.versaoPedido === '') && 
             isInPeriod(p.dataEmissaoPrevenda)
         ).length;
 
-        // Saúde Carteira (Cálculo do Período)
+        // 4. Saúde
         let saude = 0;
-        if (enviados > 0) {
-            saude = (fechados / enviados) * 100;
+        if (enviadosCount > 0) {
+            saude = (fechadosCount / enviadosCount) * 100;
         }
 
-        // --- DATAS E TEMPO SEM ENVIO (Mantém lógica global para saber a última interação real) ---
-        // Nota: O tempo sem envio geralmente olha para a última interação ABSOLUTA, não só do período.
+        // --- DATAS E TEMPO SEM ENVIO ---
         const datasEnvio = partnerRecords
-            .map(p => p.dataEmissaoPrevenda)
-            .filter(d => d)
-            .sort((a, b) => new Date(b) - new Date(a));
+            .map(p => p.dataEmissaoPrevenda).filter(d => d).sort((a, b) => new Date(b) - new Date(a));
         const lastDataEnvio = datasEnvio.length > 0 ? datasEnvio[0] : null;
 
         const datasFechamento = partnerRecords
-            .map(p => p.dataFinalizacaoPrevenda)
-            .filter(d => d)
-            .sort((a, b) => new Date(b) - new Date(a));
+            .map(p => p.dataFinalizacaoPrevenda).filter(d => d).sort((a, b) => new Date(b) - new Date(a));
         const lastDataFechamento = datasFechamento.length > 0 ? datasFechamento[0] : null;
 
         let diasSemEnvio = '-';
@@ -2646,8 +2664,9 @@ class RelacionamentoApp {
 
         return {
             saude_carteira: saude.toFixed(1) + '%',
-            projeto_fechado: fechados, 
-            projeto_enviado: enviados,
+            projeto_fechado: fechadosCount, 
+            projeto_enviado: enviadosCount,
+            vendas_periodo: volumeVendasPeriodo, // Valor calculado do filtro
             tempo_sem_envio: diasSemEnvio,
             data_envio: lastDataEnvio,
             data_fechamento: lastDataFechamento
@@ -2847,32 +2866,34 @@ class RelacionamentoApp {
     }
 
     /**
-     * Desenha ou Atualiza os gráficos da Dashboard.
+     * Desenha os gráficos na Dashboard.
      */
     renderDashboardCharts(data) {
-        // 1. Destruir gráficos antigos se existirem (Limpeza de Memória/Canvas)
         if (this.charts.funil) this.charts.funil.destroy();
         if (this.charts.top5) this.charts.top5.destroy();
 
-        // 2. Cálculos dos Totais
+        // Totais
         const totalVendas = data.reduce((acc, curr) => acc + (curr.vendas || 0), 0);
         const totalComissoes = data.reduce((acc, curr) => acc + (curr.comissoes || 0), 0);
         
+        // Saúde Média
         const parceirosAtivos = data.filter(p => parseFloat(p.saude_carteira) > 0);
         const somaSaude = parceirosAtivos.reduce((acc, curr) => acc + parseFloat(curr.saude_carteira), 0);
         const mediaSaude = parceirosAtivos.length > 0 ? (somaSaude / parceirosAtivos.length).toFixed(1) : 0;
 
-        // 3. Atualiza os Cards de KPI (Texto)
+        // Atualiza Cards com Labels Claros
         const elVendas = document.getElementById('kpi-vendas-total');
+        // Se quiser mudar o título do card via JS ou garanta que mudou no HTML do renderCarteiraTab
+        // Exemplo: document.querySelector('#card-vendas-title').textContent = `Total Vendas (${this.carteiraPeriod})`;
+
         const elComissoes = document.getElementById('kpi-comissoes-total');
         const elSaude = document.getElementById('kpi-saude-media');
 
-        // Verifica se os elementos existem antes de atualizar (segurança)
         if (elVendas) elVendas.textContent = formatCurrency(totalVendas);
         if (elComissoes) elComissoes.textContent = formatCurrency(totalComissoes);
         if (elSaude) elSaude.textContent = mediaSaude + '%';
 
-        // 4. Preparar Gráfico Top 5
+        // Gráfico Top 5 (Agora mostra Vendas do Período)
         const ctxTop5 = document.getElementById('chartTop5');
         if (ctxTop5) {
             const top5 = [...data].sort((a, b) => (b.vendas || 0) - (a.vendas || 0)).slice(0, 5);
@@ -2882,7 +2903,7 @@ class RelacionamentoApp {
                 data: {
                     labels: top5.map(p => p.nome.split(' ').slice(0, 2).join(' ')),
                     datasets: [{
-                        label: 'Vendas (R$)',
+                        label: `Vendas - ${this.carteiraPeriod.charAt(0).toUpperCase() + this.carteiraPeriod.slice(1)} (R$)`, // Legenda dinâmica
                         data: top5.map(p => p.vendas),
                         backgroundColor: 'rgba(59, 130, 246, 0.7)',
                         borderColor: 'rgba(59, 130, 246, 1)',
@@ -2903,7 +2924,7 @@ class RelacionamentoApp {
             });
         }
 
-        // 5. Preparar Gráfico Funil
+        // ... (Gráfico Funil mantém igual) ...
         const ctxFunil = document.getElementById('chartFunil');
         if (ctxFunil) {
             const totalEnviados = data.reduce((acc, curr) => acc + (curr.projeto_enviado || 0), 0);
