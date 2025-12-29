@@ -25,6 +25,9 @@ class RelacionamentoApp {
         this.minPaymentValue = 300; // Valor mínimo para pagamento (padrão)
         this.carteiraSortDirection = 'desc'
         this.carteiraSortColumn = 'tempo_sem_envio'
+        this.carteiraPeriod = 'mensal'
+        this.carteiraViewMode = 'lista';
+        this.charts = {};
         // Flags para funcionalidades condicionais baseadas no schema do DB
         this.schemaHasRtAcumulado = false;
         this.schemaHasRtTotalPago = false;
@@ -2296,20 +2299,56 @@ class RelacionamentoApp {
                 : '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_more</span>';
         };
 
+        const labelMap = {
+            'mensal': 'Análise Mensal',
+            'trimestral': 'Análise Trimestral',
+            'semestral': 'Análise Semestral'
+        };
+        const currentLabel = labelMap[this.carteiraPeriod] || 'Análise Mensal';
+
         const controlsHtml = `
             <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
-                <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros</h2>
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros</h2>
+                    
+                    <div class="relative" id="custom-period-dropdown">
+                        <button id="period-dropdown-btn" class="flex items-center justify-between w-48 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white text-sm font-medium rounded-lg pl-4 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all shadow-lg backdrop-blur-sm">
+                            <span id="period-selected-text">${currentLabel}</span>
+                            <span class="material-symbols-outlined text-gray-400 text-xl ml-2 transition-transform duration-200" id="period-dropdown-icon">expand_more</span>
+                        </button>
+                        <div id="period-dropdown-menu" class="hidden absolute top-full left-0 mt-2 w-48 bg-[#1a1f2e] border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden ring-1 ring-black ring-opacity-5 focus:outline-none animate-fade-in-down">
+                            <div class="py-1">
+                                <div class="period-option cursor-pointer block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-colors" data-value="mensal">Análise Mensal</div>
+                                <div class="period-option cursor-pointer block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-colors" data-value="trimestral">Análise Trimestral</div>
+                                <div class="period-option cursor-pointer block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-colors" data-value="semestral">Análise Semestral</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-3">
-                    <button id="btn-refresh-carteira" class="flex items-center gap-2 py-2.5 px-5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95">
-                        <span class="material-symbols-outlined text-lg">refresh</span>Atualizar
+                    <div class="flex bg-gray-800/50 rounded-lg p-1 border border-white/10">
+                        <button id="btn-view-lista" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === 'lista' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}">
+                            <span class="material-symbols-outlined text-lg mr-1">list</span>Lista
+                        </button>
+                        <button id="btn-view-dashboard" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}">
+                            <span class="material-symbols-outlined text-lg mr-1">monitoring</span>Dash
+                        </button>
+                    </div>
+
+                    <div class="h-6 w-px bg-white/10 mx-1"></div> <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar">
+                        <span class="material-symbols-outlined text-lg">refresh</span>
                     </button>
-                    <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2.5 px-5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95">
-                        <span class="material-symbols-outlined text-lg">add_circle</span>Manual
-                    </button>
-                    <label for="carteira-file-input" class="flex items-center gap-2 py-2.5 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg cursor-pointer text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95">
-                        <span class="material-symbols-outlined text-lg">upload_file</span>Importar
-                    </label>
-                    <input type="file" id="carteira-file-input" class="hidden" accept=".xlsx, .xls">
+                    
+                    <div class="flex items-center gap-2">
+                        <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95">
+                            <span class="material-symbols-outlined text-lg">add</span>Manual
+                        </button>
+                        <label for="carteira-file-input" class="flex items-center gap-2 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg cursor-pointer text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95">
+                            <span class="material-symbols-outlined text-lg">upload</span>Importar
+                        </label>
+                        <input type="file" id="carteira-file-input" class="hidden" accept=".xlsx, .xls">
+                    </div>
                 </div>
             </div>
             
@@ -2330,146 +2369,199 @@ class RelacionamentoApp {
         // Gera as linhas SE tiver dados, senão deixa vazio (será preenchido pelo loader ou mensagem vazia)
         const rows = combinedData.map(item => this.createCarteiraRow(item)).join(''); // Usa o helper createCarteiraRow que criamos antes
 
-        // Tabela com Design Fixo (Premium)
-        const tableHtml = `
-            <div class="glass-card rounded-xl p-0 overflow-hidden border border-white/10 shadow-2xl">
-                <div class="overflow-x-auto max-h-[70vh]">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="sticky top-0 z-20 bg-[#1a1f2e] shadow-md">
-                            <tr>
-                                <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="id_parceiro">ID ${getSortIcon('id_parceiro')}</th>
-                                <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="nome">Nome ${getSortIcon('nome')}</th>
-                                <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Vendas</th>
-                                <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Comissões</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Saúde ${getSortIcon('saude_carteira')}</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="tempo_sem_envio">Tempo s/ Envio ${getSortIcon('tempo_sem_envio')}</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Fechados</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Enviados</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Envio</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Fechamento</th>
-                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="carteira-table-body" class="divide-y divide-white/5">
-                            ${rows || '<tr><td colspan="11" class="text-center text-gray-400 py-12 text-lg">Aguardando dados...</td></tr>'}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
+        let contentHtml = '';
 
-        container.innerHTML = controlsHtml + tableHtml;
+        if (this.carteiraViewMode === 'dashboard') {
+            // --- MODO DASHBOARD ---
+            // Aqui montamos o layout dos gráficos (Canvas para Chart.js)
+            // OBS: A lógica para desenhar os gráficos deve ser chamada DEPOIS de inserir no DOM
+            contentHtml = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+                    <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-indigo-900/40 to-gray-900/40">
+                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Vendas (${this.carteiraPeriod})</h3>
+                        <p class="text-3xl font-bold text-white mt-2" id="kpi-vendas-total">R$ 0,00</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-emerald-900/40 to-gray-900/40">
+                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Comissões</h3>
+                        <p class="text-3xl font-bold text-emerald-400 mt-2" id="kpi-comissoes-total">R$ 0,00</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-blue-900/40 to-gray-900/40">
+                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Saúde Média</h3>
+                        <p class="text-3xl font-bold text-blue-400 mt-2" id="kpi-saude-media">0%</p>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1 md:col-span-2">
+                        <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-500">bar_chart</span>
+                            Top 5 Parceiros (Vendas)
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="chartTop5"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1">
+                        <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-purple-500">filter_list</span>
+                            Funil de Projetos
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="chartFunil"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // --- MODO LISTA (Tabela Original) ---
+            contentHtml = `
+                <div class="glass-card rounded-xl p-0 overflow-hidden border border-white/10 shadow-2xl animate-fade-in">
+                    <div class="overflow-x-auto max-h-[70vh]">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="sticky top-0 z-20 bg-[#1a1f2e] shadow-md">
+                                <tr>
+                                    <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="id_parceiro">ID ${getSortIcon('id_parceiro')}</th>
+                                    <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="nome">Nome ${getSortIcon('nome')}</th>
+                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Vendas</th>
+                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Comissões</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Saúde ${getSortIcon('saude_carteira')}</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="tempo_sem_envio">Tempo s/ Envio ${getSortIcon('tempo_sem_envio')}</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Fechados</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Enviados</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Envio</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Fechamento</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="carteira-table-body" class="divide-y divide-white/5">
+                                ${rows || '<tr><td colspan="11" class="text-center text-gray-400 py-12 text-lg">Aguardando dados...</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = controlsHtml + contentHtml;
 
         this.setupCarteiraEventListeners();
+
+        // SE ESTIVER NO MODO DASHBOARD, DESENHA OS GRÁFICOS AGORA
+        if (this.carteiraViewMode === 'dashboard' && combinedData.length > 0) {
+            this.renderDashboardCharts(combinedData);
+        }
         
-        // AUTO-LOAD: Se não tiver dados da Sysled e tiver parceiros na carteira, inicia o carregamento automaticamente
+        // AUTO-LOAD (Mantido)
         if (!hasApiData && this.carteira.length > 0) {
              await this.loadCarteiraWithProgress();
         }
     }
+    
+
     /**
-     * Gerencia o fluxo de buscar dados e atualizar a tabela linha a linha.
-     */
-    /**
-     * Gerencia o fluxo de buscar dados e atualizar a tabela (VERSÃO OTIMIZADA).
-     * Evita travamentos usando Renderização em Lote e Indexação de Dados.
+     * Processa os dados e atualiza a interface (Tabela OU Dashboard).
      */
     async loadCarteiraWithProgress() {
         const statusDiv = document.getElementById('carteira-loading-status');
         const statusText = document.getElementById('carteira-loading-text');
-        const counterText = document.getElementById('carteira-counter-text');
         const progressBar = document.getElementById('carteira-progress-bar');
+        const counterText = document.getElementById('carteira-counter-text');
+        
+        // Elemento da tabela (pode não existir se estivermos na Dashboard)
         const tbody = document.getElementById('carteira-table-body');
 
-        if (!statusDiv) return;
+        if (statusDiv) {
+            statusDiv.classList.remove('hidden');
+            statusText.textContent = `Processando (${this.carteiraPeriod})...`;
+            progressBar.style.width = '5%';
+        }
 
-        // Limpa a tabela e mostra o loading
-        tbody.innerHTML = ''; 
-        statusDiv.classList.remove('hidden');
-        statusText.textContent = "Conectando à API Sysled...";
-        progressBar.style.width = '5%';
+        // Se estivermos em modo Lista, limpa a tabela antes
+        if (tbody) tbody.innerHTML = '';
 
         try {
-            // 1. Busca dados da API se estiver vazia
+            // 1. Carregar dados da API (se necessário)
             if (this.sysledData.length === 0) {
                 await this.fetchSysledData();
             }
+            if (!this.sysledData || this.sysledData.length === 0) throw new Error("Sem dados.");
 
-            if (!this.sysledData || this.sysledData.length === 0) {
-                throw new Error("Nenhum dado retornado da API.");
-            }
-
-            // --- OTIMIZAÇÃO 1: INDEXAÇÃO ---
-            // Transforma o array gigante num Dicionário (Map) para acesso instantâneo
-            // Isso evita varrer o array 54 vezes. O acesso cai de O(N) para O(1).
-            statusText.textContent = "Indexando dados...";
+            // 2. Indexação (Map)
             const sysledMap = new Map();
-            // Agrupa os pedidos por ID do Parceiro
             this.sysledData.forEach(row => {
                 const pId = String(row.idParceiro);
                 if (!sysledMap.has(pId)) sysledMap.set(pId, []);
                 sysledMap.get(pId).push(row);
             });
 
-            // 2. Loop de Processamento
             const total = this.carteira.length;
-            let rowsBuffer = ''; // Buffer para guardar o HTML na memória
+            let combinedData = [];
 
-            if (total === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro na carteira.</td></tr>';
-                statusDiv.classList.add('hidden');
-                return;
-            }
-
+            // 3. Loop de Cálculo (Gera os dados filtrados)
             for (let i = 0; i < total; i++) {
                 const parceiro = this.carteira[i];
-                const currentCount = i + 1;
-
-                // Atualiza UI de progresso
-                const progressPercent = Math.round((currentCount / total) * 100);
-                statusText.textContent = `Calculando indicadores...`;
-                counterText.textContent = `${currentCount}/${total}`;
-                progressBar.style.width = `${progressPercent}%`;
-
-                // Pequena pausa (0ms) apenas para o navegador ter fôlego de pintar a barra de progresso
-                if (i % 2 === 0) await new Promise(resolve => setTimeout(resolve, 0));
-
-                // Cálculos
-                const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
                 
-                // Pega os dados direto do Mapa Indexado (MUITO RÁPIDO) em vez de filtrar tudo de novo
+                // UI Update (Frequência reduzida para performance)
+                if (i % 5 === 0 && counterText) {
+                    const progressPercent = Math.round(((i + 1) / total) * 100);
+                    counterText.textContent = `${i + 1}/${total}`;
+                    progressBar.style.width = `${progressPercent}%`;
+                    await new Promise(r => setTimeout(r, 0));
+                }
+
+                const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
                 const partnerApiData = sysledMap.get(String(parceiro.id_parceiro)) || [];
                 
-                // Usamos uma versão modificada do calculate que aceita os dados já filtrados
-                // Precisamos criar um pequeno adaptador ou passar direto para sua lógica
-                const kpis = this.calculateKPIsFromSubset(partnerApiData); 
+                // Calcula usando o período atual (this.carteiraPeriod)
+                const kpis = this.calculateKPIsFromSubset(partnerApiData, this.carteiraPeriod);
 
-                const item = {
+                combinedData.push({
                     ...parceiro,
                     vendas: arq ? arq.valorVendasTotal : 0,
                     comissoes: arq ? arq.rt_acumulado : 0,
                     ...kpis
-                };
-
-                // --- OTIMIZAÇÃO 2: BATCH RENDERING ---
-                // Acumula na string em vez de inserir no DOM
-                rowsBuffer += this.createCarteiraRow(item, i);
+                });
             }
 
-            // 3. INSERÇÃO ÚNICA (DOM REFLOW ÚNICO)
-            tbody.innerHTML = rowsBuffer;
+            // 4. Ordenação (aplica para ambos os modos para consistência)
+            if (this.carteiraSortColumn) {
+                combinedData.sort((a, b) => {
+                    let valA = a[this.carteiraSortColumn];
+                    let valB = b[this.carteiraSortColumn];
+
+                    if (this.carteiraSortColumn === 'tempo_sem_envio') {
+                        const parseDays = (val) => (!val || val === '-' || val === 'N/A') ? -1 : (parseInt(val.replace(/\D/g, '')) || 0);
+                        valA = parseDays(valA); valB = parseDays(valB);
+                    } else if (this.carteiraSortColumn === 'saude_carteira') {
+                        valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0;
+                    }
+                    else if (['projeto_fechado', 'projeto_enviado'].includes(this.carteiraSortColumn)) {
+                        valA = Number(valA) || 0; valB = Number(valB) || 0;
+                    }
+
+                    if (valA < valB) return this.carteiraSortDirection === 'asc' ? -1 : 1;
+                    if (valA > valB) return this.carteiraSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // 5. ATUALIZAÇÃO DA INTERFACE (O Pulo do Gato)
+            
+            if (this.carteiraViewMode === 'dashboard') {
+                // Se estiver na Dash, atualiza os gráficos e KPIs
+                this.renderDashboardCharts(combinedData);
+            } else if (tbody) {
+                // Se estiver na Lista, atualiza a tabela
+                const rowsBuffer = combinedData.map((item, index) => this.createCarteiraRow(item, index)).join('');
+                tbody.innerHTML = rowsBuffer || '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro encontrado.</td></tr>';
+            }
 
             // Finalização
-            statusText.textContent = "Concluído!";
-            setTimeout(() => {
-                statusDiv.classList.add('hidden');
-            }, 800);
+            if (statusText) statusText.textContent = "Concluído!";
+            if (statusDiv) setTimeout(() => statusDiv.classList.add('hidden'), 500);
 
         } catch (error) {
             console.error(error);
-            statusText.textContent = `Erro: ${error.message}`;
-            statusDiv.classList.replace('bg-blue-900/30', 'bg-red-900/30');
-            statusDiv.classList.replace('border-blue-500/50', 'border-red-500/50');
+            if (statusText) statusText.textContent = "Erro!";
         }
     }
 
@@ -2477,7 +2569,7 @@ class RelacionamentoApp {
      * NOVO MÉTODO AUXILIAR: Calcula KPIs recebendo já o array filtrado do parceiro.
      * Isso evita conflito com o método antigo calculatePartnerKPIs que fazia o filter internamente.
      */
-    calculateKPIsFromSubset(partnerRecords) {
+    calculateKPIsFromSubset(partnerRecords, period = 'mensal') {
         if (!partnerRecords || partnerRecords.length === 0) {
             return {
                 saude_carteira: '0%',
@@ -2490,33 +2582,49 @@ class RelacionamentoApp {
         }
 
         const hoje = new Date();
-        const mesAtual = hoje.getMonth();
-        const anoAtual = hoje.getFullYear();
+        // Zera as horas para evitar problemas de fuso na comparação simples
+        hoje.setHours(0,0,0,0);
 
-        const isMesAtual = (dateString) => {
-            if (!dateString) return false;
-            const d = new Date(dateString + 'T12:00:00');
-            return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
-        };
+        // Define a Data de Início baseada no filtro
+        let dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1); // Padrão: 1º dia do mês atual
 
-        // Fechados no Mês
-        const fechadosMes = partnerRecords.filter(p => 
-            String(p.pedidoStatus) === '9' && 
-            isMesAtual(p.dataFinalizacaoPrevenda)
-        ).length;
-
-        // Enviados no Mês
-        const enviadosMes = partnerRecords.filter(p => 
-            (p.versaoPedido === null || p.versaoPedido === 'null' || p.versaoPedido === '') && 
-            isMesAtual(p.dataEmissaoPrevenda)
-        ).length;
-
-        // Saúde Carteira
-        let saude = 0;
-        if (enviadosMes > 0) {
-            saude = (fechadosMes / enviadosMes) * 100;
+        if (period === 'trimestral') {
+            // Volta 2 meses (ex: Se estamos em Dezembro, pega Out, Nov, Dez)
+            dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
+        } else if (period === 'semestral') {
+            // Volta 5 meses (ex: Últimos 6 meses)
+            dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
         }
 
+        // Função auxiliar que verifica se a data está DENTRO do período selecionado
+        const isInPeriod = (dateString) => {
+            if (!dateString) return false;
+            const d = new Date(dateString + 'T12:00:00'); // Compensação de fuso
+            return d >= dataInicio && d <= new Date(); // Do inicio até hoje
+        };
+
+        // --- CÁLCULOS FILTRADOS PELO PERÍODO ---
+        
+        // Fechados no Período
+        const fechados = partnerRecords.filter(p => 
+            String(p.pedidoStatus) === '9' && 
+            isInPeriod(p.dataFinalizacaoPrevenda)
+        ).length;
+
+        // Enviados no Período
+        const enviados = partnerRecords.filter(p => 
+            (p.versaoPedido === null || p.versaoPedido === 'null' || p.versaoPedido === '') && 
+            isInPeriod(p.dataEmissaoPrevenda)
+        ).length;
+
+        // Saúde Carteira (Cálculo do Período)
+        let saude = 0;
+        if (enviados > 0) {
+            saude = (fechados / enviados) * 100;
+        }
+
+        // --- DATAS E TEMPO SEM ENVIO (Mantém lógica global para saber a última interação real) ---
+        // Nota: O tempo sem envio geralmente olha para a última interação ABSOLUTA, não só do período.
         const datasEnvio = partnerRecords
             .map(p => p.dataEmissaoPrevenda)
             .filter(d => d)
@@ -2538,8 +2646,8 @@ class RelacionamentoApp {
 
         return {
             saude_carteira: saude.toFixed(1) + '%',
-            projeto_fechado: fechadosMes, 
-            projeto_enviado: enviadosMes,
+            projeto_fechado: fechados, 
+            projeto_enviado: enviados,
             tempo_sem_envio: diasSemEnvio,
             data_envio: lastDataEnvio,
             data_fechamento: lastDataFechamento
@@ -2629,6 +2737,82 @@ class RelacionamentoApp {
             });
         }
 
+        const periodSelect = document.getElementById('carteira-period-select');
+        if (periodSelect) {
+            periodSelect.addEventListener('change', async (e) => {
+                this.carteiraPeriod = e.target.value; // Atualiza estado: 'mensal', 'trimestral' ou 'semestral'
+                await this.loadCarteiraWithProgress(); // Recalcula e redesenha
+            });
+        }
+
+        const btnLista = document.getElementById('btn-view-lista');
+        const btnDash = document.getElementById('btn-view-dashboard');
+
+        if (btnLista && btnDash) {
+            btnLista.addEventListener('click', () => {
+                if (this.carteiraViewMode !== 'lista') {
+                    this.carteiraViewMode = 'lista';
+                    this.renderCarteiraTab(); // Re-renderiza para mostrar a tabela
+                }
+            });
+
+            btnDash.addEventListener('click', () => {
+                if (this.carteiraViewMode !== 'dashboard') {
+                    this.carteiraViewMode = 'dashboard';
+                    this.renderCarteiraTab(); // Re-renderiza para mostrar o HTML da dashboard
+                }
+            });
+        }
+
+        const dropdownBtn = document.getElementById('period-dropdown-btn');
+        const dropdownMenu = document.getElementById('period-dropdown-menu');
+        const dropdownIcon = document.getElementById('period-dropdown-icon');
+        const options = document.querySelectorAll('.period-option');
+
+        if (dropdownBtn && dropdownMenu) {
+            // 1. Toggle (Abrir/Fechar)
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Impede que o clique feche imediatamente
+                dropdownMenu.classList.toggle('hidden');
+                
+                // Girar a setinha
+                if (dropdownMenu.classList.contains('hidden')) {
+                    dropdownIcon.style.transform = 'rotate(0deg)';
+                } else {
+                    dropdownIcon.style.transform = 'rotate(180deg)';
+                }
+            });
+
+            // 2. Selecionar Opção
+            options.forEach(opt => {
+                opt.addEventListener('click', async (e) => {
+                    const value = e.currentTarget.dataset.value;
+                    const label = e.currentTarget.innerText;
+
+                    // Atualiza o estado
+                    this.carteiraPeriod = value;
+                    
+                    // Atualiza o texto do botão
+                    document.getElementById('period-selected-text').innerText = label;
+
+                    // Fecha o menu
+                    dropdownMenu.classList.add('hidden');
+                    dropdownIcon.style.transform = 'rotate(0deg)';
+
+                    // Recarrega a tabela
+                    await this.loadCarteiraWithProgress();
+                });
+            });
+
+            // 3. Fechar ao clicar fora (UX Importante)
+            document.addEventListener('click', (e) => {
+                if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.add('hidden');
+                    if (dropdownIcon) dropdownIcon.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
+
         // Delegação de eventos para o botão Delete (elementos dinâmicos)
         if (container) {
             // Remove listeners antigos
@@ -2660,6 +2844,89 @@ class RelacionamentoApp {
         }
 
         
+    }
+
+    /**
+     * Desenha ou Atualiza os gráficos da Dashboard.
+     */
+    renderDashboardCharts(data) {
+        // 1. Destruir gráficos antigos se existirem (Limpeza de Memória/Canvas)
+        if (this.charts.funil) this.charts.funil.destroy();
+        if (this.charts.top5) this.charts.top5.destroy();
+
+        // 2. Cálculos dos Totais
+        const totalVendas = data.reduce((acc, curr) => acc + (curr.vendas || 0), 0);
+        const totalComissoes = data.reduce((acc, curr) => acc + (curr.comissoes || 0), 0);
+        
+        const parceirosAtivos = data.filter(p => parseFloat(p.saude_carteira) > 0);
+        const somaSaude = parceirosAtivos.reduce((acc, curr) => acc + parseFloat(curr.saude_carteira), 0);
+        const mediaSaude = parceirosAtivos.length > 0 ? (somaSaude / parceirosAtivos.length).toFixed(1) : 0;
+
+        // 3. Atualiza os Cards de KPI (Texto)
+        const elVendas = document.getElementById('kpi-vendas-total');
+        const elComissoes = document.getElementById('kpi-comissoes-total');
+        const elSaude = document.getElementById('kpi-saude-media');
+
+        // Verifica se os elementos existem antes de atualizar (segurança)
+        if (elVendas) elVendas.textContent = formatCurrency(totalVendas);
+        if (elComissoes) elComissoes.textContent = formatCurrency(totalComissoes);
+        if (elSaude) elSaude.textContent = mediaSaude + '%';
+
+        // 4. Preparar Gráfico Top 5
+        const ctxTop5 = document.getElementById('chartTop5');
+        if (ctxTop5) {
+            const top5 = [...data].sort((a, b) => (b.vendas || 0) - (a.vendas || 0)).slice(0, 5);
+            
+            this.charts.top5 = new Chart(ctxTop5, {
+                type: 'bar',
+                data: {
+                    labels: top5.map(p => p.nome.split(' ').slice(0, 2).join(' ')),
+                    datasets: [{
+                        label: 'Vendas (R$)',
+                        data: top5.map(p => p.vendas),
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { display: false }, ticks: { color: '#e5e7eb' } }
+                    }
+                }
+            });
+        }
+
+        // 5. Preparar Gráfico Funil
+        const ctxFunil = document.getElementById('chartFunil');
+        if (ctxFunil) {
+            const totalEnviados = data.reduce((acc, curr) => acc + (curr.projeto_enviado || 0), 0);
+            const totalFechados = data.reduce((acc, curr) => acc + (curr.projeto_fechado || 0), 0);
+
+            this.charts.funil = new Chart(ctxFunil, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Projetos Enviados', 'Projetos Fechados'],
+                    datasets: [{
+                        data: [totalEnviados, totalFechados],
+                        backgroundColor: ['rgba(99, 102, 241, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+                        borderColor: ['rgba(99, 102, 241, 1)', 'rgba(16, 185, 129, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb' } } }
+                }
+            });
+        }
     }
 
     injectCarteiraModal() {
