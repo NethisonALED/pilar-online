@@ -2391,37 +2391,65 @@ class RelacionamentoApp {
 
         if (this.carteiraViewMode === 'dashboard') {
             contentHtml = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
-                    <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-indigo-900/40 to-gray-900/40">
-                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Vendas (${this.carteiraPeriod})</h3>
-                        <p class="text-3xl font-bold text-white mt-2" id="kpi-vendas-total">R$ 0,00</p>
-                    </div>
-                    <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-emerald-900/40 to-gray-900/40">
-                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Total Comissões (Geral)</h3>
-                        <p class="text-3xl font-bold text-emerald-400 mt-2" id="kpi-comissoes-total">R$ 0,00</p>
-                    </div>
-                    <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-blue-900/40 to-gray-900/40">
-                        <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Saúde Média</h3>
-                        <p class="text-3xl font-bold text-blue-400 mt-2" id="kpi-saude-media">0%</p>
-                    </div>
-
-                    <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1 md:col-span-2">
-                        <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-blue-500">bar_chart</span>
-                            Top 5 Parceiros (Vendas)
-                        </h3>
-                        <div class="h-64">
-                            <canvas id="chartTop5"></canvas>
+                <div class="animate-fade-in space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-indigo-900/40 to-gray-900/40">
+                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total Vendas (${this.carteiraPeriod})</h3>
+                            <p class="text-3xl font-bold text-white mt-2" id="kpi-vendas-total">R$ 0,00</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-emerald-900/40 to-gray-900/40">
+                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total Comissões (Geral)</h3>
+                            <p class="text-3xl font-bold text-emerald-400 mt-2" id="kpi-comissoes-total">R$ 0,00</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-blue-900/40 to-gray-900/40">
+                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Saúde Média (Conv.)</h3>
+                            <p class="text-3xl font-bold text-blue-400 mt-2" id="kpi-saude-media">0%</p>
                         </div>
                     </div>
-                    
-                    <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1">
-                        <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-purple-500">filter_list</span>
-                            Funil de Projetos
-                        </h3>
-                        <div class="h-64">
-                            <canvas id="chartFunil"></canvas>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Ticket Médio</h3>
+                                <p class="text-2xl font-bold text-white mt-1" id="kpi-ticket-medio">R$ 0,00</p>
+                                <p class="text-xs text-gray-500 mt-1">Por projeto fechado neste período</p>
+                            </div>
+                            <div class="p-3 rounded-full bg-indigo-500/20 text-indigo-400">
+                                <span class="material-symbols-outlined text-3xl">payments</span>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest text-red-400">Risco de Churn (>60 dias)</h3>
+                                <p class="text-2xl font-bold text-white mt-1" id="kpi-churn-risk">0 Parceiros</p>
+                                <p class="text-xs text-gray-500 mt-1">Sem enviar projetos novos há 2 meses</p>
+                            </div>
+                            <div class="p-3 rounded-full bg-red-500/20 text-red-400">
+                                <span class="material-symbols-outlined text-3xl">warning</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1 md:col-span-2">
+                            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-blue-500">bar_chart</span>
+                                Top 5 Parceiros (Vendas)
+                            </h3>
+                            <div class="h-64">
+                                <canvas id="chartTop5"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1">
+                            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-purple-500">filter_list</span>
+                                Funil de Projetos
+                            </h3>
+                            <div class="h-64">
+                                <canvas id="chartFunil"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2866,44 +2894,69 @@ class RelacionamentoApp {
     }
 
     /**
-     * Desenha os gráficos na Dashboard.
+     * Desenha ou Atualiza os gráficos e KPIs da Dashboard.
      */
     renderDashboardCharts(data) {
+        // Limpeza dos gráficos antigos
         if (this.charts.funil) this.charts.funil.destroy();
         if (this.charts.top5) this.charts.top5.destroy();
 
-        // Totais
+        // --- CÁLCULOS DOS KPIS ---
+        
+        // 1. Totais Financeiros
         const totalVendas = data.reduce((acc, curr) => acc + (curr.vendas || 0), 0);
         const totalComissoes = data.reduce((acc, curr) => acc + (curr.comissoes || 0), 0);
         
-        // Saúde Média
+        // 2. Saúde Média
         const parceirosAtivos = data.filter(p => parseFloat(p.saude_carteira) > 0);
         const somaSaude = parceirosAtivos.reduce((acc, curr) => acc + parseFloat(curr.saude_carteira), 0);
         const mediaSaude = parceirosAtivos.length > 0 ? (somaSaude / parceirosAtivos.length).toFixed(1) : 0;
 
-        // Atualiza Cards com Labels Claros
-        const elVendas = document.getElementById('kpi-vendas-total');
-        // Se quiser mudar o título do card via JS ou garanta que mudou no HTML do renderCarteiraTab
-        // Exemplo: document.querySelector('#card-vendas-title').textContent = `Total Vendas (${this.carteiraPeriod})`;
+        // 3. Totais de Projetos (Para o Funil e Ticket Médio)
+        const totalEnviados = data.reduce((acc, curr) => acc + (curr.projeto_enviado || 0), 0);
+        const totalFechados = data.reduce((acc, curr) => acc + (curr.projeto_fechado || 0), 0);
 
-        const elComissoes = document.getElementById('kpi-comissoes-total');
-        const elSaude = document.getElementById('kpi-saude-media');
+        // 4. Ticket Médio (Vendas Totais / Projetos Fechados)
+        // Evita divisão por zero
+        const ticketMedio = totalFechados > 0 ? (totalVendas / totalFechados) : 0;
 
-        if (elVendas) elVendas.textContent = formatCurrency(totalVendas);
-        if (elComissoes) elComissoes.textContent = formatCurrency(totalComissoes);
-        if (elSaude) elSaude.textContent = mediaSaude + '%';
+        // 5. Risco de Churn (Parceiros com Tempo s/ Envio > 60 dias)
+        // Precisamos tratar o texto "145 dias" ou "-" para número
+        const churnRiskCount = data.filter(p => {
+            if (!p.tempo_sem_envio || p.tempo_sem_envio === '-' || p.tempo_sem_envio === 'N/A') return false; // Ou true se quiser considerar "Nunca enviou" como risco
+            const dias = parseInt(p.tempo_sem_envio.replace(/\D/g, ''));
+            return dias > 60;
+        }).length;
 
-        // Gráfico Top 5 (Agora mostra Vendas do Período)
+
+        // --- ATUALIZAÇÃO DO DOM ---
+        
+        const safeSetText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        };
+
+        safeSetText('kpi-vendas-total', formatCurrency(totalVendas));
+        safeSetText('kpi-comissoes-total', formatCurrency(totalComissoes));
+        safeSetText('kpi-saude-media', mediaSaude + '%');
+        
+        // Novos KPIs
+        safeSetText('kpi-ticket-medio', formatCurrency(ticketMedio));
+        safeSetText('kpi-churn-risk', `${churnRiskCount} Parceiros`);
+
+
+        // --- GRÁFICOS (Mantidos) ---
+
+        // Gráfico Top 5
         const ctxTop5 = document.getElementById('chartTop5');
         if (ctxTop5) {
             const top5 = [...data].sort((a, b) => (b.vendas || 0) - (a.vendas || 0)).slice(0, 5);
-            
             this.charts.top5 = new Chart(ctxTop5, {
                 type: 'bar',
                 data: {
                     labels: top5.map(p => p.nome.split(' ').slice(0, 2).join(' ')),
                     datasets: [{
-                        label: `Vendas - ${this.carteiraPeriod.charAt(0).toUpperCase() + this.carteiraPeriod.slice(1)} (R$)`, // Legenda dinâmica
+                        label: `Vendas (${this.carteiraPeriod})`,
                         data: top5.map(p => p.vendas),
                         backgroundColor: 'rgba(59, 130, 246, 0.7)',
                         borderColor: 'rgba(59, 130, 246, 1)',
@@ -2924,16 +2977,13 @@ class RelacionamentoApp {
             });
         }
 
-        // ... (Gráfico Funil mantém igual) ...
+        // Gráfico Funil
         const ctxFunil = document.getElementById('chartFunil');
         if (ctxFunil) {
-            const totalEnviados = data.reduce((acc, curr) => acc + (curr.projeto_enviado || 0), 0);
-            const totalFechados = data.reduce((acc, curr) => acc + (curr.projeto_fechado || 0), 0);
-
             this.charts.funil = new Chart(ctxFunil, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Projetos Enviados', 'Projetos Fechados'],
+                    labels: ['Enviados', 'Fechados'],
                     datasets: [{
                         data: [totalEnviados, totalFechados],
                         backgroundColor: ['rgba(99, 102, 241, 0.7)', 'rgba(16, 185, 129, 0.7)'],
@@ -2944,7 +2994,10 @@ class RelacionamentoApp {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb' } } }
+                    cutout: '70%', // Rosca mais fina, mais elegante
+                    plugins: { 
+                        legend: { position: 'right', labels: { color: '#e5e7eb', font: { size: 11 } } } 
+                    }
                 }
             });
         }
