@@ -23,7 +23,8 @@ class RelacionamentoApp {
         this.currentUserEmail = ''; // Para armazenar o email do usuário logado
         this.currentUserId = null; // Para armazenar o ID do usuário logado
         this.minPaymentValue = 300; // Valor mínimo para pagamento (padrão)
-        
+        this.carteiraSortDirection = 'desc'
+        this.carteiraSortColumn = 'tempo_sem_envio'
         // Flags para funcionalidades condicionais baseadas no schema do DB
         this.schemaHasRtAcumulado = false;
         this.schemaHasRtTotalPago = false;
@@ -2233,65 +2234,125 @@ class RelacionamentoApp {
     }
 
     /**
-     * Renderiza a aba de Carteira.
+     * Renderiza a aba de Carteira com Design Premium, Ordenação e Auto-Load.
      */
     async renderCarteiraTab() {
         const container = document.getElementById('carteira-container');
         if (!container) return;
 
-        // 1. Estrutura HTML (Controles + Área de Loading + Tabela)
+        // Injeta os modais se não existirem
+        if (!document.getElementById('carteira-mapping-modal')) this.injectCarteiraModal();
+        if (!document.getElementById('carteira-manual-modal')) this.injectCarteiraManualModal();
+
+        // Verifica se já temos dados da API carregados em memória
+        const hasApiData = this.sysledData && this.sysledData.length > 0;
+
+        // 1. PREPARAÇÃO DOS DADOS (Se houver dados, prepara para exibição, senão array vazio)
+        let combinedData = [];
+        if (hasApiData) {
+            combinedData = this.carteira.map(c => {
+                const arq = this.arquitetos.find(a => String(a.id) === String(c.id_parceiro));
+                const kpis = this.calculatePartnerKPIs(c.id_parceiro, this.sysledData);
+
+                return {
+                    ...c,
+                    vendas: arq ? arq.valorVendasTotal : 0,
+                    comissoes: arq ? arq.rt_acumulado : 0,
+                    ...kpis
+                };
+            });
+
+            // 2. LÓGICA DE ORDENAÇÃO
+            if (this.carteiraSortColumn) {
+                combinedData.sort((a, b) => {
+                    let valA = a[this.carteiraSortColumn];
+                    let valB = b[this.carteiraSortColumn];
+
+                    if (this.carteiraSortColumn === 'tempo_sem_envio') {
+                        const parseDays = (val) => {
+                            if (!val || val === '-' || val === 'N/A') return -1;
+                            return parseInt(val.replace(/\D/g, '')) || 0;
+                        };
+                        valA = parseDays(valA);
+                        valB = parseDays(valB);
+                    } 
+                    else if (this.carteiraSortColumn === 'saude_carteira') {
+                        valA = parseFloat(valA) || 0;
+                        valB = parseFloat(valB) || 0;
+                    }
+
+                    if (valA < valB) return this.carteiraSortDirection === 'asc' ? -1 : 1;
+                    if (valA > valB) return this.carteiraSortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+        }
+
+        // 3. RENDERIZAÇÃO (DESIGN PREMIUM FIXO)
+        const getSortIcon = (col) => {
+            if (this.carteiraSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
+            return this.carteiraSortDirection === 'asc' 
+                ? '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_less</span>' 
+                : '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_more</span>';
+        };
+
         const controlsHtml = `
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-white">Carteira de Parceiros</h2>
-                <div class="flex items-center gap-2">
-                    <button id="btn-refresh-carteira" class="btn-modal py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded cursor-pointer text-sm font-medium transition-colors">
-                        <span class="material-symbols-outlined align-middle text-lg mr-1">refresh</span>Atualizar Dados
+            <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros</h2>
+                <div class="flex items-center gap-3">
+                    <button id="btn-refresh-carteira" class="flex items-center gap-2 py-2.5 px-5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95">
+                        <span class="material-symbols-outlined text-lg">refresh</span>Atualizar
                     </button>
-                    <button id="btn-open-carteira-manual" class="btn-modal py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded cursor-pointer text-sm font-medium transition-colors">
-                        <span class="material-symbols-outlined align-middle text-lg mr-1">add_circle</span>Cadastrar Manualmente
+                    <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2.5 px-5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95">
+                        <span class="material-symbols-outlined text-lg">add_circle</span>Manual
                     </button>
-                    <label for="carteira-file-input" class="btn-modal py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded cursor-pointer text-sm font-medium transition-colors">
-                        <span class="material-symbols-outlined align-middle text-lg mr-1">upload_file</span>Importar Excel
+                    <label for="carteira-file-input" class="flex items-center gap-2 py-2.5 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg cursor-pointer text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95">
+                        <span class="material-symbols-outlined text-lg">upload_file</span>Importar
                     </label>
                     <input type="file" id="carteira-file-input" class="hidden" accept=".xlsx, .xls">
                 </div>
             </div>
-
-            <div id="carteira-loading-status" class="hidden mb-4 p-4 bg-blue-900/30 border border-blue-500/50 rounded-lg backdrop-blur-sm">
+            
+            <div id="carteira-loading-status" class="hidden mb-6 p-4 bg-gray-800/50 border border-gray-700 rounded-xl backdrop-blur-md">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined animate-spin text-blue-400">progress_activity</span>
-                        <span id="carteira-loading-text" class="text-blue-100 font-medium">Iniciando...</span>
+                        <span id="carteira-loading-text" class="text-gray-200 font-medium">Processando...</span>
                     </div>
-                    <span id="carteira-counter-text" class="text-sm text-blue-300 font-mono">0/${this.carteira.length}</span>
+                    <span id="carteira-counter-text" class="text-sm text-blue-300 font-mono font-bold">0/${this.carteira.length}</span>
                 </div>
-                <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-                    <div id="carteira-progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                <div class="w-full bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                    <div id="carteira-progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-100 shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="width: 0%"></div>
                 </div>
             </div>
         `;
 
+        // Gera as linhas SE tiver dados, senão deixa vazio (será preenchido pelo loader ou mensagem vazia)
+        const rows = combinedData.map(item => this.createCarteiraRow(item)).join(''); // Usa o helper createCarteiraRow que criamos antes
+
+        // Tabela com Design Fixo (Premium)
         const tableHtml = `
-            <div class="glass-card rounded-lg p-0 overflow-hidden">
-                <div class="overflow-x-auto max-h-[65vh]">
-                    <table class="w-full whitespace-nowrap">
-                        <thead class="sticky top-0 z-10 bg-background-dark">
+            <div class="glass-card rounded-xl p-0 overflow-hidden border border-white/10 shadow-2xl">
+                <div class="overflow-x-auto max-h-[70vh]">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-20 bg-[#1a1f2e] shadow-md">
                             <tr>
-                                <th>ID Parceiro</th>
-                                <th>Nome (Carteira)</th>
-                                <th class="text-right">Vendas Totais</th>
-                                <th class="text-right">Comissões</th>
-                                <th class="text-center">Saúde Carteira</th>
-                                <th class="text-center">Tempo s/ Envio</th>
-                                <th class="text-center">Proj. Fechado</th>
-                                <th class="text-center">Proj. Enviado</th>
-                                <th class="text-center">Data Envio</th>
-                                <th class="text-center">Data Fechamento</th>
-                                <th class="text-center">Ações</th>
+                                <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="id_parceiro">ID ${getSortIcon('id_parceiro')}</th>
+                                <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="nome">Nome ${getSortIcon('nome')}</th>
+                                <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Vendas</th>
+                                <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider">Comissões</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Saúde ${getSortIcon('saude_carteira')}</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="tempo_sem_envio">Tempo s/ Envio ${getSortIcon('tempo_sem_envio')}</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Fechados</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Enviados</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Envio</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Fechamento</th>
+                                <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="carteira-table-body">
-                            </tbody>
+                        <tbody id="carteira-table-body" class="divide-y divide-white/5">
+                            ${rows || '<tr><td colspan="11" class="text-center text-gray-400 py-12 text-lg">Aguardando dados...</td></tr>'}
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -2299,19 +2360,19 @@ class RelacionamentoApp {
 
         container.innerHTML = controlsHtml + tableHtml;
 
-        // Injeta os modais se não existirem
-        if (!document.getElementById('carteira-mapping-modal')) this.injectCarteiraModal();
-        if (!document.getElementById('carteira-manual-modal')) this.injectCarteiraManualModal();
-
-        // Configura eventos (botões, inputs)
         this.setupCarteiraEventListeners();
-
-        // INICIA O PROCESSO AUTOMÁTICO (Fetch + Cálculo com Progresso)
-        await this.loadCarteiraWithProgress();
+        
+        // AUTO-LOAD: Se não tiver dados da Sysled e tiver parceiros na carteira, inicia o carregamento automaticamente
+        if (!hasApiData && this.carteira.length > 0) {
+             await this.loadCarteiraWithProgress();
+        }
     }
-
     /**
      * Gerencia o fluxo de buscar dados e atualizar a tabela linha a linha.
+     */
+    /**
+     * Gerencia o fluxo de buscar dados e atualizar a tabela (VERSÃO OTIMIZADA).
+     * Evita travamentos usando Renderização em Lote e Indexação de Dados.
      */
     async loadCarteiraWithProgress() {
         const statusDiv = document.getElementById('carteira-loading-status');
@@ -2329,7 +2390,7 @@ class RelacionamentoApp {
         progressBar.style.width = '5%';
 
         try {
-            // 1. Busca dados da API se estiver vazia (Cenário de F5)
+            // 1. Busca dados da API se estiver vazia
             if (this.sysledData.length === 0) {
                 await this.fetchSysledData();
             }
@@ -2338,9 +2399,22 @@ class RelacionamentoApp {
                 throw new Error("Nenhum dado retornado da API.");
             }
 
-            // 2. Loop de Processamento com Atualização Visual
+            // --- OTIMIZAÇÃO 1: INDEXAÇÃO ---
+            // Transforma o array gigante num Dicionário (Map) para acesso instantâneo
+            // Isso evita varrer o array 54 vezes. O acesso cai de O(N) para O(1).
+            statusText.textContent = "Indexando dados...";
+            const sysledMap = new Map();
+            // Agrupa os pedidos por ID do Parceiro
+            this.sysledData.forEach(row => {
+                const pId = String(row.idParceiro);
+                if (!sysledMap.has(pId)) sysledMap.set(pId, []);
+                sysledMap.get(pId).push(row);
+            });
+
+            // 2. Loop de Processamento
             const total = this.carteira.length;
-            
+            let rowsBuffer = ''; // Buffer para guardar o HTML na memória
+
             if (total === 0) {
                 tbody.innerHTML = '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro na carteira.</td></tr>';
                 statusDiv.classList.add('hidden');
@@ -2357,14 +2431,18 @@ class RelacionamentoApp {
                 counterText.textContent = `${currentCount}/${total}`;
                 progressBar.style.width = `${progressPercent}%`;
 
-                // TRUQUE: Pequeno delay (5ms) para liberar a thread da UI e atualizar o texto na tela
-                await new Promise(resolve => setTimeout(resolve, 5));
+                // Pequena pausa (0ms) apenas para o navegador ter fôlego de pintar a barra de progresso
+                if (i % 2 === 0) await new Promise(resolve => setTimeout(resolve, 0));
 
                 // Cálculos
                 const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
                 
-                // Chama seu método de cálculo (memória)
-                const kpis = this.calculatePartnerKPIs(parceiro.id_parceiro, this.sysledData);
+                // Pega os dados direto do Mapa Indexado (MUITO RÁPIDO) em vez de filtrar tudo de novo
+                const partnerApiData = sysledMap.get(String(parceiro.id_parceiro)) || [];
+                
+                // Usamos uma versão modificada do calculate que aceita os dados já filtrados
+                // Precisamos criar um pequeno adaptador ou passar direto para sua lógica
+                const kpis = this.calculateKPIsFromSubset(partnerApiData); 
 
                 const item = {
                     ...parceiro,
@@ -2373,16 +2451,19 @@ class RelacionamentoApp {
                     ...kpis
                 };
 
-                // Cria o HTML da linha e insere
-                const rowHtml = this.createCarteiraRow(item);
-                tbody.insertAdjacentHTML('beforeend', rowHtml);
+                // --- OTIMIZAÇÃO 2: BATCH RENDERING ---
+                // Acumula na string em vez de inserir no DOM
+                rowsBuffer += this.createCarteiraRow(item, i);
             }
 
+            // 3. INSERÇÃO ÚNICA (DOM REFLOW ÚNICO)
+            tbody.innerHTML = rowsBuffer;
+
             // Finalização
-            statusText.textContent = "Atualização concluída!";
+            statusText.textContent = "Concluído!";
             setTimeout(() => {
                 statusDiv.classList.add('hidden');
-            }, 1500);
+            }, 800);
 
         } catch (error) {
             console.error(error);
@@ -2393,26 +2474,119 @@ class RelacionamentoApp {
     }
 
     /**
+     * NOVO MÉTODO AUXILIAR: Calcula KPIs recebendo já o array filtrado do parceiro.
+     * Isso evita conflito com o método antigo calculatePartnerKPIs que fazia o filter internamente.
+     */
+    calculateKPIsFromSubset(partnerRecords) {
+        if (!partnerRecords || partnerRecords.length === 0) {
+            return {
+                saude_carteira: '0%',
+                tempo_sem_envio: 'N/A',
+                projeto_fechado: 0,
+                projeto_enviado: 0,
+                data_envio: null,
+                data_fechamento: null
+            };
+        }
+
+        const hoje = new Date();
+        const mesAtual = hoje.getMonth();
+        const anoAtual = hoje.getFullYear();
+
+        const isMesAtual = (dateString) => {
+            if (!dateString) return false;
+            const d = new Date(dateString + 'T12:00:00');
+            return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+        };
+
+        // Fechados no Mês
+        const fechadosMes = partnerRecords.filter(p => 
+            String(p.pedidoStatus) === '9' && 
+            isMesAtual(p.dataFinalizacaoPrevenda)
+        ).length;
+
+        // Enviados no Mês
+        const enviadosMes = partnerRecords.filter(p => 
+            (p.versaoPedido === null || p.versaoPedido === 'null' || p.versaoPedido === '') && 
+            isMesAtual(p.dataEmissaoPrevenda)
+        ).length;
+
+        // Saúde Carteira
+        let saude = 0;
+        if (enviadosMes > 0) {
+            saude = (fechadosMes / enviadosMes) * 100;
+        }
+
+        const datasEnvio = partnerRecords
+            .map(p => p.dataEmissaoPrevenda)
+            .filter(d => d)
+            .sort((a, b) => new Date(b) - new Date(a));
+        const lastDataEnvio = datasEnvio.length > 0 ? datasEnvio[0] : null;
+
+        const datasFechamento = partnerRecords
+            .map(p => p.dataFinalizacaoPrevenda)
+            .filter(d => d)
+            .sort((a, b) => new Date(b) - new Date(a));
+        const lastDataFechamento = datasFechamento.length > 0 ? datasFechamento[0] : null;
+
+        let diasSemEnvio = '-';
+        if (lastDataEnvio) {
+            const ultimoEnvio = new Date(lastDataEnvio + 'T12:00:00');
+            const diffTime = Math.abs(hoje - ultimoEnvio);
+            diasSemEnvio = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + ' dias'; 
+        }
+
+        return {
+            saude_carteira: saude.toFixed(1) + '%',
+            projeto_fechado: fechadosMes, 
+            projeto_enviado: enviadosMes,
+            tempo_sem_envio: diasSemEnvio,
+            data_envio: lastDataEnvio,
+            data_fechamento: lastDataFechamento
+        };
+    }
+
+    /**
      * Helper para gerar o HTML de uma linha da tabela Carteira.
      */
-    createCarteiraRow(item) {
-        return `
-            <tr class="animate-fade-in">
-                <td>${item.id_parceiro}</td>
-                <td>${item.nome}</td>
-                <td class="text-right">${formatCurrency(item.vendas || 0)}</td>
-                <td class="text-right font-semibold text-primary">${formatCurrency(item.comissoes || 0)}</td>
-                
-                <td class="text-center font-medium ${parseFloat(item.saude_carteira) > 30 ? 'text-green-400' : 'text-gray-300'}">${item.saude_carteira}</td>
-                <td class="text-center">${item.tempo_sem_envio}</td>
-                <td class="text-center">${item.projeto_fechado}</td>
-                <td class="text-center">${item.projeto_enviado}</td>
-                <td class="text-center text-xs">${item.data_envio ? formatApiDateToBR(item.data_envio) : '-'}</td>
-                <td class="text-center text-xs">${item.data_fechamento ? formatApiDateToBR(item.data_fechamento) : '-'}</td>
+    createCarteiraRow(item, index = 0) {
+        // Lógica de cor para a Saúde
+        const saudeVal = parseFloat(item.saude_carteira);
+        let saudeClass = 'text-gray-500';
+        if (saudeVal > 50) saudeClass = 'bg-green-500/20 text-green-400';
+        else if (saudeVal > 0) saudeClass = 'bg-yellow-500/20 text-yellow-400';
 
-                <td class="text-center">
-                    <button class="delete-carteira-btn text-red-500 hover:text-red-400 transition-colors" title="Remover da Carteira" data-id="${item.id_parceiro}">
-                        <span class="material-symbols-outlined">delete</span>
+        // Lógica de cor para Tempo sem Envio
+        const dias = parseInt(item.tempo_sem_envio);
+        const tempoClass = (item.tempo_sem_envio !== '-' && !isNaN(dias) && dias > 60) ? 'text-red-400 font-bold' : 'text-gray-300';
+
+        return `
+            <tr class="group border-b border-white/5 hover:bg-white/5 transition-colors ${index % 2 === 0 ? 'bg-white/[0.02]' : ''} animate-fade-in">
+                <td class="py-4 px-4 text-gray-400 text-sm font-mono">${item.id_parceiro}</td>
+                <td class="py-4 px-4">
+                    <div class="font-medium text-white truncate max-w-[280px]" title="${item.nome}">${item.nome}</div>
+                </td>
+                <td class="py-4 px-4 text-right text-gray-300 font-medium">${formatCurrency(item.vendas || 0)}</td>
+                <td class="py-4 px-4 text-right font-bold text-emerald-400">${formatCurrency(item.comissoes || 0)}</td>
+                
+                <td class="py-4 px-4 text-center">
+                    <span class="inline-block py-1 px-2 rounded text-xs font-bold ${saudeClass}">
+                        ${item.saude_carteira}
+                    </span>
+                </td>
+                
+                <td class="py-4 px-4 text-center font-medium ${tempoClass}">
+                    ${item.tempo_sem_envio}
+                </td>
+                
+                <td class="py-4 px-4 text-center text-gray-300">${item.projeto_fechado}</td>
+                <td class="py-4 px-4 text-center text-gray-300">${item.projeto_enviado}</td>
+                <td class="py-4 px-4 text-center text-xs text-gray-400">${item.data_envio ? formatApiDateToBR(item.data_envio) : '-'}</td>
+                <td class="py-4 px-4 text-center text-xs text-gray-400">${item.data_fechamento ? formatApiDateToBR(item.data_fechamento) : '-'}</td>
+
+                <td class="py-4 px-4 text-center">
+                    <button class="delete-carteira-btn p-2 rounded-full hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-all" title="Remover" data-id="${item.id_parceiro}">
+                        <span class="material-symbols-outlined text-lg">delete</span>
                     </button>
                 </td>
             </tr>
@@ -2437,33 +2611,55 @@ class RelacionamentoApp {
         // Botão Manual
         const btnManual = document.getElementById('btn-open-carteira-manual');
         if (btnManual) {
-            btnManual.addEventListener('click', () => {
+            // Clone node para remover listeners antigos
+            const newBtn = btnManual.cloneNode(true);
+            btnManual.parentNode.replaceChild(newBtn, btnManual);
+            newBtn.addEventListener('click', () => {
                 document.getElementById('carteira-manual-modal').classList.add('active');
             });
         }
-
         // Botão Atualizar (Refresh)
         const btnRefresh = document.getElementById('btn-refresh-carteira');
         if (btnRefresh) {
-            btnRefresh.addEventListener('click', async () => {
-                this.sysledData = []; // Força limpar para obrigar nova busca na API
+            const newRefresh = btnRefresh.cloneNode(true);
+            btnRefresh.parentNode.replaceChild(newRefresh, btnRefresh);
+            newRefresh.addEventListener('click', async () => {
+                this.sysledData = [];
                 await this.loadCarteiraWithProgress();
             });
         }
 
         // Delegação de eventos para o botão Delete (elementos dinâmicos)
         if (container) {
-            // Remove listener anterior se houver (para não acumular calls se renderizar 2x)
-            container.removeEventListener('click', this._carteiraClickListener); 
-            
-            this._carteiraClickListener = (e) => {
-                const btn = e.target.closest('.delete-carteira-btn');
-                if (btn) {
-                    this.deleteCarteiraParceiro(btn.dataset.id);
-                }
-            };
-            container.addEventListener('click', this._carteiraClickListener);
+            // Remove listeners antigos
+            const headers = container.querySelectorAll('.sort-trigger');
+            headers.forEach(th => {
+                th.addEventListener('click', (e) => {
+                    const col = e.currentTarget.dataset.col;
+                    
+                    // Alterna direção ou muda coluna
+                    if (this.carteiraSortColumn === col) {
+                        this.carteiraSortDirection = this.carteiraSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        this.carteiraSortColumn = col;
+                        this.carteiraSortDirection = 'asc'; // Novo sort começa sempre ascendente (ou mude para desc se preferir)
+                        
+                        // Exceção: Para 'tempo_sem_envio' geralmente queremos ver os maiores (piores) primeiro
+                        if (col === 'tempo_sem_envio') this.carteiraSortDirection = 'desc'; 
+                    }
+                    this.renderCarteiraTab(); // Re-renderiza com a nova ordem
+                });
+            });
+
+            // Delete Buttons
+            container.querySelectorAll('.delete-carteira-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    this.deleteCarteiraParceiro(e.currentTarget.dataset.id);
+                });
+            });
         }
+
+        
     }
 
     injectCarteiraModal() {
