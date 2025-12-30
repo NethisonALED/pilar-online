@@ -27,6 +27,8 @@ class RelacionamentoApp {
         this.carteiraSortColumn = 'tempo_sem_envio'
         this.carteiraPeriod = 'mensal'
         this.carteiraViewMode = 'lista';
+        this.CACHE_KEY = 'sysled_api_data';
+        this.CACHE_DURATION = 10 * 60 * 1000;
         this.charts = {};
         // Flags para funcionalidades condicionais baseadas no schema do DB
         this.schemaHasRtAcumulado = false;
@@ -1611,33 +1613,37 @@ class RelacionamentoApp {
         }
     }
     
-    async fetchSysledData() {
+    /**
+     * Busca dados da API (Apenas busca, não gerencia cache pesado).
+     */
+    async fetchSysledData(forceRefresh = false) {
         const authToken = this.sysledAuthToken;
-
         const container = document.getElementById('sysled-table-container');
 
         if (!authToken) {
-            alert('Chave da API não configurada no sistema.');
-            if (container) container.innerHTML = `<p class="text-center text-red-400 py-8">Chave da API não configurada.</p>`;
+            alert('Chave da API não configurada.');
             return;
         }
 
-        container.innerHTML = `<p class="text-center text-gray-400 py-8">Buscando dados... <span class="material-symbols-outlined animate-spin align-middle">progress_activity</span></p>`;
+        if (container) {
+            container.innerHTML = `<p class="text-center text-gray-400 py-8">Buscando dados... <span class="material-symbols-outlined animate-spin align-middle">progress_activity</span></p>`;
+        }
+
         try {
             const response = await fetch(this.sysledApiUrl, { headers: { 'Authorization': authToken } });
+            
             if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    throw new Error(`Erro de autorização (${response.status}). Verifique se a Chave da API está correta.`);
-                }
                 throw new Error(`Erro na API: ${response.statusText} (${response.status})`);
             }
+            
             this.sysledData = await response.json();
-            await this.logAction("Atualizou os dados da consulta Sysled.");
+            await this.logAction("Atualizou os dados da consulta Sysled (API).");
+
         } catch (error) {
             console.error("Erro na API Sysled:", error);
-            container.innerHTML = `<p class="text-center text-red-400 py-8">${error.message}</p>`;
+            if (container) container.innerHTML = `<p class="text-center text-red-400 py-8">${error.message}</p>`;
         } finally {
-            this.renderSysledTable();
+            if (container) this.renderSysledTable();
         }
     }
 
@@ -2243,92 +2249,17 @@ class RelacionamentoApp {
         const container = document.getElementById('carteira-container');
         if (!container) return;
 
-        // Injeta os modais se não existirem
         if (!document.getElementById('carteira-mapping-modal')) this.injectCarteiraModal();
         if (!document.getElementById('carteira-manual-modal')) this.injectCarteiraManualModal();
 
-        // Verifica se já temos dados da API carregados em memória
-        const hasApiData = this.sysledData && this.sysledData.length > 0;
-
-        // 1. PREPARAÇÃO DOS DADOS
-        let combinedData = [];
-        if (hasApiData) {
-            // --- CORREÇÃO AQUI: Indexação e Uso do Novo Cálculo ---
-            
-            // 1. Cria o Índice (Map) igual fazemos no loadCarteiraWithProgress
-            const sysledMap = new Map();
-            this.sysledData.forEach(row => {
-                const pId = String(row.idParceiro);
-                if (!sysledMap.has(pId)) sysledMap.set(pId, []);
-                sysledMap.get(pId).push(row);
-            });
-
-            // 2. Mapeia usando calculateKPIsFromSubset (que respeita o filtro de data)
-            combinedData = this.carteira.map(c => {
-                const arq = this.arquitetos.find(a => String(a.id) === String(c.id_parceiro));
-                const partnerApiData = sysledMap.get(String(c.id_parceiro)) || [];
-                
-                // Usa a função correta que calcula vendas do período
-                const kpis = this.calculateKPIsFromSubset(partnerApiData, this.carteiraPeriod);
-
-                return {
-                    ...c,
-                    // CORREÇÃO: Pega o valor calculado do período, não o total do banco
-                    vendas: kpis.vendas_periodo, 
-                    comissoes: arq ? arq.rt_acumulado : 0,
-                    ...kpis
-                };
-            });
-
-            // 2. LÓGICA DE ORDENAÇÃO
-            if (this.carteiraSortColumn) {
-                combinedData.sort((a, b) => {
-                    let valA = a[this.carteiraSortColumn];
-                    let valB = b[this.carteiraSortColumn];
-
-                    if (this.carteiraSortColumn === 'tempo_sem_envio') {
-                        const parseDays = (val) => {
-                            if (!val || val === '-' || val === 'N/A') return -1;
-                            return parseInt(val.replace(/\D/g, '')) || 0;
-                        };
-                        valA = parseDays(valA);
-                        valB = parseDays(valB);
-                    } else if (this.carteiraSortColumn === 'saude_carteira') {
-                        valA = parseFloat(valA) || 0;
-                        valB = parseFloat(valB) || 0;
-                    }
-                    else if (['projeto_fechado', 'projeto_enviado', 'vendas', 'comissoes'].includes(this.carteiraSortColumn)) {
-                        valA = Number(valA) || 0;
-                        valB = Number(valB) || 0;
-                    }
-
-                    if (valA < valB) return this.carteiraSortDirection === 'asc' ? -1 : 1;
-                    if (valA > valB) return this.carteiraSortDirection === 'asc' ? 1 : -1;
-                    return 0;
-                });
-            }
-        }
-
-        // 3. RENDERIZAÇÃO (MANTÉM IGUAL)
-        const getSortIcon = (col) => {
-            if (this.carteiraSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
-            return this.carteiraSortDirection === 'asc' 
-                ? '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_less</span>' 
-                : '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_more</span>';
-        };
-
-        const labelMap = {
-            'mensal': 'Análise Mensal',
-            'trimestral': 'Análise Trimestral',
-            'semestral': 'Análise Semestral'
-        };
+        // 1. RENDERIZAÇÃO DA ESTRUTURA (CONTROLS + PLACEHOLDER DO CONTEÚDO)
+        const labelMap = { 'mensal': 'Análise Mensal', 'trimestral': 'Análise Trimestral', 'semestral': 'Análise Semestral' };
         const currentLabel = labelMap[this.carteiraPeriod] || 'Análise Mensal';
 
         const controlsHtml = `
             <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <div class="flex items-center gap-4">
                     <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros</h2>
-                    
                     <div class="relative" id="custom-period-dropdown">
                         <button id="period-dropdown-btn" class="flex items-center justify-between w-48 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white text-sm font-medium rounded-lg pl-4 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all shadow-lg backdrop-blur-sm">
                             <span id="period-selected-text">${currentLabel}</span>
@@ -2343,29 +2274,16 @@ class RelacionamentoApp {
                         </div>
                     </div>
                 </div>
-
                 <div class="flex items-center gap-3">
                     <div class="flex bg-gray-800/50 rounded-lg p-1 border border-white/10">
-                        <button id="btn-view-lista" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === 'lista' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}">
-                            <span class="material-symbols-outlined text-lg mr-1">list</span>Lista
-                        </button>
-                        <button id="btn-view-dashboard" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}">
-                            <span class="material-symbols-outlined text-lg mr-1">monitoring</span>Dash
-                        </button>
+                        <button id="btn-view-lista" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === 'lista' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}"><span class="material-symbols-outlined text-lg mr-1">list</span>Lista</button>
+                        <button id="btn-view-dashboard" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-white hover:bg-white/5'}"><span class="material-symbols-outlined text-lg mr-1">monitoring</span>Dash</button>
                     </div>
-
                     <div class="h-6 w-px bg-white/10 mx-1"></div> 
-                    <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar">
-                        <span class="material-symbols-outlined text-lg">refresh</span>
-                    </button>
-                    
+                    <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar"><span class="material-symbols-outlined text-lg">refresh</span></button>
                     <div class="flex items-center gap-2">
-                        <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95">
-                            <span class="material-symbols-outlined text-lg">add</span>Manual
-                        </button>
-                        <label for="carteira-file-input" class="flex items-center gap-2 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg cursor-pointer text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95">
-                            <span class="material-symbols-outlined text-lg">upload</span>Importar
-                        </label>
+                        <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95"><span class="material-symbols-outlined text-lg">add</span>Manual</button>
+                        <label for="carteira-file-input" class="flex items-center gap-2 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg cursor-pointer text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95"><span class="material-symbols-outlined text-lg">upload</span>Importar</label>
                         <input type="file" id="carteira-file-input" class="hidden" accept=".xlsx, .xls">
                     </div>
                 </div>
@@ -2385,11 +2303,17 @@ class RelacionamentoApp {
             </div>
         `;
 
-        const rows = combinedData.map((item, index) => this.createCarteiraRow(item, index)).join('');
+        const getSortIcon = (col) => {
+            if (this.carteiraSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
+            return this.carteiraSortDirection === 'asc' 
+                ? '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_less</span>' 
+                : '<span class="material-symbols-outlined text-xs text-primary align-middle ml-1">expand_more</span>';
+        };
 
         let contentHtml = '';
 
         if (this.carteiraViewMode === 'dashboard') {
+            // MODO DASHBOARD (HTML ESTRUTURAL APENAS, DADOS VIRÃO VIA JS)
             contentHtml = `
                 <div class="animate-fade-in space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -2406,7 +2330,6 @@ class RelacionamentoApp {
                             <p class="text-3xl font-bold text-blue-400 mt-2" id="kpi-saude-media">0%</p>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
                             <div>
@@ -2414,47 +2337,31 @@ class RelacionamentoApp {
                                 <p class="text-2xl font-bold text-white mt-1" id="kpi-ticket-medio">R$ 0,00</p>
                                 <p class="text-xs text-gray-500 mt-1">Por projeto fechado neste período</p>
                             </div>
-                            <div class="p-3 rounded-full bg-indigo-500/20 text-indigo-400">
-                                <span class="material-symbols-outlined text-3xl">payments</span>
-                            </div>
+                            <div class="p-3 rounded-full bg-indigo-500/20 text-indigo-400"><span class="material-symbols-outlined text-3xl">payments</span></div>
                         </div>
-
                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
                             <div>
-                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest text-red-400">Risco de Churn (>90 dias)</h3>
+                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest text-yellow-400">Risco de Churn (>90 dias)</h3>
                                 <p class="text-2xl font-bold text-white mt-1" id="kpi-churn-risk">0 Parceiros</p>
                                 <p class="text-xs text-gray-500 mt-1">Sem enviar projetos novos há 3 meses</p>
                             </div>
-                            <div class="p-3 rounded-full bg-red-500/20 text-red-400">
-                                <span class="material-symbols-outlined text-3xl">warning</span>
-                            </div>
+                            <div class="p-3 rounded-full bg-yellow-500/20 text-yellow-400"><span class="material-symbols-outlined text-3xl">warning</span></div>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1 md:col-span-2">
-                            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-blue-500">bar_chart</span>
-                                Top 5 Parceiros (Vendas)
-                            </h3>
-                            <div class="h-64">
-                                <canvas id="chartTop5"></canvas>
-                            </div>
+                            <h3 class="text-white font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-blue-500">bar_chart</span>Top 5 Parceiros (Vendas)</h3>
+                            <div class="h-64"><canvas id="chartTop5"></canvas></div>
                         </div>
-                        
                         <div class="glass-card p-5 rounded-xl border border-white/10 col-span-1">
-                            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-purple-500">filter_list</span>
-                                Funil de Projetos
-                            </h3>
-                            <div class="h-64">
-                                <canvas id="chartFunil"></canvas>
-                            </div>
+                            <h3 class="text-white font-bold mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-purple-500">filter_list</span>Funil de Projetos</h3>
+                            <div class="h-64"><canvas id="chartFunil"></canvas></div>
                         </div>
                     </div>
                 </div>
             `;
         } else {
+            // MODO LISTA (Tabela)
             contentHtml = `
                 <div class="glass-card rounded-xl p-0 overflow-hidden border border-white/10 shadow-2xl animate-fade-in">
                     <div class="overflow-x-auto max-h-[70vh]">
@@ -2475,8 +2382,7 @@ class RelacionamentoApp {
                                 </tr>
                             </thead>
                             <tbody id="carteira-table-body" class="divide-y divide-white/5">
-                                ${rows || '<tr><td colspan="11" class="text-center text-gray-400 py-12 text-lg">Aguardando dados...</td></tr>'}
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -2487,47 +2393,67 @@ class RelacionamentoApp {
 
         this.setupCarteiraEventListeners();
 
-        if (this.carteiraViewMode === 'dashboard' && combinedData.length > 0) {
-            this.renderDashboardCharts(combinedData);
-        }
-        
-        // AUTO-LOAD:
-        // Se NÃO tiver dados da API, chama o carregamento que busca e recalcula
-        if (!hasApiData && this.carteira.length > 0) {
-             await this.loadCarteiraWithProgress();
-        }
+        // 2. INICIA O CARREGAMENTO (Isso vai popular a tabela ou os gráficos)
+        // Isso resolve o problema de dados antigos, pois o loadCarteira sempre busca o dado certo (cache ou API)
+        await this.loadCarteiraWithProgress();
     }
     
 
     /**
-     * Processa os dados e atualiza a interface (Tabela OU Dashboard).
+     * Processa os dados e atualiza a interface com CACHE INTELIGENTE DE RESULTADOS.
+     * Evita QuotaExceededError salvando apenas o resultado final processado.
      */
-    async loadCarteiraWithProgress() {
-        // Pega referências iniciais
+    async loadCarteiraWithProgress(forceRefresh = false) {
+        // Declarações como LET para permitir reatribuição se necessário
         let statusDiv = document.getElementById('carteira-loading-status');
         let statusText = document.getElementById('carteira-loading-text');
         let progressBar = document.getElementById('carteira-progress-bar');
         let counterText = document.getElementById('carteira-counter-text');
-        let tbody = document.getElementById('carteira-table-body');
+        let tbody = document.getElementById('carteira-table-body'); // Agora é LET
+
+        // Chave única para o cache baseada no período atual (ex: mensal, trimestral)
+        const CACHE_KEY_CALCULATED = `carteira_calc_${this.carteiraPeriod}`;
+        const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
+
+        // 1. TENTATIVA DE USAR CACHE DE RESULTADO (FAST PATH)
+        if (!forceRefresh) {
+            try {
+                const cachedCalc = localStorage.getItem(CACHE_KEY_CALCULATED);
+                if (cachedCalc) {
+                    const { timestamp, data } = JSON.parse(cachedCalc);
+                    // Verifica se o cache é válido (< 10 min)
+                    if (Date.now() - timestamp < CACHE_DURATION) {
+                        // Se recuperou do cache, pula a API e o loop pesado
+                        this.updateInterfaceWithData(data);
+                        return; 
+                    }
+                }
+            } catch (e) {
+                console.warn("Cache inválido ou erro ao ler:", e);
+            }
+        }
+
+        // --- CAMINHO LENTO (BUSCA API + CÁLCULO) ---
 
         if (statusDiv) {
             statusDiv.classList.remove('hidden');
-            if(statusText) statusText.textContent = `Processando (${this.carteiraPeriod})...`;
+            if(statusText) statusText.textContent = `Buscando dados (${this.carteiraPeriod})...`;
             if(progressBar) progressBar.style.width = '5%';
         }
-
-        // Se estivermos em modo Lista, limpa a tabela antes
+        
+        // Limpa a tabela visualmente enquanto carrega
         if (tbody) tbody.innerHTML = '';
 
         try {
-            // 1. Carregar dados da API (se necessário)
-            if (this.sysledData.length === 0) {
-                if(statusText) statusText.textContent = "Buscando dados da API...";
-                await this.fetchSysledData();
+            // 2. Busca dados brutos da API (Sempre busca se não usou o cache leve acima)
+            // Note que fetchSysledData NÃO tenta mais salvar no localStorage para evitar o erro de Cota
+            if (this.sysledData.length === 0 || forceRefresh) {
+                await this.fetchSysledData(forceRefresh);
             }
+            
             if (!this.sysledData || this.sysledData.length === 0) throw new Error("Sem dados.");
 
-            // 2. Indexação (Map)
+            // 3. Indexação
             const sysledMap = new Map();
             this.sysledData.forEach(row => {
                 const pId = String(row.idParceiro);
@@ -2538,27 +2464,25 @@ class RelacionamentoApp {
             const total = this.carteira.length;
             let combinedData = [];
 
-            // 3. Loop de Cálculo
+            // 4. Loop de Cálculo
             for (let i = 0; i < total; i++) {
                 const parceiro = this.carteira[i];
                 
-                // UI Update (Frequência reduzida para performance)
+                // UI Update (Recaptura elementos para evitar erro se trocar de aba)
                 if (i % 5 === 0) {
-                    // RECAPTURA ELEMENTOS (Caso o usuário tenha trocado de aba no meio do loop)
                     counterText = document.getElementById('carteira-counter-text');
                     progressBar = document.getElementById('carteira-progress-bar');
-                    
+                    statusText = document.getElementById('carteira-loading-text'); // Recaptura statusText
+
+                    if(statusText) statusText.textContent = "Calculando indicadores...";
                     if (counterText) counterText.textContent = `${i + 1}/${total}`;
-                    if (progressBar) {
-                        const progressPercent = Math.round(((i + 1) / total) * 100);
-                        progressBar.style.width = `${progressPercent}%`;
-                    }
+                    if (progressBar) progressBar.style.width = `${Math.round(((i + 1) / total) * 100)}%`;
+                    
                     await new Promise(r => setTimeout(r, 0));
                 }
 
                 const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
                 const partnerApiData = sysledMap.get(String(parceiro.id_parceiro)) || [];
-                
                 const kpis = this.calculateKPIsFromSubset(partnerApiData, this.carteiraPeriod);
 
                 combinedData.push({
@@ -2569,59 +2493,85 @@ class RelacionamentoApp {
                 });
             }
 
-            // 4. Ordenação
-            if (this.carteiraSortColumn) {
-                combinedData.sort((a, b) => {
-                    let valA = a[this.carteiraSortColumn];
-                    let valB = b[this.carteiraSortColumn];
+            // 5. Ordenação Padrão antes de salvar
+            this.applySort(combinedData);
 
-                    if (this.carteiraSortColumn === 'tempo_sem_envio') {
-                        const parseDays = (val) => (!val || val === '-' || val === 'N/A') ? -1 : (parseInt(val.replace(/\D/g, '')) || 0);
-                        valA = parseDays(valA); valB = parseDays(valB);
-                    } else if (this.carteiraSortColumn === 'saude_carteira') {
-                        valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0;
-                    }
-                    else if (['projeto_fechado', 'projeto_enviado', 'vendas', 'comissoes'].includes(this.carteiraSortColumn)) {
-                        valA = Number(valA) || 0; valB = Number(valB) || 0;
-                    }
-
-                    if (valA < valB) return this.carteiraSortDirection === 'asc' ? -1 : 1;
-                    if (valA > valB) return this.carteiraSortDirection === 'asc' ? 1 : -1;
-                    return 0;
-                });
+            // 6. SALVA O RESULTADO CALCULADO (Cache Leve)
+            // Isso ocupa muito pouco espaço (alguns KBs) e resolve o problema da cota
+            try {
+                localStorage.setItem(CACHE_KEY_CALCULATED, JSON.stringify({
+                    timestamp: Date.now(),
+                    data: combinedData
+                }));
+                console.log("[Cache View] Resultado calculado salvo com sucesso.");
+            } catch (e) {
+                console.warn("Não foi possível salvar o cache calculado:", e);
             }
 
-            // 5. ATUALIZAÇÃO DA INTERFACE
-            
-            // Recaptura o tbody pois ele pode ter sido destruído se fomos para Dash
-            tbody = document.getElementById('carteira-table-body');
-            
-            if (this.carteiraViewMode === 'dashboard') {
-                this.renderDashboardCharts(combinedData);
-            } else if (tbody) {
-                const rowsBuffer = combinedData.map((item, index) => this.createCarteiraRow(item, index)).join('');
-                tbody.innerHTML = rowsBuffer || '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro encontrado.</td></tr>';
-            }
+            // 7. Renderiza na tela
+            this.updateInterfaceWithData(combinedData);
 
-            // Finalização Segura (Procura os elementos novamente para garantir que escondemos o certo)
+            // Finalização UI
             statusText = document.getElementById('carteira-loading-text');
             statusDiv = document.getElementById('carteira-loading-status');
             
             if (statusText) statusText.textContent = "Concluído!";
-            if (statusDiv) {
-                // Pequeno delay para usuário ver o 100%
-                setTimeout(() => {
-                    // Verifica novamente se o elemento ainda existe antes de manipular classe
-                    const divRef = document.getElementById('carteira-loading-status');
-                    if(divRef) divRef.classList.add('hidden');
-                }, 500);
-            }
+            if (statusDiv) setTimeout(() => { 
+                const d = document.getElementById('carteira-loading-status'); 
+                if(d) d.classList.add('hidden'); 
+            }, 500);
 
         } catch (error) {
             console.error(error);
-            statusText = document.getElementById('carteira-loading-text');
-            if (statusText) statusText.textContent = "Erro!";
+            statusText = document.getElementById('carteira-loading-text'); // Recaptura para segurança
+            if(statusText) statusText.textContent = "Erro!";
         }
+    }
+
+    /**
+     * Helper novo: Aplica a ordenação atual no array de dados
+     */
+    applySort(data) {
+        if (this.carteiraSortColumn) {
+            data.sort((a, b) => {
+                let valA = a[this.carteiraSortColumn];
+                let valB = b[this.carteiraSortColumn];
+
+                if (this.carteiraSortColumn === 'tempo_sem_envio') {
+                    const parseDays = (val) => (!val || val === '-' || val === 'N/A') ? -1 : (parseInt(val.replace(/\D/g, '')) || 0);
+                    valA = parseDays(valA); valB = parseDays(valB);
+                } else if (['saude_carteira', 'projeto_fechado', 'projeto_enviado', 'vendas', 'comissoes'].includes(this.carteiraSortColumn)) {
+                    valA = parseFloat(String(valA).replace('%','')) || 0; 
+                    valB = parseFloat(String(valB).replace('%','')) || 0;
+                }
+
+                if (valA < valB) return this.carteiraSortDirection === 'asc' ? -1 : 1;
+                if (valA > valB) return this.carteiraSortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+    }
+
+    /**
+     * Helper novo: Atualiza o HTML (Tabela ou Dash) com os dados prontos
+     */
+    updateInterfaceWithData(data) {
+        // Garante ordenação caso tenha vindo do cache sem ordem ou ordem mudou
+        this.applySort(data);
+
+        if (this.carteiraViewMode === 'dashboard') {
+            this.renderDashboardCharts(data);
+        } else {
+            const tbody = document.getElementById('carteira-table-body');
+            if (tbody) {
+                const rowsBuffer = data.map((item, index) => this.createCarteiraRow(item, index)).join('');
+                tbody.innerHTML = rowsBuffer || '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro encontrado.</td></tr>';
+            }
+        }
+        
+        // Esconde loading se estiver visível (caso cache hit)
+        const statusDiv = document.getElementById('carteira-loading-status');
+        if(statusDiv) statusDiv.classList.add('hidden');
     }
 
     /**
@@ -2791,8 +2741,7 @@ class RelacionamentoApp {
             const newRefresh = btnRefresh.cloneNode(true);
             btnRefresh.parentNode.replaceChild(newRefresh, btnRefresh);
             newRefresh.addEventListener('click', async () => {
-                this.sysledData = [];
-                await this.loadCarteiraWithProgress();
+                await this.loadCarteiraWithProgress(true);
             });
         }
 
