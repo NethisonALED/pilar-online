@@ -10,7 +10,8 @@ body {
 }
 
 .menu-link.active {
-    background-color: #10b981; /* emerald-500 */
+    background-color: #10b981;
+    /* emerald-500 */
     color: #ffffff;
 }
 
@@ -42,33 +43,39 @@ body {
 }
 
 .file-input {
-    display: none; /* Oculta o input de arquivo nativo */
+    display: none;
+    /* Oculta o input de arquivo nativo */
 }
 
 /* Estilos para Modais */
 .modal {
-    display: none; /* Oculto por padrão */
+    display: none;
+    /* Oculto por padrão */
 }
 
 .modal.flex {
-    display: flex; /* Exibe o modal quando a classe 'flex' é adicionada via JS */
+    display: flex;
+    /* Exibe o modal quando a classe 'flex' é adicionada via JS */
 }
 
 /* Esconde containers de autenticação e app por padrão (gerenciado por JS) */
-#auth-container, #app-container {
+#auth-container,
+#app-container {
     display: none;
 }
 
 /* Estilos para Sidebar Recolhida */
 .app-sidebar.collapsed {
-    width: 5rem; /* 80px */
+    width: 5rem;
+    /* 80px */
 }
 
 .app-sidebar.collapsed .sidebar-header span,
 .app-sidebar.collapsed .menu-link span,
 .app-sidebar.collapsed .menu-title {
     display: none;
-    opacity: 0; /* Garante que o texto não apareça durante a transição */
+    opacity: 0;
+    /* Garante que o texto não apareça durante a transição */
 }
 
 .app-sidebar.collapsed .sidebar-header {
@@ -77,19 +84,26 @@ body {
 
 .app-sidebar.collapsed .sidebar-header a,
 .app-sidebar.collapsed .menu-link {
-    justify-content: center; /* Centraliza ícones quando recolhido */
+    justify-content: center;
+    /* Centraliza ícones quando recolhido */
 }
 
 #sidebar-toggle-btn i {
-    transition: transform 0.3s ease-in-out; /* Transição para a seta do toggle */
+    transition: transform 0.3s ease-in-out;
+    /* Transição para a seta do toggle */
 }
 
 .app-sidebar.collapsed #sidebar-toggle-btn i {
-    transform: rotate(180deg); /* Gira a seta quando recolhido */
+    transform: rotate(180deg);
+    /* Gira a seta quando recolhido */
 }
 
 /* CSS extraído do index.html */
-.glass-effect, .glass-card, .glass-content, .glass-sidebar, .glass-modal {
+.glass-effect,
+.glass-card,
+.glass-content,
+.glass-sidebar,
+.glass-modal {
     background: rgba(18, 32, 23, 0.6);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     backdrop-filter: blur(16px) saturate(180%);
@@ -97,8 +111,8 @@ body {
 }
 
 /* Updated Input Styles */
-input.glass-input, 
-textarea.glass-input, 
+input.glass-input,
+textarea.glass-input,
 select.glass-input {
     background-color: rgba(13, 26, 19, 0.7) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -112,8 +126,8 @@ textarea.glass-input::placeholder {
     color: rgba(255, 255, 255, 0.4) !important;
 }
 
-input.glass-input:focus, 
-textarea.glass-input:focus, 
+input.glass-input:focus,
+textarea.glass-input:focus,
 select.glass-input:focus {
     background-color: rgba(13, 26, 19, 0.9) !important;
     border-color: rgba(57, 224, 121, 0.5) !important;
@@ -121,15 +135,36 @@ select.glass-input:focus {
     box-shadow: none !important;
 }
 
-.modal { display: none; }
-.modal.active { display: flex; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-::-webkit-scrollbar-thumb { background-color: rgba(57, 224, 121, 0.4); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
-::-webkit-scrollbar-thumb:hover { background-color: rgba(57, 224, 121, 0.6); }
+.modal {
+    display: none;
+}
+
+.modal.active {
+    display: flex;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(57, 224, 121, 0.4);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(57, 224, 121, 0.6);
+}
 
 /* UPDATED TABLE STYLES */
-#arquitetos-table-container table, 
+#arquitetos-table-container table,
 #historico-manual-container table,
 #ranking-table-container table,
 #resgates-container table,
@@ -140,18 +175,28 @@ select.glass-input:focus {
     width: 100%;
     border-collapse: collapse;
 }
-#arquitetos-table-container table th, #arquitetos-table-container table td,
-#historico-manual-container table th, #historico-manual-container table td,
-#ranking-table-container table th, #ranking-table-container table td,
-#resgates-container table th, #resgates-container table td,
-#eventos-log-container table th, #eventos-log-container table td,
-#sysled-table-container table th, #sysled-table-container table td,
-#pagamentos-container table th, #pagamentos-container table td,
-#gerar-pagamentos-table-container table th, #gerar-pagamentos-table-container table td {
+
+#arquitetos-table-container table th,
+#arquitetos-table-container table td,
+#historico-manual-container table th,
+#historico-manual-container table td,
+#ranking-table-container table th,
+#ranking-table-container table td,
+#resgates-container table th,
+#resgates-container table td,
+#eventos-log-container table th,
+#eventos-log-container table td,
+#sysled-table-container table th,
+#sysled-table-container table td,
+#pagamentos-container table th,
+#pagamentos-container table td,
+#gerar-pagamentos-table-container table th,
+#gerar-pagamentos-table-container table td {
     padding: 12px 16px;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 #arquitetos-table-container table th,
 #historico-manual-container table th,
 #ranking-table-container table th,
@@ -167,6 +212,7 @@ select.glass-input:focus {
     letter-spacing: 0.05em;
     background-color: #293c2f !important;
 }
+
 #arquitetos-table-container table tbody tr,
 #historico-manual-container table tbody tr,
 #ranking-table-container table tbody tr,
@@ -177,6 +223,7 @@ select.glass-input:focus {
 #gerar-pagamentos-table-container table tbody tr {
     transition: background-color 0.2s ease-in-out;
 }
+
 #arquitetos-table-container table tbody tr:nth-child(even),
 #historico-manual-container table tbody tr:nth-child(even),
 #ranking-table-container table tbody tr:nth-child(even),
@@ -187,6 +234,7 @@ select.glass-input:focus {
 #gerar-pagamentos-table-container table tbody tr:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.1);
 }
+
 #arquitetos-table-container table tbody tr:hover,
 #historico-manual-container table tbody tr:hover,
 #ranking-table-container table tbody tr:hover,
@@ -195,7 +243,8 @@ select.glass-input:focus {
 #sysled-table-container table tbody tr:hover,
 #pagamentos-container table tbody tr:hover,
 #gerar-pagamentos-table-container table tbody tr:hover {
-    background-color: rgba(57, 224, 121, 0.25) !important; /* Green translucent hover */
+    background-color: rgba(57, 224, 121, 0.25) !important;
+    /* Green translucent hover */
 }
 
 /* Hide Actions Column */
@@ -204,17 +253,52 @@ select.glass-input:focus {
     display: none;
 }
 
-.btn-modal { padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; color: white; }
-.btn-modal:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-.tab-view { display: none; }
-.tab-view.active { display: block; }
-.menu-link.active { background-color: rgba(57, 224, 121, 0.2); color: white; font-weight: 600; }
-.file-input-label { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; font-weight: 600; color: white; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
-.file-input { display: none; }
+.btn-modal {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.btn-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tab-view {
+    display: none;
+}
+
+.tab-view.active {
+    display: block;
+}
+
+.menu-link.active {
+    background-color: rgba(57, 224, 121, 0.2);
+    color: white;
+    font-weight: 600;
+}
+
+.file-input-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    font-weight: 600;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.file-input {
+    display: none;
+}
 
 /* Styles for dynamically generated content */
-#pagamentos-container > div,
-#arquivos-importados-container > div,
+#pagamentos-container>div,
+#arquivos-importados-container>div,
 .payment-group-card,
 .imported-file-card {
     background: rgba(18, 32, 23, 0.7);
@@ -223,4 +307,118 @@ select.glass-input:focus {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
     padding: 1.5rem;
+}
+
+.flatpickr-calendar {
+    background-color: #0D1A13 !important;
+    /* Seu background dark exato */
+    border: 1px solid rgba(57, 224, 121, 0.2) !important;
+    /* Borda verde sutil */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8) !important;
+    z-index: 99999 !important;
+    /* Acima de tudo */
+    border-radius: 12px !important;
+    padding: 10px !important;
+    margin-top: 5px !important;
+}
+
+/* Cabeçalho do Calendário */
+.flatpickr-months {
+    background: transparent !important;
+    margin-bottom: 10px !important;
+}
+
+.flatpickr-months .flatpickr-month {
+    background: transparent !important;
+    color: #fff !important;
+    fill: #fff !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: #0D1A13 !important;
+    font-weight: 700 !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    font-weight: 700 !important;
+}
+
+/* Setas de Navegação (Corrigindo cor que some) */
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    fill: #39E079 !important;
+    /* Seu verde neon */
+    color: #39E079 !important;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover svg,
+.flatpickr-months .flatpickr-next-month:hover svg {
+    fill: #fff !important;
+}
+
+/* Dias da Semana */
+span.flatpickr-weekday {
+    color: #9ca3af !important;
+    /* gray-400 */
+    font-weight: 600 !important;
+}
+
+/* Dias (Números) */
+.flatpickr-day {
+    color: #e5e7eb !important;
+    /* gray-200 */
+    border-radius: 8px !important;
+    border: 1px solid transparent !important;
+}
+
+.flatpickr-day:hover {
+    background: rgba(57, 224, 121, 0.15) !important;
+    border-color: rgba(57, 224, 121, 0.3) !important;
+}
+
+/* Dia Selecionado (O Verde da sua marca) */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: #39E079 !important;
+    /* Primary Brand Color */
+    border-color: #39E079 !important;
+    color: #0D1A13 !important;
+    /* Texto preto no fundo verde para contraste */
+    font-weight: 800 !important;
+    box-shadow: 0 0 10px rgba(57, 224, 121, 0.4) !important;
+}
+
+/* Dia de Hoje */
+.flatpickr-day.today {
+    border-color: #39E079 !important;
+    color: #39E079 !important;
+}
+
+/* Scrollbar Personalizada para combinar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0D1A13;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
 }

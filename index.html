@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pilar</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><path fill=%22%2339E079%22 d=%22M224 448V224H160V448h64zM32 480H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32zm160-352H128V448h64V128zM320 448V256H256V448h64zM416 448V160H352V448h64zM480 64H32C14.3 64 0 49.7 0 32S14.3 0 32 0H480c17.7 0 32 14.3 32 32s-14.3 32-32 32z%22/></svg>">
-    
+
+
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><path fill=%22%2339E079%22 d=%22M224 448V224H160V448h64zM32 480H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H32c-17.7 0-32 14.3-32 32s14.3 32 32 32zm160-352H128V448h64V128zM320 448V256H256V448h64zM416 448V160H352V448h64zM480 64H32C14.3 64 0 49.7 0 32S14.3 0 32 0H480c17.7 0 32 14.3 32 32s-14.3 32-32 32z%22/></svg>">
+
     <!-- Fonts and Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,36 +41,43 @@
             }
         };
     </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
-    
+    <link rel="stylesheet" href="./css/style.css">
+
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body class="font-display bg-background-dark text-gray-200">
 
-    <div id="global-loading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f1218] transition-opacity duration-500">
-        <div class="relative flex items-center justify-center">
-            <div class="w-16 h-16 border-4 border-blue-600/30 border-t-blue-500 rounded-full animate-spin"></div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <span class="material-symbols-outlined text-blue-400 text-2xl">bolt</span>
+    <div id="global-loading"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#111827] transition-opacity duration-500">
+        <div class="relative flex items-center justify-center mb-4">
+            <div
+                class="absolute w-20 h-20 border-8 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin">
             </div>
+
+            <span class="material-symbols-outlined text-4xl text-emerald-500">architecture</span>
         </div>
-        <h2 class="mt-4 text-white font-bold text-lg tracking-wide">Carregando Sistema...</h2>
-        <p class="text-gray-500 text-sm mt-1">Sincronizando dados</p>
     </div>
 
     <!-- Fundo Global -->
-    <div class="fixed inset-0 -z-10 h-full w-full bg-cover bg-center" style="background-image: url('https://www.urban.imb.br/blog/wp-content/uploads/2023/05/Design-sem-nome-25.png.webp');"></div>
+    <div class="fixed inset-0 -z-10 h-full w-full bg-cover bg-center"
+        style="background-image: url('https://www.urban.imb.br/blog/wp-content/uploads/2023/05/Design-sem-nome-25.png.webp');">
+    </div>
     <div class="fixed inset-0 -z-10 h-full w-full bg-background-dark/80 backdrop-blur-sm"></div>
 
     <!-- Container de Autenticação (Login) -->
-    <div id="auth-container" class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 overflow-hidden">
+    <div id="auth-container"
+        class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 overflow-hidden">
         <div class="absolute -top-40 -left-60 h-[28rem] w-[28rem] rounded-full bg-primary/20 blur-[120px]"></div>
         <div class="absolute -bottom-40 -right-60 h-[28rem] w-[28rem] rounded-full bg-pink-500/10 blur-[120px]"></div>
-        
+
         <div class="relative z-10 flex w-full max-w-sm flex-col items-center p-8 rounded-xl glass-effect">
             <div class="mb-8 text-center">
                 <span class="material-symbols-outlined text-5xl text-primary">architecture</span>
@@ -75,21 +86,27 @@
             </div>
             <form id="login-form" class="w-full space-y-6">
                 <div class="relative">
-                    <input type="email" id="email" required class="glass-input w-full rounded-lg px-4 py-3" placeholder="Email">
-                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+                    <input type="email" id="email" required class="glass-input w-full rounded-lg px-4 py-3"
+                        placeholder="Email">
+                    <span
+                        class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
                 </div>
                 <div class="relative">
-                    <input type="password" id="password" required class="glass-input w-full rounded-lg px-4 py-3" placeholder="Senha">
-                    <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition" onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password'; this.querySelector('span').textContent = p.type === 'password' ? 'visibility' : 'visibility_off'">
+                    <input type="password" id="password" required class="glass-input w-full rounded-lg px-4 py-3"
+                        placeholder="Senha">
+                    <button type="button"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition"
+                        onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password'; this.querySelector('span').textContent = p.type === 'password' ? 'visibility' : 'visibility_off'">
                         <span class="material-symbols-outlined">visibility</span>
                     </button>
                 </div>
-                <button type="submit" class="flex w-full items-center justify-center rounded-lg bg-primary/80 px-4 py-3 text-base font-bold text-white shadow-lg transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark hover:shadow-primary/40">
+                <button type="submit"
+                    class="flex w-full items-center justify-center rounded-lg bg-primary/80 px-4 py-3 text-base font-bold text-white shadow-lg transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark hover:shadow-primary/40">
                     <span class="material-symbols-outlined mr-2">login</span>
                     Entrar
                 </button>
             </form>
-             <p id="auth-error" class="mt-4 text-center text-sm text-red-400"></p>
+            <p id="auth-error" class="mt-4 text-center text-sm text-red-400"></p>
         </div>
     </div>
 
@@ -103,20 +120,54 @@
                     <h2 class="text-xl font-bold">Pilar</h2>
                 </div>
                 <nav id="sidebar-menu" class="flex-1 space-y-2 p-4">
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="relatorio-rt"><span class="material-symbols-outlined">cloud_upload</span><span>Importar Vendas</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="consulta-sysled"><span class="material-symbols-outlined">database</span><span>Consulta Sysled</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="inclusao-manual"><span class="material-symbols-outlined">add_circle</span><span>Inclusão Manual</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="arquitetos"><span class="material-symbols-outlined">groups</span><span>Arquitetos</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="carteira"><span class="material-symbols-outlined">folder_shared</span><span>Carteira</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="pontuacao"><span class="material-symbols-outlined">monitoring</span><span>Pontuação</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="comprovantes"><span class="material-symbols-outlined">receipt_long</span><span>Comprovantes</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="resgates"><span class="material-symbols-outlined">redeem</span><span>Resgates</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="arquivos-importados"><span class="material-symbols-outlined">folder_open</span><span>Arquivos Importados</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="resultados"><span class="material-symbols-outlined">pie_chart</span><span>Resultados</span></a>
-                    <a href="#" class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all" data-tab="eventos"><span class="material-symbols-outlined">event</span><span>Eventos</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="relatorio-rt"><span
+                            class="material-symbols-outlined">cloud_upload</span><span>Importar Vendas</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="consulta-sysled"><span class="material-symbols-outlined">database</span><span>Consulta
+                            Sysled</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="inclusao-manual"><span
+                            class="material-symbols-outlined">add_circle</span><span>Inclusão Manual</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="arquitetos"><span
+                            class="material-symbols-outlined">groups</span><span>Arquitetos</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="carteira"><span
+                            class="material-symbols-outlined">folder_shared</span><span>Carteira</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="pontuacao"><span
+                            class="material-symbols-outlined">monitoring</span><span>Pontuação</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="comprovantes"><span
+                            class="material-symbols-outlined">receipt_long</span><span>Comprovantes</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="resgates"><span
+                            class="material-symbols-outlined">redeem</span><span>Resgates</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="arquivos-importados"><span
+                            class="material-symbols-outlined">folder_open</span><span>Arquivos Importados</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="resultados"><span
+                            class="material-symbols-outlined">pie_chart</span><span>Resultados</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="eventos"><span class="material-symbols-outlined">event</span><span>Eventos</span></a>
                 </nav>
-                 <div class="sidebar-footer mt-auto p-4 border-t border-white/10">
-                    <a href="#" id="logout-button" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-500/20 hover:text-white transition-all"><span class="material-symbols-outlined">logout</span><span>Sair</span></a>
+                <div class="sidebar-footer mt-auto p-4 border-t border-white/10">
+                    <a href="#" id="logout-button"
+                        class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-500/20 hover:text-white transition-all"><span
+                            class="material-symbols-outlined">logout</span><span>Sair</span></a>
                 </div>
             </aside>
 
@@ -125,12 +176,19 @@
                 <header class="flex items-center justify-between h-20 px-8">
                     <div></div>
                     <div class="flex items-center gap-4">
-                        <button class="p-2 rounded-full text-slate-300 hover:bg-primary/10"><span class="material-symbols-outlined">notifications</span></button>
+                        <button class="p-2 rounded-full text-slate-300 hover:bg-primary/10"><span
+                                class="material-symbols-outlined">notifications</span></button>
                         <!-- Bloco da Foto de Perfil Atualizado -->
                         <div id="profile-picture-container" class="relative cursor-pointer group">
-                            <div id="profile-picture" class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all" style="background-image: url('/img/neth.jpg');"></div>
-                            <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-white">photo_camera</span></div>
-                            <input type="file" id="profile-picture-input" class="hidden" accept="image/png, image/jpeg, image/gif">
+                            <div id="profile-picture"
+                                class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all"
+                                style="background-image: url('/img/neth.jpg');"></div>
+                            <div
+                                class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="material-symbols-outlined text-white">photo_camera</span>
+                            </div>
+                            <input type="file" id="profile-picture-input" class="hidden"
+                                accept="image/png, image/jpeg, image/gif">
                         </div>
                     </div>
                 </header>
@@ -138,22 +196,113 @@
                 <div class="flex-1 p-8 overflow-y-auto">
                     <!-- Aba: Importar Vendas -->
                     <div id="relatorio-rt-view" class="tab-view active">
-                        <div class="glass-content rounded-xl p-8"><h1 class="text-3xl font-bold tracking-tight mb-2">Importar Vendas</h1><p class="text-gray-300 mb-8">Faça o upload do seu arquivo para registrar novas vendas.</p><div class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-500/50 p-12 text-center hover:border-primary/50 transition-colors"><input type="file" id="rt-file-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><span class="material-symbols-outlined text-5xl text-primary mb-3">upload_file</span><label class="mt-4 text-lg font-semibold text-white" for="rt-file-input">Arraste e solte seu arquivo aqui, ou</label><label class="mt-1 cursor-pointer text-sm text-primary underline" for="rt-file-input">Procure nos arquivos</label><p class="mt-4 text-xs text-gray-400">XLS, XLSX, ou CSV</p><p id="rt-file-name" class="mt-2 text-sm text-gray-300"></p></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-2">Importar Vendas</h1>
+                            <p class="text-gray-300 mb-8">Faça o upload do seu arquivo para registrar novas vendas.</p>
+                            <div
+                                class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-500/50 p-12 text-center hover:border-primary/50 transition-colors">
+                                <input type="file" id="rt-file-input"
+                                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                    class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><span
+                                    class="material-symbols-outlined text-5xl text-primary mb-3">upload_file</span><label
+                                    class="mt-4 text-lg font-semibold text-white" for="rt-file-input">Arraste e solte
+                                    seu arquivo aqui, ou</label><label
+                                    class="mt-1 cursor-pointer text-sm text-primary underline"
+                                    for="rt-file-input">Procure nos arquivos</label>
+                                <p class="mt-4 text-xs text-gray-400">XLS, XLSX, ou CSV</p>
+                                <p id="rt-file-name" class="mt-2 text-sm text-gray-300"></p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Consulta Sysled -->
-                    <div id="consulta-sysled-view" class="tab-view">
-                        <div class="glass-content rounded-xl p-8"><h1 class="text-3xl font-bold tracking-tight mb-8">Consulta Sysled</h1><div class="glass-card rounded-lg p-6 mb-8"><h2 class="text-xl font-semibold text-white mb-4">Filtros</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"><input type="date" id="sysled-filter-data-inicio" class="glass-input rounded-lg p-3"><input type="date" id="sysled-filter-data-fim" class="glass-input rounded-lg p-3"><input type="text" id="sysled-filter-parceiro" placeholder="Nome ou ID" class="glass-input rounded-lg p-3"><input type="text" id="sysled-filter-excluir-parceiro" placeholder="Excluir IDs" class="glass-input rounded-lg p-3"><div class="flex items-end gap-2"><button id="sysled-filter-btn" class="w-full h-full flex items-center justify-center rounded-lg bg-primary/80 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-primary/90">Filtrar</button><button id="sysled-clear-filter-btn" class="w-full h-full flex items-center justify-center rounded-lg bg-white/10 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-white/20">Limpar</button></div></div></div><div class="glass-card rounded-lg p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-white">Resultados</h2><div><button id="sysled-refresh-btn" class="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Atualizar</button><button id="copy-to-rt-btn" class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90">Importar Vendas</button></div></div><div id="sysled-table-container" class="overflow-x-auto"><p class="text-center text-gray-400 py-8">Clique em "Atualizar" para carregar os dados.</p></div></div></div>
+                    <div id="consulta-sysled-view" class="tab-view h-full flex flex-col">
+                        <div id="sysled-table-container" class="flex-1 flex flex-col h-full overflow-hidden">
+                            <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-4">
+                                <span class="material-symbols-outlined text-6xl opacity-20">database</span>
+                                <p class="text-lg font-medium text-gray-400">Aguardando dados...</p>
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <!-- Aba: Inclusão Manual -->
                     <div id="inclusao-manual-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8"><h1 class="text-3xl font-bold tracking-tight mb-8">Inclusão Manual de Comissão</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-8"><div class="lg:col-span-1 glass-card rounded-lg p-6"><h2 class="text-xl font-semibold mb-4 text-white">Adicionar Comissão Avulsa</h2><form id="add-comissao-manual-form" class="space-y-4"><input type="text" id="manual-id-parceiro" class="glass-input w-full rounded-lg p-3" placeholder="ID Parceiro" required><input type="text" id="manual-id-venda" class="glass-input w-full rounded-lg p-3" placeholder="ID Venda"><input type="number" step="0.01" id="manual-valor-venda" class="glass-input w-full rounded-lg p-3" placeholder="Valor Venda (Ex: 1500.50)" required><input type="date" id="manual-data-venda" class="glass-input w-full rounded-lg p-3" required><input type="text" id="manual-consultor" class="glass-input w-full rounded-lg p-3" placeholder="Consultor"><textarea id="manual-justificativa" rows="3" class="glass-input w-full rounded-lg p-3" placeholder="Justificativa" required></textarea><button type="submit" class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar Comissão</button></form></div><div class="lg:col-span-2 glass-card rounded-lg p-6"><h2 class="text-xl font-semibold mb-4 text-white">Histórico de Inclusões</h2><div id="historico-manual-container" class="max-h-[70vh] overflow-y-auto"></div></div></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Inclusão Manual de Comissão</h1>
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div class="lg:col-span-1 glass-card rounded-lg p-6">
+                                    <h2 class="text-xl font-semibold mb-4 text-white">Adicionar Comissão Avulsa</h2>
+                                    <form id="add-comissao-manual-form" class="space-y-4"><input type="text"
+                                            id="manual-id-parceiro" class="glass-input w-full rounded-lg p-3"
+                                            placeholder="ID Parceiro" required><input type="text" id="manual-id-venda"
+                                            class="glass-input w-full rounded-lg p-3" placeholder="ID Venda"><input
+                                            type="number" step="0.01" id="manual-valor-venda"
+                                            class="glass-input w-full rounded-lg p-3"
+                                            placeholder="Valor Venda (Ex: 1500.50)" required><input type="date"
+                                            id="manual-data-venda" class="glass-input w-full rounded-lg p-3"
+                                            required><input type="text" id="manual-consultor"
+                                            class="glass-input w-full rounded-lg p-3" placeholder="Consultor"><textarea
+                                            id="manual-justificativa" rows="3" class="glass-input w-full rounded-lg p-3"
+                                            placeholder="Justificativa" required></textarea><button type="submit"
+                                            class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar
+                                            Comissão</button></form>
+                                </div>
+                                <div class="lg:col-span-2 glass-card rounded-lg p-6">
+                                    <h2 class="text-xl font-semibold mb-4 text-white">Histórico de Inclusões</h2>
+                                    <div id="historico-manual-container" class="max-h-[70vh] overflow-y-auto"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Arquitetos -->
                     <div id="arquitetos-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8"><h1 class="text-3xl font-bold tracking-tight mb-8">Cadastro de Arquitetos</h1><div class="grid grid-cols-1 lg:grid-cols-5 gap-8"><div class="lg:col-span-2 space-y-6"><div class="glass-card rounded-lg p-6"><h2 class="text-xl font-semibold text-white mb-4">Adicionar Manualmente</h2><form id="add-arquiteto-form" class="space-y-4"><input type="text" id="arquiteto-id" class="glass-input w-full rounded-lg p-3" placeholder="ID" required><input type="text" id="arquiteto-nome" class="glass-input w-full rounded-lg p-3" placeholder="Nome" required><input type="email" id="arquiteto-email" class="glass-input w-full rounded-lg p-3" placeholder="Email"><input type="tel" id="arquiteto-telefone" class="glass-input w-full rounded-lg p-3" placeholder="Telefone"><input type="text" id="arquiteto-pix" class="glass-input w-full rounded-lg p-3" placeholder="Chave PIX"><button type="submit" class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar Arquiteto</button></form></div><div class="glass-card rounded-lg p-6 text-center"><h2 class="text-xl font-semibold text-white mb-4">Importar Planilha</h2><label for="arquiteto-file-input" class="file-input-label bg-primary/80 hover:bg-primary/90"><span class="material-symbols-outlined mr-2">upload_file</span>Escolher Planilha</label><input type="file" id="arquiteto-file-input" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" class="file-input"><p id="file-name-arquitetos" class="text-sm text-gray-400 mt-2"></p></div></div><div class="lg:col-span-3 glass-card rounded-lg p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-white">Arquitetos Cadastrados</h2><div class="flex gap-2"><button id="gerar-pagamentos-rt-btn" class="rounded-lg bg-teal-500/80 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-teal-500/90">Gerar Pagamentos</button><button id="export-csv-btn" class="rounded-lg bg-green-500/80 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-green-500/90">Exportar</button><button id="delete-all-arquitetos-btn" class="rounded-lg bg-red-600/80 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-600/90">Apagar Todos</button></div></div><input type="text" id="arquiteto-search-input" placeholder="Pesquisar..." class="w-full glass-input rounded-lg p-3 mb-4"><div id="arquitetos-table-container" class="overflow-x-auto"></div></div></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Cadastro de Arquitetos</h1>
+                            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                                <div class="lg:col-span-2 space-y-6">
+                                    <div class="glass-card rounded-lg p-6">
+                                        <h2 class="text-xl font-semibold text-white mb-4">Adicionar Manualmente</h2>
+                                        <form id="add-arquiteto-form" class="space-y-4"><input type="text"
+                                                id="arquiteto-id" class="glass-input w-full rounded-lg p-3"
+                                                placeholder="ID" required><input type="text" id="arquiteto-nome"
+                                                class="glass-input w-full rounded-lg p-3" placeholder="Nome"
+                                                required><input type="email" id="arquiteto-email"
+                                                class="glass-input w-full rounded-lg p-3" placeholder="Email"><input
+                                                type="tel" id="arquiteto-telefone"
+                                                class="glass-input w-full rounded-lg p-3" placeholder="Telefone"><input
+                                                type="text" id="arquiteto-pix" class="glass-input w-full rounded-lg p-3"
+                                                placeholder="Chave PIX"><button type="submit"
+                                                class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar
+                                                Arquiteto</button></form>
+                                    </div>
+                                    <div class="glass-card rounded-lg p-6 text-center">
+                                        <h2 class="text-xl font-semibold text-white mb-4">Importar Planilha</h2><label
+                                            for="arquiteto-file-input"
+                                            class="file-input-label bg-primary/80 hover:bg-primary/90"><span
+                                                class="material-symbols-outlined mr-2">upload_file</span>Escolher
+                                            Planilha</label><input type="file" id="arquiteto-file-input"
+                                            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                            class="file-input">
+                                        <p id="file-name-arquitetos" class="text-sm text-gray-400 mt-2"></p>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-3 glass-card rounded-lg p-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h2 class="text-xl font-semibold text-white">Arquitetos Cadastrados</h2>
+                                        <div class="flex gap-2"><button id="gerar-pagamentos-rt-btn"
+                                                class="rounded-lg bg-teal-500/80 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-teal-500/90">Gerar
+                                                Pagamentos</button><button id="export-csv-btn"
+                                                class="rounded-lg bg-green-500/80 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-green-500/90">Exportar</button><button
+                                                id="delete-all-arquitetos-btn"
+                                                class="rounded-lg bg-red-600/80 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-600/90">Apagar
+                                                Todos</button></div>
+                                    </div><input type="text" id="arquiteto-search-input" placeholder="Pesquisar..."
+                                        class="w-full glass-input rounded-lg p-3 mb-4">
+                                    <div id="arquitetos-table-container" class="overflow-x-auto"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Carteira -->
@@ -162,118 +311,380 @@
                             <div id="carteira-container"></div>
                         </div>
                     </div>
-                    
+
                     <!-- Aba: Pontuação -->
                     <div id="pontuacao-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8"><h1 class="text-3xl font-bold tracking-tight mb-8">Pontuação</h1><div class="grid grid-cols-1 lg:grid-cols-3 gap-8"><div class="lg:col-span-2 glass-card rounded-lg p-6"><h2 class="text-xl font-semibold mb-4 text-white">Ranking de Arquitetos</h2><div id="ranking-table-container"></div></div><div class="glass-card rounded-lg p-6"><h2 class="text-xl font-semibold mb-4 text-white">Ajuste Manual de Pontos</h2><form id="add-pontos-form" class="space-y-4"><select id="arquiteto-select" class="glass-input w-full rounded-lg p-3" required></select><input type="number" id="pontos-valor" class="glass-input w-full rounded-lg p-3" placeholder="Pontos (negativo para remover)" required><button type="submit" class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar</button></form></div></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Pontuação</h1>
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div class="lg:col-span-2 glass-card rounded-lg p-6">
+                                    <h2 class="text-xl font-semibold mb-4 text-white">Ranking de Arquitetos</h2>
+                                    <div id="ranking-table-container"></div>
+                                </div>
+                                <div class="glass-card rounded-lg p-6">
+                                    <h2 class="text-xl font-semibold mb-4 text-white">Ajuste Manual de Pontos</h2>
+                                    <form id="add-pontos-form" class="space-y-4"><select id="arquiteto-select"
+                                            class="glass-input w-full rounded-lg p-3" required></select><input
+                                            type="number" id="pontos-valor" class="glass-input w-full rounded-lg p-3"
+                                            placeholder="Pontos (negativo para remover)" required><button type="submit"
+                                            class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Comprovantes -->
                     <div id="comprovantes-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8">
-                              <h1 class="text-3xl font-bold tracking-tight mb-8">Controle de Pagamentos</h1>
-                              <div class="glass-card rounded-lg p-6 mb-8">
-                                  <h2 class="text-xl font-semibold text-white mb-4">Pesquisar Pagamentos</h2>
-                                  <input type="text" id="pagamento-search-input" placeholder="Pesquisar por ID do Parceiro..." class="w-full glass-input rounded-lg p-3">
-                              </div>
-                              <div id="pagamentos-container" class="space-y-8">
-                                 <!-- JS will inject .payment-group-card here -->
-                              </div>
-                         </div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Controle de Pagamentos</h1>
+                            <div class="glass-card rounded-lg p-6 mb-8">
+                                <h2 class="text-xl font-semibold text-white mb-4">Pesquisar Pagamentos</h2>
+                                <input type="text" id="pagamento-search-input"
+                                    placeholder="Pesquisar por ID do Parceiro..."
+                                    class="w-full glass-input rounded-lg p-3">
+                            </div>
+                            <div id="pagamentos-container" class="space-y-8">
+                                <!-- JS will inject .payment-group-card here -->
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Resgates -->
                     <div id="resgates-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8"><h1 class="text-3xl font-bold tracking-tight mb-8">Controle de Resgates</h1><div class="glass-card rounded-lg p-6 mb-8"><h2 class="text-xl font-semibold text-white mb-4">Pesquisar Resgates</h2><input type="text" id="resgate-search-input" placeholder="Pesquisar por ID do Parceiro..." class="w-full glass-input rounded-lg p-3"></div><div class="glass-card rounded-lg p-6"><div id="resgates-container" class="overflow-x-auto"></div></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Controle de Resgates</h1>
+                            <div class="glass-card rounded-lg p-6 mb-8">
+                                <h2 class="text-xl font-semibold text-white mb-4">Pesquisar Resgates</h2><input
+                                    type="text" id="resgate-search-input" placeholder="Pesquisar por ID do Parceiro..."
+                                    class="w-full glass-input rounded-lg p-3">
+                            </div>
+                            <div class="glass-card rounded-lg p-6">
+                                <div id="resgates-container" class="overflow-x-auto"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Arquivos Importados -->
                     <div id="arquivos-importados-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8">
-                              <h1 class="text-3xl font-bold tracking-tight mb-8">Arquivos Importados</h1>
-                              <div id="arquivos-importados-container" class="space-y-6">
-                                 <!-- JS will inject .imported-file-card here -->
-                              </div>
-                         </div>
+                        <div class="glass-content rounded-xl p-8">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Arquivos Importados</h1>
+                            <div id="arquivos-importados-container" class="space-y-6">
+                                <!-- JS will inject .imported-file-card here -->
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <!-- Aba: Resultados -->
                     <div id="resultados-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8"><div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold tracking-tight">Resultados Gerais</h1><button id="calculate-results-btn" class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90">Calcular Resultados</button></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6"><div class="glass-card rounded-xl p-6"><h2 class="text-sm font-medium text-gray-400">RTs Pagas</h2><p id="total-rt" class="text-3xl font-bold mt-2 text-primary">R$ 0,00</p></div><div class="glass-card rounded-xl p-6"><h2 class="text-sm font-medium text-gray-400">Qtd. RTs Pagas</h2><p id="total-rt-quantidade" class="text-3xl font-bold mt-2 text-blue-400">0</p></div><div class="glass-card rounded-xl p-6"><h2 class="text-sm font-medium text-gray-400">RTs a Pagar</h2><p id="total-rt-a-pagar" class="text-3xl font-bold mt-2 text-amber-400">R$ 0,00</p></div><div class="glass-card rounded-xl p-6"><h2 class="text-sm font-medium text-gray-400">RTs em Aberto</h2><p id="total-rt-nao-pagas" class="text-3xl font-bold mt-2 text-rose-400">0</p></div><div class="glass-card rounded-xl p-6"><h2 class="text-sm font-medium text-gray-400">RT Média</h2><p id="rt-media" class="text-3xl font-bold mt-2 text-indigo-400">R$ 0,00</p></div></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <div class="flex justify-between items-center mb-6">
+                                <h1 class="text-3xl font-bold tracking-tight">Resultados Gerais</h1><button
+                                    id="calculate-results-btn"
+                                    class="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90">Calcular
+                                    Resultados</button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                                <div class="glass-card rounded-xl p-6">
+                                    <h2 class="text-sm font-medium text-gray-400">RTs Pagas</h2>
+                                    <p id="total-rt" class="text-3xl font-bold mt-2 text-primary">R$ 0,00</p>
+                                </div>
+                                <div class="glass-card rounded-xl p-6">
+                                    <h2 class="text-sm font-medium text-gray-400">Qtd. RTs Pagas</h2>
+                                    <p id="total-rt-quantidade" class="text-3xl font-bold mt-2 text-blue-400">0</p>
+                                </div>
+                                <div class="glass-card rounded-xl p-6">
+                                    <h2 class="text-sm font-medium text-gray-400">RTs a Pagar</h2>
+                                    <p id="total-rt-a-pagar" class="text-3xl font-bold mt-2 text-amber-400">R$ 0,00</p>
+                                </div>
+                                <div class="glass-card rounded-xl p-6">
+                                    <h2 class="text-sm font-medium text-gray-400">RTs em Aberto</h2>
+                                    <p id="total-rt-nao-pagas" class="text-3xl font-bold mt-2 text-rose-400">0</p>
+                                </div>
+                                <div class="glass-card rounded-xl p-6">
+                                    <h2 class="text-sm font-medium text-gray-400">RT Média</h2>
+                                    <p id="rt-media" class="text-3xl font-bold mt-2 text-indigo-400">R$ 0,00</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Aba: Eventos -->
                     <div id="eventos-view" class="tab-view">
-                         <div class="glass-content rounded-xl p-8"><div class="flex justify-between items-center mb-4"><h1 class="text-3xl font-bold tracking-tight">Log de Eventos</h1><button id="clear-events-log-btn" class="rounded-lg bg-red-600/80 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600/90">Limpar Logs</button></div><div class="glass-card rounded-lg p-6"><div id="eventos-log-container" class="max-h-[70vh] overflow-y-auto"></div></div></div>
+                        <div class="glass-content rounded-xl p-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h1 class="text-3xl font-bold tracking-tight">Log de Eventos</h1><button
+                                    id="clear-events-log-btn"
+                                    class="rounded-lg bg-red-600/80 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-600/90">Limpar
+                                    Logs</button>
+                            </div>
+                            <div class="glass-card rounded-lg p-6">
+                                <div id="eventos-log-container" class="max-h-[70vh] overflow-y-auto"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
         </div>
-        
+
         <!-- Modais Globais -->
-        <div id="rt-mapping-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-3xl rounded-xl glass-modal"><div class="p-8"><h2 class="text-2xl font-bold text-white mb-2">Mapear Colunas de Vendas</h2><p class="text-gray-300 mb-6">Associe as colunas do seu arquivo com os campos do nosso sistema.</p><form id="rt-mapping-form" class="space-y-4"></form><div class="flex justify-end gap-4 mt-8"><button type="button" id="cancel-rt-mapping-btn" class="rounded-lg bg-white/10 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button type="button" id="confirm-rt-mapping-btn" class="flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:bg-primary/90">Confirmar e Importar</button></div></div></div></div>
-        <div id="arquiteto-mapping-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-3xl rounded-xl glass-modal"><div class="p-8"><h2 class="text-2xl font-bold text-white mb-2">Mapear Colunas de Arquitetos</h2><p class="text-gray-300 mb-6">Associe as colunas da sua planilha aos campos de cadastro.</p><form id="arquiteto-mapping-form" class="space-y-4"></form><div class="flex justify-end gap-4 mt-8"><button type="button" id="cancel-arquiteto-mapping-btn" class="rounded-lg bg-white/10 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button type="button" id="confirm-arquiteto-mapping-btn" class="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Confirmar Importação</button></div></div></div></div>
-        <div id="edit-arquiteto-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto"><div class="w-full max-w-4xl rounded-xl glass-modal my-8"><div class="p-8"><div class="flex items-start justify-between"><div><h2 class="text-2xl font-bold text-white">Ficha do Arquiteto</h2><p id="edit-arquiteto-id" class="text-gray-300 text-sm mt-1"></p></div><button type="button" id="close-edit-modal-x-btn" class="text-gray-400 hover:text-white text-2xl">&times;</button></div><form id="edit-arquiteto-form" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"><input type="hidden" id="edit-arquiteto-original-id"><div><label class="block text-sm font-medium text-gray-400">Nome Completo</label><input type="text" id="edit-arquiteto-nome" class="glass-input w-full rounded-lg p-2 mt-1" required></div><div><label class="block text-sm font-medium text-gray-400">E-mail</label><input type="email" id="edit-arquiteto-email" class="glass-input w-full rounded-lg p-2 mt-1" required></div><div><label class="block text-sm font-medium text-gray-400">Telefone</label><input type="tel" id="edit-arquiteto-telefone" class="glass-input w-full rounded-lg p-2 mt-1"></div><div><label class="block text-sm font-medium text-gray-400">Quantidade de Vendas</label><input type="number" id="edit-arquiteto-vendas" class="glass-input w-full rounded-lg p-2 mt-1" min="0"></div>
-        
-        <!-- Bloco da Chave PIX Atualizado -->
-        <div>
-            <label class="block text-sm font-medium text-gray-400">Tipo de Chave PIX</label>
-            <select id="edit-arquiteto-tipo-pix" class="glass-input w-full rounded-lg p-2 mt-1">
-                <option class="bg-background-dark" value="">Selecione...</option>
-                <option class="bg-background-dark" value="CPF">CPF</option>
-                <option class="bg-background-dark" value="CNPJ">CNPJ</option>
-                <option class="bg-background-dark" value="EMAIL">E-mail</option>
-                <option class="bg-background-dark" value="PHONE">Telefone</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-400">Chave PIX</label>
-            <input type="text" id="edit-arquiteto-pix" class="glass-input w-full rounded-lg p-2 mt-1">
-        </div>
-        <!-- Fim do Bloco Atualizado -->
-        
-        <div class="md:col-span-2 mt-4 pt-4 border-t border-white/10"><h3 class="text-lg font-semibold mb-2 text-white">Valores de RT</h3><div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="glass-card p-4 rounded-lg"><label class="block text-sm font-medium text-gray-400">RT Acumulado</label><p id="edit-arquiteto-rt-acumulado" class="mt-1 text-2xl font-bold text-primary"></p></div><div class="glass-card p-4 rounded-lg"><label class="block text-sm font-medium text-gray-400">Total Pago</label><p id="edit-arquiteto-rt-total-pago" class="mt-1 text-2xl font-bold text-blue-400"></p></div></div></div><div class="md:col-span-2 mt-4 pt-4 border-t border-white/10"><h3 class="text-lg font-semibold mb-2 text-white">Configurações de Venda</h3><div class="grid grid-cols-3 gap-4 items-end"><div><label class="block text-sm font-medium text-gray-400">Total Vendas</label><p id="rt-valor-vendas" class="mt-1 text-lg font-bold text-gray-200"></p></div><div><label for="rt-percentual" class="block text-sm font-medium text-gray-400">Percentual RT</label><select id="rt-percentual" class="glass-input w-full rounded-lg p-2 mt-1"><option class="bg-background-dark" value="0.03">3%</option><option class="bg-background-dark" value="0.05">5%</option><option class="bg-background-dark" value="0.10">10%</option></select></div><div><label class="block text-sm font-medium text-gray-400">Cálculo Exemplo</label><p id="rt-valor-calculado" class="mt-1 text-lg font-bold text-gray-200"></p></div></div></div><div class="md:col-span-2 flex flex-wrap justify-between items-center mt-6">
-            <button type="button" id="delete-single-arquiteto-btn" class="btn-modal bg-red-600/80 hover:bg-red-600">Deletar Arquiteto</button>
-            <div class="flex flex-wrap justify-end gap-4">
-                <button type="button" id="consultar-vendas-btn" class="btn-modal bg-blue-500/80 hover:bg-blue-500">Vendas Pilar</button>
-                <button type="button" id="gerar-resgate-ficha-btn" class="btn-modal bg-violet-500/80 hover:bg-violet-500">Gerar Resgate</button>
-                <button type="button" id="gerar-pagamento-ficha-btn" class="btn-modal bg-teal-500/80 hover:bg-teal-500">Gerar Pagamento</button>
-                <button type="submit" class="btn-modal bg-primary/80 hover:bg-primary">Salvar</button>
+        <div id="rt-mapping-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-3xl rounded-xl glass-modal">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold text-white mb-2">Mapear Colunas de Vendas</h2>
+                    <p class="text-gray-300 mb-6">Associe as colunas do seu arquivo com os campos do nosso sistema.</p>
+                    <form id="rt-mapping-form" class="space-y-4"></form>
+                    <div class="flex justify-end gap-4 mt-8"><button type="button" id="cancel-rt-mapping-btn"
+                            class="rounded-lg bg-white/10 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button
+                            type="button" id="confirm-rt-mapping-btn"
+                            class="flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:bg-primary/90">Confirmar
+                            e Importar</button></div>
+                </div>
             </div>
-        </div></form></div></div></div>
-        <div id="add-value-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-md rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-4 text-white" id="add-value-modal-title">Adicionar Valor de Venda Manual</h2><form id="add-value-form"><input type="hidden" id="add-value-arquiteto-id"><label class="block text-sm font-medium text-gray-400 mb-1">Valor da Nova Venda</label><input type="number" step="0.01" id="add-value-input" class="glass-input w-full rounded-lg p-3" required placeholder="Ex: 1500.50"><div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-add-value-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button type="submit" class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Adicionar</button></div></form></div></div>
-        <div id="comprovante-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-lg rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-4 text-white" id="comprovante-modal-title">Detalhes do Pagamento</h2><div class="space-y-4"><div><label class="block text-sm font-medium text-gray-400">Valor do RT</label><p id="comprovante-valor-rt" class="mt-1 text-lg font-bold text-primary"></p></div><div><label class="block text-sm font-medium text-gray-400">Comprovante</label><div id="comprovante-img-container" class="mt-2 border border-white/10 rounded-lg p-2 min-h-[100px] flex items-center justify-center glass-card"><p class="text-gray-400">Nenhum comprovante anexado.</p></div></div></div><div class="flex justify-end mt-6"><button type="button" id="close-comprovante-modal-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button></div></div></div>
-        <div id="gerar-pagamentos-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-4xl rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-2 text-white">Gerar Pagamentos Pendentes</h2><p class="text-sm text-gray-400 mb-6">Arquitetos com R$ 300,00 ou mais em RTs acumuladas.</p><div id="gerar-pagamentos-table-container" class="max-h-[50vh] overflow-y-auto glass-card rounded-lg border border-white/10"></div><div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-gerar-pagamentos-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button type="button" id="confirmar-geracao-comprovantes-btn" class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Gerar Comprovantes</button></div></div></div>
-        <div id="sales-history-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-2xl rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-4 text-white" id="sales-history-modal-title">Histórico de Vendas</h2><div id="sales-history-table-container" class="max-h-[60vh] overflow-y-auto glass-card rounded-lg border border-white/10"></div><div class="flex justify-end mt-6"><button type="button" id="close-sales-history-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button></div></div></div>
-        <div id="comissao-manual-details-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-lg rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-4 text-white">Detalhes da Inclusão Manual</h2><div id="comissao-manual-details-content" class="space-y-3"></div><div class="flex justify-end gap-4 mt-6"><button type="button" id="aprovar-inclusao-manual-btn" class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Aprovar Inclusão</button><button type="button" id="close-comissao-manual-details-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button></div></div></div>
-        <div id="edit-rt-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-md rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-4 text-white">Editar Valor do RT</h2><form id="edit-rt-form"><input type="hidden" id="edit-rt-pagamento-id"><input type="hidden" id="edit-rt-pagamento-date"><label class="block text-sm font-medium text-gray-400 mb-1">Novo Valor do RT</label><input type="number" step="0.01" id="edit-rt-input" class="glass-input w-full rounded-lg p-3" required placeholder="Ex: 350.75"><div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-edit-rt-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button type="submit" class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Salvar</button></div></form></div></div>
-        <div id="sale-details-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm"><div class="w-full max-w-2xl rounded-xl glass-modal p-8"><h2 class="text-xl font-semibold mb-4 text-white" id="sale-details-modal-title">Detalhes da Venda</h2><div id="sale-details-content" class="max-h-[60vh] overflow-y-auto"></div><div class="flex justify-end gap-4 mt-6"><button type="button" id="import-single-sale-btn" class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Importar Venda</button><button type="button" id="close-sale-details-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button></div></div></div>
-        
+        </div>
+        <div id="arquiteto-mapping-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-3xl rounded-xl glass-modal">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold text-white mb-2">Mapear Colunas de Arquitetos</h2>
+                    <p class="text-gray-300 mb-6">Associe as colunas da sua planilha aos campos de cadastro.</p>
+                    <form id="arquiteto-mapping-form" class="space-y-4"></form>
+                    <div class="flex justify-end gap-4 mt-8"><button type="button" id="cancel-arquiteto-mapping-btn"
+                            class="rounded-lg bg-white/10 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button
+                            type="button" id="confirm-arquiteto-mapping-btn"
+                            class="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Confirmar
+                            Importação</button></div>
+                </div>
+            </div>
+        </div>
+        <div id="edit-arquiteto-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+            <div class="w-full max-w-4xl rounded-xl glass-modal my-8">
+                <div class="p-8">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Ficha do Arquiteto</h2>
+                            <p id="edit-arquiteto-id" class="text-gray-300 text-sm mt-1"></p>
+                        </div><button type="button" id="close-edit-modal-x-btn"
+                            class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                    </div>
+                    <form id="edit-arquiteto-form" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"><input
+                            type="hidden" id="edit-arquiteto-original-id">
+                        <div><label class="block text-sm font-medium text-gray-400">Nome Completo</label><input
+                                type="text" id="edit-arquiteto-nome" class="glass-input w-full rounded-lg p-2 mt-1"
+                                required></div>
+                        <div><label class="block text-sm font-medium text-gray-400">E-mail</label><input type="email"
+                                id="edit-arquiteto-email" class="glass-input w-full rounded-lg p-2 mt-1" required></div>
+                        <div><label class="block text-sm font-medium text-gray-400">Telefone</label><input type="tel"
+                                id="edit-arquiteto-telefone" class="glass-input w-full rounded-lg p-2 mt-1"></div>
+                        <div><label class="block text-sm font-medium text-gray-400">Quantidade de Vendas</label><input
+                                type="number" id="edit-arquiteto-vendas" class="glass-input w-full rounded-lg p-2 mt-1"
+                                min="0"></div>
+
+                        <!-- Bloco da Chave PIX Atualizado -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400">Tipo de Chave PIX</label>
+                            <select id="edit-arquiteto-tipo-pix" class="glass-input w-full rounded-lg p-2 mt-1">
+                                <option class="bg-background-dark" value="">Selecione...</option>
+                                <option class="bg-background-dark" value="CPF">CPF</option>
+                                <option class="bg-background-dark" value="CNPJ">CNPJ</option>
+                                <option class="bg-background-dark" value="EMAIL">E-mail</option>
+                                <option class="bg-background-dark" value="PHONE">Telefone</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400">Chave PIX</label>
+                            <input type="text" id="edit-arquiteto-pix" class="glass-input w-full rounded-lg p-2 mt-1">
+                        </div>
+                        <!-- Fim do Bloco Atualizado -->
+
+                        <div class="md:col-span-2 mt-4 pt-4 border-t border-white/10">
+                            <h3 class="text-lg font-semibold mb-2 text-white">Valores de RT</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="glass-card p-4 rounded-lg"><label
+                                        class="block text-sm font-medium text-gray-400">RT Acumulado</label>
+                                    <p id="edit-arquiteto-rt-acumulado" class="mt-1 text-2xl font-bold text-primary">
+                                    </p>
+                                </div>
+                                <div class="glass-card p-4 rounded-lg"><label
+                                        class="block text-sm font-medium text-gray-400">Total Pago</label>
+                                    <p id="edit-arquiteto-rt-total-pago" class="mt-1 text-2xl font-bold text-blue-400">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 mt-4 pt-4 border-t border-white/10">
+                            <h3 class="text-lg font-semibold mb-2 text-white">Configurações de Venda</h3>
+                            <div class="grid grid-cols-3 gap-4 items-end">
+                                <div><label class="block text-sm font-medium text-gray-400">Total Vendas</label>
+                                    <p id="rt-valor-vendas" class="mt-1 text-lg font-bold text-gray-200"></p>
+                                </div>
+                                <div><label for="rt-percentual"
+                                        class="block text-sm font-medium text-gray-400">Percentual RT</label><select
+                                        id="rt-percentual" class="glass-input w-full rounded-lg p-2 mt-1">
+                                        <option class="bg-background-dark" value="0.03">3%</option>
+                                        <option class="bg-background-dark" value="0.05">5%</option>
+                                        <option class="bg-background-dark" value="0.10">10%</option>
+                                    </select></div>
+                                <div><label class="block text-sm font-medium text-gray-400">Cálculo Exemplo</label>
+                                    <p id="rt-valor-calculado" class="mt-1 text-lg font-bold text-gray-200"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 flex flex-wrap justify-between items-center mt-6">
+                            <button type="button" id="delete-single-arquiteto-btn"
+                                class="btn-modal bg-red-600/80 hover:bg-red-600">Deletar Arquiteto</button>
+                            <div class="flex flex-wrap justify-end gap-4">
+                                <button type="button" id="consultar-vendas-btn"
+                                    class="btn-modal bg-blue-500/80 hover:bg-blue-500">Vendas Pilar</button>
+                                <button type="button" id="gerar-resgate-ficha-btn"
+                                    class="btn-modal bg-violet-500/80 hover:bg-violet-500">Gerar Resgate</button>
+                                <button type="button" id="gerar-pagamento-ficha-btn"
+                                    class="btn-modal bg-teal-500/80 hover:bg-teal-500">Gerar Pagamento</button>
+                                <button type="submit" class="btn-modal bg-primary/80 hover:bg-primary">Salvar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="add-value-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-md rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-4 text-white" id="add-value-modal-title">Adicionar Valor de Venda
+                    Manual</h2>
+                <form id="add-value-form"><input type="hidden" id="add-value-arquiteto-id"><label
+                        class="block text-sm font-medium text-gray-400 mb-1">Valor da Nova Venda</label><input
+                        type="number" step="0.01" id="add-value-input" class="glass-input w-full rounded-lg p-3"
+                        required placeholder="Ex: 1500.50">
+                    <div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-add-value-btn"
+                            class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button
+                            type="submit"
+                            class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Adicionar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="comprovante-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-lg rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-4 text-white" id="comprovante-modal-title">Detalhes do Pagamento
+                </h2>
+                <div class="space-y-4">
+                    <div><label class="block text-sm font-medium text-gray-400">Valor do RT</label>
+                        <p id="comprovante-valor-rt" class="mt-1 text-lg font-bold text-primary"></p>
+                    </div>
+                    <div><label class="block text-sm font-medium text-gray-400">Comprovante</label>
+                        <div id="comprovante-img-container"
+                            class="mt-2 border border-white/10 rounded-lg p-2 min-h-[100px] flex items-center justify-center glass-card">
+                            <p class="text-gray-400">Nenhum comprovante anexado.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6"><button type="button" id="close-comprovante-modal-btn"
+                        class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button>
+                </div>
+            </div>
+        </div>
+        <div id="gerar-pagamentos-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-4xl rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-2 text-white">Gerar Pagamentos Pendentes</h2>
+                <p class="text-sm text-gray-400 mb-6">Arquitetos com R$ 300,00 ou mais em RTs acumuladas.</p>
+                <div id="gerar-pagamentos-table-container"
+                    class="max-h-[50vh] overflow-y-auto glass-card rounded-lg border border-white/10"></div>
+                <div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-gerar-pagamentos-btn"
+                        class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button
+                        type="button" id="confirmar-geracao-comprovantes-btn"
+                        class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Gerar
+                        Comprovantes</button></div>
+            </div>
+        </div>
+        <div id="sales-history-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-2xl rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-4 text-white" id="sales-history-modal-title">Histórico de Vendas
+                </h2>
+                <div id="sales-history-table-container"
+                    class="max-h-[60vh] overflow-y-auto glass-card rounded-lg border border-white/10"></div>
+                <div class="flex justify-end mt-6"><button type="button" id="close-sales-history-btn"
+                        class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button>
+                </div>
+            </div>
+        </div>
+        <div id="comissao-manual-details-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-lg rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-4 text-white">Detalhes da Inclusão Manual</h2>
+                <div id="comissao-manual-details-content" class="space-y-3"></div>
+                <div class="flex justify-end gap-4 mt-6"><button type="button" id="aprovar-inclusao-manual-btn"
+                        class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Aprovar
+                        Inclusão</button><button type="button" id="close-comissao-manual-details-btn"
+                        class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button>
+                </div>
+            </div>
+        </div>
+        <div id="edit-rt-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-md rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-4 text-white">Editar Valor do RT</h2>
+                <form id="edit-rt-form"><input type="hidden" id="edit-rt-pagamento-id"><input type="hidden"
+                        id="edit-rt-pagamento-date"><label class="block text-sm font-medium text-gray-400 mb-1">Novo
+                        Valor do RT</label><input type="number" step="0.01" id="edit-rt-input"
+                        class="glass-input w-full rounded-lg p-3" required placeholder="Ex: 350.75">
+                    <div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-edit-rt-btn"
+                            class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar</button><button
+                            type="submit"
+                            class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="sale-details-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="w-full max-w-2xl rounded-xl glass-modal p-8">
+                <h2 class="text-xl font-semibold mb-4 text-white" id="sale-details-modal-title">Detalhes da Venda</h2>
+                <div id="sale-details-content" class="max-h-[60vh] overflow-y-auto"></div>
+                <div class="flex justify-end gap-4 mt-6"><button type="button" id="import-single-sale-btn"
+                        class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Importar
+                        Venda</button><button type="button" id="close-sale-details-btn"
+                        class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Fechar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal para Cadastro de Arquiteto Novo -->
-        <div id="novo-arquiteto-modal" class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div id="novo-arquiteto-modal"
+            class="modal fixed inset-0 z-50 items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
             <div class="w-full max-w-lg rounded-xl glass-modal p-8">
                 <h2 class="text-xl font-semibold mb-4 text-white">Cadastrar Novo Arquiteto</h2>
-                <p class="text-sm text-gray-400 mb-6">Um novo arquiteto foi detectado nas vendas. Por favor, preencha os dados obrigatórios:</p>
-                
+                <p class="text-sm text-gray-400 mb-6">Um novo arquiteto foi detectado nas vendas. Por favor, preencha os
+                    dados obrigatórios:</p>
+
                 <form id="novo-arquiteto-form" class="space-y-4">
                     <input type="hidden" id="novo-arquiteto-id">
                     <input type="hidden" id="novo-arquiteto-nome">
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">ID do Arquiteto</label>
-                        <input type="text" id="novo-arquiteto-id-display" class="glass-input w-full rounded-lg p-3" readonly>
+                        <input type="text" id="novo-arquiteto-id-display" class="glass-input w-full rounded-lg p-3"
+                            readonly>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Nome do Arquiteto</label>
-                        <input type="text" id="novo-arquiteto-nome-display" class="glass-input w-full rounded-lg p-3" readonly>
+                        <input type="text" id="novo-arquiteto-nome-display" class="glass-input w-full rounded-lg p-3"
+                            readonly>
                     </div>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">E-mail <span class="text-red-400">*</span></label>
-                        <input type="email" id="novo-arquiteto-email" class="glass-input w-full rounded-lg p-3" placeholder="exemplo@email.com" required>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">E-mail <span
+                                class="text-red-400">*</span></label>
+                        <input type="email" id="novo-arquiteto-email" class="glass-input w-full rounded-lg p-3"
+                            placeholder="exemplo@email.com" required>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Tipo de Chave PIX</label>
                         <select id="novo-arquiteto-tipo-pix" class="glass-input w-full rounded-lg p-3">
@@ -284,20 +695,27 @@
                             <option class="bg-background-dark" value="PHONE">Telefone</option>
                         </select>
                     </div>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-1">Chave PIX <span class="text-red-400">*</span></label>
-                        <input type="text" id="novo-arquiteto-pix" class="glass-input w-full rounded-lg p-3" placeholder="Digite a chave PIX" required>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Chave PIX <span
+                                class="text-red-400">*</span></label>
+                        <input type="text" id="novo-arquiteto-pix" class="glass-input w-full rounded-lg p-3"
+                            placeholder="Digite a chave PIX" required>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-1">Telefone</label>
-                        <input type="tel" id="novo-arquiteto-telefone" class="glass-input w-full rounded-lg p-3" placeholder="(11) 99999-9999">
+                        <input type="tel" id="novo-arquiteto-telefone" class="glass-input w-full rounded-lg p-3"
+                            placeholder="(11) 99999-9999">
                     </div>
-                    
+
                     <div class="flex justify-end gap-4 mt-6">
-                        <button type="button" id="cancel-novo-arquiteto-btn" class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar Importação</button>
-                        <button type="submit" class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Cadastrar e Continuar</button>
+                        <button type="button" id="cancel-novo-arquiteto-btn"
+                            class="rounded-lg bg-white/10 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20">Cancelar
+                            Importação</button>
+                        <button type="submit"
+                            class="rounded-lg bg-primary px-6 py-2 text-sm font-bold text-white shadow-lg transition-colors hover:bg-primary/90">Cadastrar
+                            e Continuar</button>
                     </div>
                 </form>
             </div>
@@ -306,9 +724,16 @@
 
     <!-- Scripts da aplicação -->
     <script type="module" src="js/utils.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/app.js"></script>
     <script type="module" src="js/events.js"></script>
+    <script type="module" src="./js/auth.js"></script>
+
+    <script type="module">
+        import RelacionamentoApp from './js/app.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            new RelacionamentoApp();
+        });
+    </script>
 
 </body>
+
 </html>
