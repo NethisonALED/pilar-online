@@ -11,18 +11,51 @@ export function initializeEventListeners(app) {
     }
 
     // --- NAVEGAÇÃO POR ABAS ---
-    const menuLinks = document.querySelectorAll('.menu-link');
-    const tabViews = document.querySelectorAll('.tab-view');
-    menuLinks.forEach(link => {
-        link.addEventListener('click', e => {
-            e.preventDefault();
-            if (link.id === 'logout-button') return; // O logout é tratado em auth.js
-            const targetTab = link.dataset.tab;
-            menuLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            tabViews.forEach(view => view.classList.toggle('active', view.id === `${targetTab}-view`));
-        });
-    });
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const tabViews = document.querySelectorAll('.tab-view');
+    
+    menuLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            if (link.id === 'logout-button') return; 
+            
+            const targetTab = link.dataset.tab;
+            
+            // 1. LIMPEZA COMPLETA (Remove active E as classes visuais cinzas/brancas)
+            menuLinks.forEach(l => {
+                l.classList.remove('active', 'bg-white/10', 'text-white');
+            });
+
+            // 2. ATIVAÇÃO COMPLETA (Adiciona active E as classes visuais)
+            link.classList.add('active', 'bg-white/10', 'text-white');
+            
+            // 3. Troca de Views (Lógica de CSS)
+            tabViews.forEach(view => {
+                // Verifica se é a view alvo
+                const isActive = view.id === `${targetTab}-view` || view.id === `${targetTab}-container`; // Ajuste para garantir compatibilidade com seus IDs
+                
+                // Toggle para garantir
+                view.classList.toggle('active', isActive);
+                
+                // Lógica explícita de hidden para garantir que suma
+                if (isActive) {
+                    view.classList.remove('hidden');
+                } else {
+                    view.classList.add('hidden');
+                }
+            });
+
+            // 4. Renderização Específica
+            if (targetTab === 'carteira') {
+                app.renderCarteiraTab();
+            }
+
+            // 5. Atualiza URL
+            const url = new URL(window.location);
+            url.searchParams.set('tab', targetTab);
+            window.history.pushState({}, '', url);
+        });
+    });
 
     // --- DELEGAÇÃO DE EVENTOS DE CLIQUE ---
     mainContainer.addEventListener('click', (e) => {

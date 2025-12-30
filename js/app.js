@@ -53,17 +53,56 @@ class RelacionamentoApp {
     }
 
     /**
-     * Inicializa a aplicação, carregando dados e configurando os event listeners.
+     * Inicializa a aplicação.
+     * Fluxo: Loading -> Auth -> URL -> Dados -> Render -> Fim Loading
      */
     async init() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            this.currentUserEmail = session.user.email;
-            this.currentUserId = session.user.id;
+        // 1. MOSTRA O LOADING
+        const globalLoader = document.getElementById('global-loading');
+        if (globalLoader) globalLoader.classList.remove('hidden');
+
+        try {
+            // 2. Auth Check
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                this.currentUserEmail = session.user.email;
+                this.currentUserId = session.user.id;
+            }
+
+            // 3. LEITURA IMEDIATA DA URL
+            const params = new URLSearchParams(window.location.search);
+            const activeTab = params.get('tab') || 'arquitetos'; 
+
+            // 4. TROCA VISUAL IMEDIATA
+            // O usuário já vê a estrutura da aba certa por baixo do loading
+            this.switchTabVisuals(activeTab);
+
+            // 5. CARREGAMENTO DE DADOS (A parte demorada)
+            await this.loadData();
+            
+            // 6. Configura Listeners e Renderiza
+            initializeEventListeners(this);
+            this.renderAll();
+
+            // Render específico se for Carteira
+            if (activeTab === 'carteira') {
+                setTimeout(() => this.renderCarteiraTab(), 0);
+            }
+
+        } catch (error) {
+            console.error("Erro crítico na inicialização:", error);
+            alert("Erro ao carregar o sistema. Verifique o console.");
+        } finally {
+            // 7. ESCONDE O LOADING (Sempre executa, mesmo com erro)
+            if (globalLoader) {
+                // Adiciona uma transição suave de opacidade antes de esconder
+                globalLoader.style.opacity = '0';
+                setTimeout(() => {
+                    globalLoader.classList.add('hidden');
+                    globalLoader.style.opacity = '1'; // Reseta para a próxima vez
+                }, 500); // Espera 0.5s da transição CSS
+            }
         }
-        await this.loadData();
-        initializeEventListeners(this);
-        this.renderAll();
     }
     
     /**
@@ -2572,6 +2611,34 @@ class RelacionamentoApp {
         // Esconde loading se estiver visível (caso cache hit)
         const statusDiv = document.getElementById('carteira-loading-status');
         if(statusDiv) statusDiv.classList.add('hidden');
+    }
+
+    /**
+     * Helper para forçar a troca visual de aba imediatamente.
+     */
+    switchTabVisuals(targetTab) {
+        // 1. Atualiza Menu Lateral
+        const menuLinks = document.querySelectorAll('.menu-link');
+        menuLinks.forEach(l => l.classList.remove('active', 'bg-white/10', 'text-white'));
+        
+        const activeBtn = document.querySelector(`.menu-link[data-tab="${targetTab}"]`);
+        if (activeBtn) activeBtn.classList.add('active', 'bg-white/10', 'text-white');
+
+        // 2. Atualiza Conteúdo Principal
+        // Baseado na lógica do seu events.js que usa IDs como 'arquitetos-view' ou 'carteira-view'
+        const tabViews = document.querySelectorAll('.tab-view');
+        tabViews.forEach(view => {
+            const isActive = view.id === `${targetTab}-view`;
+            
+            // Aplica a lógica de CSS que você usa (toggle active e hidden)
+            if (isActive) {
+                view.classList.add('active');
+                view.classList.remove('hidden');
+            } else {
+                view.classList.remove('active');
+                view.classList.add('hidden');
+            }
+        });
     }
 
     /**

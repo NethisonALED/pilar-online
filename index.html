@@ -47,6 +47,17 @@
 </head>
 <body class="font-display bg-background-dark text-gray-200">
 
+    <div id="global-loading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f1218] transition-opacity duration-500">
+        <div class="relative flex items-center justify-center">
+            <div class="w-16 h-16 border-4 border-blue-600/30 border-t-blue-500 rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span class="material-symbols-outlined text-blue-400 text-2xl">bolt</span>
+            </div>
+        </div>
+        <h2 class="mt-4 text-white font-bold text-lg tracking-wide">Carregando Sistema...</h2>
+        <p class="text-gray-500 text-sm mt-1">Sincronizando dados</p>
+    </div>
+
     <!-- Fundo Global -->
     <div class="fixed inset-0 -z-10 h-full w-full bg-cover bg-center" style="background-image: url('https://www.urban.imb.br/blog/wp-content/uploads/2023/05/Design-sem-nome-25.png.webp');"></div>
     <div class="fixed inset-0 -z-10 h-full w-full bg-background-dark/80 backdrop-blur-sm"></div>
