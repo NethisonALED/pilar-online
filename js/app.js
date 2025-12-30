@@ -2421,9 +2421,9 @@ class RelacionamentoApp {
 
                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
                             <div>
-                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest text-red-400">Risco de Churn (>60 dias)</h3>
+                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest text-red-400">Risco de Churn (>90 dias)</h3>
                                 <p class="text-2xl font-bold text-white mt-1" id="kpi-churn-risk">0 Parceiros</p>
-                                <p class="text-xs text-gray-500 mt-1">Sem enviar projetos novos há 2 meses</p>
+                                <p class="text-xs text-gray-500 mt-1">Sem enviar projetos novos há 3 meses</p>
                             </div>
                             <div class="p-3 rounded-full bg-red-500/20 text-red-400">
                                 <span class="material-symbols-outlined text-3xl">warning</span>
@@ -2503,18 +2503,17 @@ class RelacionamentoApp {
      * Processa os dados e atualiza a interface (Tabela OU Dashboard).
      */
     async loadCarteiraWithProgress() {
-        const statusDiv = document.getElementById('carteira-loading-status');
-        const statusText = document.getElementById('carteira-loading-text');
-        const progressBar = document.getElementById('carteira-progress-bar');
-        const counterText = document.getElementById('carteira-counter-text');
-        
-        // Elemento da tabela (pode não existir se estivermos na Dashboard)
-        const tbody = document.getElementById('carteira-table-body');
+        // Pega referências iniciais
+        let statusDiv = document.getElementById('carteira-loading-status');
+        let statusText = document.getElementById('carteira-loading-text');
+        let progressBar = document.getElementById('carteira-progress-bar');
+        let counterText = document.getElementById('carteira-counter-text');
+        let tbody = document.getElementById('carteira-table-body');
 
         if (statusDiv) {
             statusDiv.classList.remove('hidden');
-            statusText.textContent = `Processando (${this.carteiraPeriod})...`;
-            progressBar.style.width = '5%';
+            if(statusText) statusText.textContent = `Processando (${this.carteiraPeriod})...`;
+            if(progressBar) progressBar.style.width = '5%';
         }
 
         // Se estivermos em modo Lista, limpa a tabela antes
@@ -2523,6 +2522,7 @@ class RelacionamentoApp {
         try {
             // 1. Carregar dados da API (se necessário)
             if (this.sysledData.length === 0) {
+                if(statusText) statusText.textContent = "Buscando dados da API...";
                 await this.fetchSysledData();
             }
             if (!this.sysledData || this.sysledData.length === 0) throw new Error("Sem dados.");
@@ -2538,38 +2538,38 @@ class RelacionamentoApp {
             const total = this.carteira.length;
             let combinedData = [];
 
-            // 3. Loop de Cálculo (Gera os dados filtrados)
+            // 3. Loop de Cálculo
             for (let i = 0; i < total; i++) {
                 const parceiro = this.carteira[i];
                 
                 // UI Update (Frequência reduzida para performance)
-                if (i % 5 === 0 && counterText) {
-                    const progressPercent = Math.round(((i + 1) / total) * 100);
-                    counterText.textContent = `${i + 1}/${total}`;
-                    progressBar.style.width = `${progressPercent}%`;
+                if (i % 5 === 0) {
+                    // RECAPTURA ELEMENTOS (Caso o usuário tenha trocado de aba no meio do loop)
+                    counterText = document.getElementById('carteira-counter-text');
+                    progressBar = document.getElementById('carteira-progress-bar');
+                    
+                    if (counterText) counterText.textContent = `${i + 1}/${total}`;
+                    if (progressBar) {
+                        const progressPercent = Math.round(((i + 1) / total) * 100);
+                        progressBar.style.width = `${progressPercent}%`;
+                    }
                     await new Promise(r => setTimeout(r, 0));
                 }
 
                 const arq = this.arquitetos.find(a => String(a.id) === String(parceiro.id_parceiro));
                 const partnerApiData = sysledMap.get(String(parceiro.id_parceiro)) || [];
                 
-                // Calcula KPIs do período
                 const kpis = this.calculateKPIsFromSubset(partnerApiData, this.carteiraPeriod);
 
                 combinedData.push({
                     ...parceiro,
-                    
-                    // VENDAS: Usa o valor calculado do período (baseado em valorFinanceiro)
                     vendas: kpis.vendas_periodo, 
-                    
-                    // COMISSÕES: Mantém o valor GERAL do banco de dados (saldo acumulado)
                     comissoes: arq ? arq.rt_acumulado : 0, 
-                    
                     ...kpis
                 });
             }
 
-            // 4. Ordenação (aplica para ambos os modos para consistência)
+            // 4. Ordenação
             if (this.carteiraSortColumn) {
                 combinedData.sort((a, b) => {
                     let valA = a[this.carteiraSortColumn];
@@ -2581,7 +2581,7 @@ class RelacionamentoApp {
                     } else if (this.carteiraSortColumn === 'saude_carteira') {
                         valA = parseFloat(valA) || 0; valB = parseFloat(valB) || 0;
                     }
-                    else if (['projeto_fechado', 'projeto_enviado'].includes(this.carteiraSortColumn)) {
+                    else if (['projeto_fechado', 'projeto_enviado', 'vendas', 'comissoes'].includes(this.carteiraSortColumn)) {
                         valA = Number(valA) || 0; valB = Number(valB) || 0;
                     }
 
@@ -2591,23 +2591,35 @@ class RelacionamentoApp {
                 });
             }
 
-            // 5. ATUALIZAÇÃO DA INTERFACE (O Pulo do Gato)
+            // 5. ATUALIZAÇÃO DA INTERFACE
+            
+            // Recaptura o tbody pois ele pode ter sido destruído se fomos para Dash
+            tbody = document.getElementById('carteira-table-body');
             
             if (this.carteiraViewMode === 'dashboard') {
-                // Se estiver na Dash, atualiza os gráficos e KPIs
                 this.renderDashboardCharts(combinedData);
             } else if (tbody) {
-                // Se estiver na Lista, atualiza a tabela
                 const rowsBuffer = combinedData.map((item, index) => this.createCarteiraRow(item, index)).join('');
                 tbody.innerHTML = rowsBuffer || '<tr><td colspan="11" class="text-center text-gray-400 py-8">Nenhum parceiro encontrado.</td></tr>';
             }
 
-            // Finalização
+            // Finalização Segura (Procura os elementos novamente para garantir que escondemos o certo)
+            statusText = document.getElementById('carteira-loading-text');
+            statusDiv = document.getElementById('carteira-loading-status');
+            
             if (statusText) statusText.textContent = "Concluído!";
-            if (statusDiv) setTimeout(() => statusDiv.classList.add('hidden'), 500);
+            if (statusDiv) {
+                // Pequeno delay para usuário ver o 100%
+                setTimeout(() => {
+                    // Verifica novamente se o elemento ainda existe antes de manipular classe
+                    const divRef = document.getElementById('carteira-loading-status');
+                    if(divRef) divRef.classList.add('hidden');
+                }, 500);
+            }
 
         } catch (error) {
             console.error(error);
+            statusText = document.getElementById('carteira-loading-text');
             if (statusText) statusText.textContent = "Erro!";
         }
     }
@@ -2713,7 +2725,7 @@ class RelacionamentoApp {
 
         // Lógica de cor para Tempo sem Envio
         const dias = parseInt(item.tempo_sem_envio);
-        const tempoClass = (item.tempo_sem_envio !== '-' && !isNaN(dias) && dias > 60) ? 'text-red-400 font-bold' : 'text-gray-300';
+        const tempoClass = (item.tempo_sem_envio !== '-' && !isNaN(dias) && dias > 90) ? 'text-red-400 font-bold' : (dias === 90) ? 'text-yellow-400 font-bold' : 'text-gray-300';
 
         return `
             <tr class="group border-b border-white/5 hover:bg-white/5 transition-colors ${index % 2 === 0 ? 'bg-white/[0.02]' : ''} animate-fade-in">
@@ -2923,11 +2935,11 @@ class RelacionamentoApp {
         // 5. Risco de Churn (Parceiros com Tempo s/ Envio > 60 dias)
         // Precisamos tratar o texto "145 dias" ou "-" para número
         const churnRiskCount = data.filter(p => {
-            if (!p.tempo_sem_envio || p.tempo_sem_envio === '-' || p.tempo_sem_envio === 'N/A') return false; // Ou true se quiser considerar "Nunca enviou" como risco
+            if (!p.tempo_sem_envio || p.tempo_sem_envio === '-' || p.tempo_sem_envio === 'N/A') return false; 
             const dias = parseInt(p.tempo_sem_envio.replace(/\D/g, ''));
-            return dias > 60;
+            // MUDEI AQUI DE 60 PARA 90
+            return dias > 90;
         }).length;
-
 
         // --- ATUALIZAÇÃO DO DOM ---
         
