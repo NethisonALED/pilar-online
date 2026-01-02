@@ -17,7 +17,22 @@ register_shutdown_function(function() {
 });
 
 // Configurações de CORS
-header("Access-Control-Allow-Origin: *");
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowed_domains = [
+    'https://www.seusite.com.br',
+    'https://seusite.com.br',
+    'http://localhost:8000', 
+    'http://127.0.0.1:5500'
+];
+
+if (in_array($origin, $allowed_domains)) {
+    header("Access-Control-Allow-Origin: $origin");
+} else {
+    // Opcional: Se quiser ser restrito, descomente abaixo. 
+    // Por enquanto pode deixar * se tiver medo de errar o domínio.
+    header("Access-Control-Allow-Origin: *"); 
+}
+
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
