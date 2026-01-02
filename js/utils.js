@@ -1,8 +1,11 @@
 // --- CONFIGURAÇÃO E INICIALIZAÇÃO DO SUPABASE ---
 // Esta instância é exportada para ser usada em toda a aplicação.
 // Importa e configura o dotenv
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
-export const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { CONFIG } from './config.js';
+export const supabase = window.supabase.createClient(
+    CONFIG.SUPABASE.URL, 
+    CONFIG.SUPABASE.ANON_KEY
+);
 
 
 // --- FUNÇÕES UTILITÁRIAS EXPORTADAS ---

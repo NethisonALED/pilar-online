@@ -1,0 +1,20 @@
+# 1. SEGURANÇA: Bloqueia acesso a arquivos ocultos (.env, .git, .htaccess, etc)
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 2. SEGURANÇA: Evita listagem de diretórios (se não tiver index.html)
+Options -Indexes
+
+# 3. REDIRECIONAMENTO: Força HTTPS
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>

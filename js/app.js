@@ -8,8 +8,9 @@ import {
   formatApiNumberToBR,
   parseApiNumber,
 } from "./utils.js";
-import { getSecureContext } from "./secure-context.js";
 import { initializeEventListeners } from "./events.js";
+import { CONFIG } from "./config.js";
+
 class RelacionamentoApp {
   constructor() {
     // Estado da aplicação
@@ -52,12 +53,8 @@ class RelacionamentoApp {
     this.sortColumn = "nome";
     this.sortDirection = "asc";
 
-    // Inicializa credenciais seguras
-    const secureData = getSecureContext();
-    this.sysledApiUrl =
-      "https://integration.sysled.com.br/n8n/api/?v_crm_oportunidades_propostas_up180dd=null";
-    this.sysledAuthToken =
-      "e4b6f9082f1b8a1f37ad5b56e637f3ec719ec8f0b6acdd093972f9c5bb29b9ed";
+    this.sysledApiUrl = CONFIG.SYSLED.API_URL;
+    this.sysledAuthToken = CONFIG.SYSLED.AUTH_TOKEN;
 
     this.init();
   }
@@ -2503,7 +2500,6 @@ renderSysledTable() {
                     <div class="absolute w-20 h-20 border-8 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
                     <span class="material-symbols-outlined text-4xl text-emerald-500">architecture</span>
                 </div>
-                <p class="text-emerald-500 font-bold text-xs mt-4 tracking-widest uppercase animate-pulse">Carregando dados...</p>
             </div>
         `;
         
@@ -2528,7 +2524,6 @@ renderSysledTable() {
       const response = await fetch(this.sysledApiUrl, {
           method: 'GET',
           headers: {
-              'Authorization': this.sysledAuthToken || '',
               'Content-Type': 'application/json'
           }
       });
@@ -4447,9 +4442,7 @@ renderSysledTable() {
     if (this.sysledData.length === 0) {
       try {
         // Tenta buscar silenciosamente se não tiver dados
-        const response = await fetch(this.sysledApiUrl, {
-          headers: { Authorization: this.sysledAuthToken },
-        });
+        const response = await fetch(this.sysledApiUrl);
         if (response.ok) this.sysledData = await response.json();
       } catch (e) {
         console.warn(
