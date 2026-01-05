@@ -752,11 +752,12 @@ renderSysledTable() {
       }, 50);
     }
 
-    // --- FILTRAGEM (Mantida) ---
+    // --- FILTRAGEM ATUALIZADA ---
     const dataInicio = document.getElementById("sysled-filter-data-inicio")?.value;
     const dataFim = document.getElementById("sysled-filter-data-fim")?.value;
     const termoBusca = document.getElementById("sysled-filter-search")?.value.toLowerCase();
 
+    // Controle do botão 'X' de limpar busca
     const clearBtn = document.getElementById("sysled-clear-search-btn");
     if (clearBtn) {
       if (termoBusca && termoBusca.length > 0) clearBtn.classList.remove("hidden");
@@ -764,13 +765,37 @@ renderSysledTable() {
     }
 
     let dataToRender = this.sysledData.filter((row) => {
-      const rowDate = row.dataFinalizacaoPrevenda ? row.dataFinalizacaoPrevenda.split("T")[0] : null;
-      if (dataInicio && rowDate && rowDate < dataInicio) return false;
-      if (dataFim && rowDate && rowDate > dataFim) return false;
+      // 1. REGRA CRÍTICA: STATUS 9
+      // Só exibe se pedidoStatus for "9". Se for qualquer outra coisa (ex: "1"), ignora.
+      if (String(row.pedidoStatus) !== "9") return false;
+
+      // 2. REGRA DE EXCLUSÃO (Parceiro 0 e 11)
+      const pCodigo = String(row.parceiroCodigo || "").trim();
+      if (pCodigo === "0" || pCodigo === "11") return false;
+
+      // 3. FILTRO DE DATA (dataFinalizacaoPrevenda)
+      const rawDate = row.dataFinalizacaoPrevenda; 
+      const rowDate = rawDate ? rawDate.split("T")[0] : null;
+
+      // Se houver filtro de data ativo, removemos quem não tem data (null)
+      if ((dataInicio || dataFim) && !rowDate) return false;
+      
+      if (dataInicio && rowDate < dataInicio) return false;
+      if (dataFim && rowDate > dataFim) return false;
+
+      // 4. BUSCA TEXTUAL
       if (termoBusca) {
-        const searchString = [row.consultor, row.parceiro, row.parceiroCodigo, row.idPedido, row.clienteFantasia].join(" ").toLowerCase();
+        const searchString = [
+          row.consultor, 
+          row.parceiro, 
+          row.parceiroCodigo, 
+          row.idPedido, 
+          row.clienteFantasia
+        ].join(" ").toLowerCase();
+        
         if (!searchString.includes(termoBusca)) return false;
       }
+
       return true;
     });
 
@@ -842,18 +867,39 @@ renderSysledTable() {
   }
 
   /**
-   * Remove um item da tabela Sysled visualmente
+   * Remove TODOS os itens de um determinado Parceiro da visualização
    */
-  handleDeleteSysled(id) {
-    if (!confirm(`Tem certeza que deseja remover o item ${id} da visualização?`)) return;
+  handleDeleteSysled(idPedidoClicado) {
+    // 1. Encontra o item clicado para descobrir qual é o parceiroCodigo
+    const itemAlvo = this.sysledData.find(
+      (item) => String(item.idPedido) === String(idPedidoClicado)
+    );
 
-    // Remove do array principal (dados brutos)
-    this.sysledData = this.sysledData.filter(item => String(item.idPedido) !== String(id));
+    if (!itemAlvo) return; // Segurança caso algo estranho aconteça
+
+    const codigoParceiro = String(itemAlvo.parceiroCodigo);
+    const nomeParceiro = itemAlvo.parceiro || "Desconhecido";
+
+    // 2. Confirmação explícita
+    if (
+      !confirm(
+        `ATENÇÃO: Você vai remover o parceiro "${nomeParceiro}" (Cód: ${codigoParceiro}).\n\nIsso removerá TODOS os pedidos associados a ele desta lista.\nDeseja continuar?`
+      )
+    ) {
+      return;
+    }
+
+    // 3. Remove do array principal TUDO que tiver esse parceiroCodigo
+    this.sysledData = this.sysledData.filter(
+      (item) => String(item.parceiroCodigo) !== codigoParceiro
+    );
     
-    // Remove do array filtrado (o que está aparecendo na tela agora)
-    this.sysledFilteredData = this.sysledFilteredData.filter(item => String(item.idPedido) !== String(id));
+    // 4. Remove do array filtrado também para atualizar a tela imediatamente
+    this.sysledFilteredData = this.sysledFilteredData.filter(
+      (item) => String(item.parceiroCodigo) !== codigoParceiro
+    );
 
-    // Manda desenhar a tabela de novo sem o item
+    // 5. Manda desenhar a tabela de novo
     this.renderSysledTable();
   }
 
