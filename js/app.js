@@ -681,12 +681,14 @@ renderSysledTable() {
     if (!document.getElementById("sysled-ui-structure-card")) {
       const headers = Object.keys(this.sysledData[0] || {});
 
+      
       // Header da Tabela
-      const headerHtml = headers.map(h =>
-          `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-default hover:text-white transition-colors">
-              ${h.replace(/_/g, " ")}
-          </th>`
-      ).join("");
+      const headerHtml = 
+      `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">AÇÕES</th>` + headers.map(h =>
+        `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-default hover:text-white transition-colors">
+            ${h.replace(/_/g, " ")}
+        </th>`
+      ).join("") 
 
       // HTML Principal
       container.innerHTML = `
@@ -799,8 +801,21 @@ renderSysledTable() {
               }
               return `<td class="px-6 py-4 whitespace-nowrap text-center truncate max-w-[200px]" title="${cellValue}">${cellValue ?? "-"}</td>`;
             }).join("");
+
+            const rowId = row.idPedido || row.id || index; 
+
+            // Botão de Delete
+            const actionCell = `
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <button class="delete-sysled-item-btn p-2 rounded-full hover:bg-red-500/10 text-gray-500 hover:text-red-500 transition-colors" data-id="${rowId}" title="Remover da lista">
+                        <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                </td>
+            `;
           const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
-          return `<tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-400 hover:text-gray-200">${cells}</tr>`;
+          return `<tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-400 hover:text-gray-200">
+        ${actionCell}${cells}
+    </tr>`;
         }).join("");
     }
 
@@ -824,6 +839,22 @@ renderSysledTable() {
     if (direction === "next") this.sysledPage++;
     else if (direction === "prev" && this.sysledPage > 1) this.sysledPage--;
     this.renderSysledTable(); // Re-renderiza apenas a tabela com a nova página
+  }
+
+  /**
+   * Remove um item da tabela Sysled visualmente
+   */
+  handleDeleteSysled(id) {
+    if (!confirm(`Tem certeza que deseja remover o item ${id} da visualização?`)) return;
+
+    // Remove do array principal (dados brutos)
+    this.sysledData = this.sysledData.filter(item => String(item.idPedido) !== String(id));
+    
+    // Remove do array filtrado (o que está aparecendo na tela agora)
+    this.sysledFilteredData = this.sysledFilteredData.filter(item => String(item.idPedido) !== String(id));
+
+    // Manda desenhar a tabela de novo sem o item
+    this.renderSysledTable();
   }
 
   renderSalesHistoryModal(salesData, isApiData) {

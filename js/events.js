@@ -169,6 +169,16 @@ export function initializeEventListeners(app) {
       }
     }
 
+    if (target.closest("#sysled-clear-search-btn")) {
+        // ... (código existente)
+    }
+
+    // --- ADICIONE ISTO AQUI ---
+    const deleteSysledBtn = target.closest(".delete-sysled-item-btn");
+    if (deleteSysledBtn) {
+        app.handleDeleteSysled(deleteSysledBtn.dataset.id);
+    }
+
     // --- NOVO: Paginação Sysled ---
     const pageBtn = target.closest(".sysled-page-btn");
     if (pageBtn) {
