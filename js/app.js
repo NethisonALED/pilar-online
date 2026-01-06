@@ -56,21 +56,50 @@ class RelacionamentoApp {
     this.sysledApiUrl = CONFIG.SYSLED.API_URL;
     this.sysledAuthToken = CONFIG.SYSLED.AUTH_TOKEN;
 
-    this.crmDeals = []
-    this.crmLoading = false
-    this.bitrixWebhookUrl = "https://atacadaoled.bitrix24.com.br/rest/2647/vaoafc68g9602xzh/"
+    this.crmDeals = [];
+    this.crmLoading = false;
+    this.bitrixWebhookUrl =
+      "https://atacadaoled.bitrix24.com.br/rest/2647/vaoafc68g9602xzh/";
     this.crmNextStart = 0;
 
     this.crmStageFilter = ""; // Vazio = Todas
     this.crmCurrentPage = 1;
     this.crmItemsPerPage = 15;
 
+    this.ASSIGNED_MAP = {
+      100: "Renato Campos",
+      2258: "Aderúcia Pereira",
+      2581: "Amanda Gomes",
+      52: "Yuri Queiroz",
+      2415: "Ana Flavia",
+      2593: "Gabriela Lima",
+      2767: "Isabela Silva",
+    };
+
+    // Prefixos para remover do Título (Ordem importa: frases maiores primeiro)
+    this.TITLE_PREFIXES = [
+      "Projeto Residencial",
+      "Lista de Projeto Comercial",
+      "Lista de Projeto Residencial",
+      "Projeto Comercial",
+      "Projeto Corporativo",
+      "Decorativo Residencial",
+      "Residencial",
+      "Decorativo",
+      "Projeto",
+      "Varejo",
+      "Venda Direta Corporativo",
+      "Venda Direta",
+    ];
+
     this.STAGE_MAP = {
-            "C8:UC_JF57DU": "Acompanhamento",
-            "C8:NEW": "Fechamentos Mês",
-            "C8:UC_YE7R3J": "Oportunidades",
-            "C8:UC_RBNO3W": "Proposta Enviada",
-        };
+      "C221:UC_81M96W": "Acompanhamento com Arq",
+      "C221:UC_BJEHYC": "Fechamento Semana",
+      "C221:UC_K7OAVW": "Mapeamento de Decisor",
+      "C221:NEW": "Nova Solicitação",
+      "C221:UC_T80ZI3": "Orçamento Liberado",
+      "C221:UC_R0WTIC": "Proposta Enviada",
+    };
 
     this.init();
   }
@@ -79,7 +108,7 @@ class RelacionamentoApp {
    * Inicializa a aplicação.
    * Fluxo: Loading -> Auth Check -> Toggle Tela (Login vs App) -> Dados
    */
-    async init() {
+  async init() {
     const globalLoader = document.getElementById("global-loading");
     const authContainer = document.getElementById("auth-container");
     const appContainer = document.getElementById("app-container");
@@ -123,13 +152,12 @@ class RelacionamentoApp {
       // --- NOVO: CARREGAMENTO AUTOMÁTICO SYSLED ---
       // Se a aba inicial for a do Sysled, busca os dados da API automaticamente
       if (activeTab === "consulta-sysled") {
-         this.fetchSysledData();
+        this.fetchSysledData();
       }
 
       if (activeTab === "crm-opportunities") {
         this.renderCrmTab();
       }
-
     } catch (error) {
       console.error("Erro crítico:", error);
       alert("Erro ao iniciar. Tente recarregar.");
@@ -684,7 +712,7 @@ class RelacionamentoApp {
       quantidadeRTsNaoPagas;
   }
 
-renderSysledTable() {
+  renderSysledTable() {
     const container = document.getElementById("sysled-table-container");
     if (!container) return;
 
@@ -692,23 +720,26 @@ renderSysledTable() {
     // Se não tem dados, não desenhamos nada (o loading do fetch estará por cima)
     // ou desenhamos um placeholder vazio se o fetch ainda não começou.
     if (this.sysledData.length === 0) {
-        // Deixamos vazio ou mantemos o último estado de erro.
-        // O fetchSysledData cuida de colocar o Spinner.
-        return;
+      // Deixamos vazio ou mantemos o último estado de erro.
+      // O fetchSysledData cuida de colocar o Spinner.
+      return;
     }
 
     // --- ESTRUTURAÇÃO (DESIGN GLASS PREMIUM) ---
     if (!document.getElementById("sysled-ui-structure-card")) {
       const headers = Object.keys(this.sysledData[0] || {});
 
-      
       // Header da Tabela
-      const headerHtml = 
-      `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">AÇÕES</th>` + headers.map(h =>
-        `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-default hover:text-white transition-colors">
+      const headerHtml =
+        `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">AÇÕES</th>` +
+        headers
+          .map(
+            (h) =>
+              `<th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest whitespace-nowrap sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-default hover:text-white transition-colors">
             ${h.replace(/_/g, " ")}
         </th>`
-      ).join("") 
+          )
+          .join("");
 
       // HTML Principal
       container.innerHTML = `
@@ -765,22 +796,35 @@ renderSysledTable() {
       setTimeout(() => {
         if (typeof flatpickr !== "undefined") {
           flatpickr(".datepicker", {
-            locale: "pt", dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", theme: "dark", disableMobile: "true",
-            onChange: () => { this.sysledPage = 1; this.renderSysledTable(); },
+            locale: "pt",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            theme: "dark",
+            disableMobile: "true",
+            onChange: () => {
+              this.sysledPage = 1;
+              this.renderSysledTable();
+            },
           });
         }
       }, 50);
     }
 
     // --- FILTRAGEM ATUALIZADA ---
-    const dataInicio = document.getElementById("sysled-filter-data-inicio")?.value;
+    const dataInicio = document.getElementById(
+      "sysled-filter-data-inicio"
+    )?.value;
     const dataFim = document.getElementById("sysled-filter-data-fim")?.value;
-    const termoBusca = document.getElementById("sysled-filter-search")?.value.toLowerCase();
+    const termoBusca = document
+      .getElementById("sysled-filter-search")
+      ?.value.toLowerCase();
 
     // Controle do botão 'X' de limpar busca
     const clearBtn = document.getElementById("sysled-clear-search-btn");
     if (clearBtn) {
-      if (termoBusca && termoBusca.length > 0) clearBtn.classList.remove("hidden");
+      if (termoBusca && termoBusca.length > 0)
+        clearBtn.classList.remove("hidden");
       else clearBtn.classList.add("hidden");
     }
 
@@ -794,25 +838,27 @@ renderSysledTable() {
       if (pCodigo === "0" || pCodigo === "11") return false;
 
       // 3. FILTRO DE DATA (dataFinalizacaoPrevenda)
-      const rawDate = row.dataFinalizacaoPrevenda; 
+      const rawDate = row.dataFinalizacaoPrevenda;
       const rowDate = rawDate ? rawDate.split("T")[0] : null;
 
       // Se houver filtro de data ativo, removemos quem não tem data (null)
       if ((dataInicio || dataFim) && !rowDate) return false;
-      
+
       if (dataInicio && rowDate < dataInicio) return false;
       if (dataFim && rowDate > dataFim) return false;
 
       // 4. BUSCA TEXTUAL
       if (termoBusca) {
         const searchString = [
-          row.consultor, 
-          row.parceiro, 
-          row.parceiroCodigo, 
-          row.idPedido, 
-          row.clienteFantasia
-        ].join(" ").toLowerCase();
-        
+          row.consultor,
+          row.parceiro,
+          row.parceiroCodigo,
+          row.idPedido,
+          row.clienteFantasia,
+        ]
+          .join(" ")
+          .toLowerCase();
+
         if (!searchString.includes(termoBusca)) return false;
       }
 
@@ -829,52 +875,81 @@ renderSysledTable() {
     const endIndex = startIndex + this.sysledItemsPerPage;
     const pageData = this.sysledFilteredData.slice(startIndex, endIndex);
     const tbody = document.getElementById("sysled-table-body");
-    const paginationContainer = document.getElementById("sysled-pagination-container");
+    const paginationContainer = document.getElementById(
+      "sysled-pagination-container"
+    );
 
     if (pageData.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="${Object.keys(this.sysledData[0] || {}).length}" class="text-center text-gray-500 py-32 italic">
+      tbody.innerHTML = `<tr><td colspan="${
+        Object.keys(this.sysledData[0] || {}).length
+      }" class="text-center text-gray-500 py-32 italic">
             <div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">search_off</span><span>Nenhum resultado encontrado.</span></div>
         </td></tr>`;
     } else {
-      tbody.innerHTML = pageData.map((row, index) => {
-          const cells = Object.keys(this.sysledData[0] || {}).map((h) => {
+      tbody.innerHTML = pageData
+        .map((row, index) => {
+          const cells = Object.keys(this.sysledData[0] || {})
+            .map((h) => {
               let cellValue = row[h];
               const lower = h.toLowerCase();
-              if (lower.includes("data")) cellValue = formatApiDateToBR(cellValue);
-              else if (["valornota", "valorfinanceiro", "total"].some((key) => lower.includes(key))) {
-                if (cellValue !== null && !isNaN(Number(String(cellValue)))) cellValue = formatApiNumberToBR(cellValue);
+              if (lower.includes("data"))
+                cellValue = formatApiDateToBR(cellValue);
+              else if (
+                ["valornota", "valorfinanceiro", "total"].some((key) =>
+                  lower.includes(key)
+                )
+              ) {
+                if (cellValue !== null && !isNaN(Number(String(cellValue))))
+                  cellValue = formatApiNumberToBR(cellValue);
               }
-              return `<td class="px-6 py-4 whitespace-nowrap text-center truncate max-w-[200px]" title="${cellValue}">${cellValue ?? "-"}</td>`;
-            }).join("");
+              return `<td class="px-6 py-4 whitespace-nowrap text-center truncate max-w-[200px]" title="${cellValue}">${
+                cellValue ?? "-"
+              }</td>`;
+            })
+            .join("");
 
-            const rowId = row.idPedido || row.id || index; 
+          const rowId = row.idPedido || row.id || index;
 
-            // Botão de Delete
-            const actionCell = `
+          // Botão de Delete
+          const actionCell = `
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                     <button class="delete-sysled-item-btn p-2 rounded-full hover:bg-red-500/10 text-gray-500 hover:text-red-500 transition-colors" data-id="${rowId}" title="Remover da lista">
                         <span class="material-symbols-outlined text-lg">delete</span>
                     </button>
                 </td>
             `;
-          const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
+          const bgClass =
+            index % 2 === 0 ? "bg-transparent" : "bg-[#10b981]/[0.02]";
           return `<tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-400 hover:text-gray-200">
         ${actionCell}${cells}
     </tr>`;
-        }).join("");
+        })
+        .join("");
     }
 
     paginationContainer.innerHTML = `
-        <span class="text-xs text-gray-500 font-medium">Mostrando <b class="text-gray-300">${totalItems > 0 ? startIndex + 1 : 0}</b> - <b class="text-gray-300">${Math.min(endIndex, totalItems)}</b> de <b class="text-gray-300">${totalItems}</b></span>
+        <span class="text-xs text-gray-500 font-medium">Mostrando <b class="text-gray-300">${
+          totalItems > 0 ? startIndex + 1 : 0
+        }</b> - <b class="text-gray-300">${Math.min(
+      endIndex,
+      totalItems
+    )}</b> de <b class="text-gray-300">${totalItems}</b></span>
         <div class="flex gap-2">
-            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="prev" ${this.sysledPage === 1 ? "disabled" : ""}><span class="material-symbols-outlined text-lg">chevron_left</span></button>
-            <div class="flex items-center px-3 bg-white/5 rounded text-xs font-mono text-emerald-400 border border-white/5 font-bold">${this.sysledPage} / ${totalPages || 1}</div>
-            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="next" ${this.sysledPage >= totalPages ? "disabled" : ""}><span class="material-symbols-outlined text-lg">chevron_right</span></button>
+            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="prev" ${
+              this.sysledPage === 1 ? "disabled" : ""
+            }><span class="material-symbols-outlined text-lg">chevron_left</span></button>
+            <div class="flex items-center px-3 bg-white/5 rounded text-xs font-mono text-emerald-400 border border-white/5 font-bold">${
+              this.sysledPage
+            } / ${totalPages || 1}</div>
+            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="next" ${
+              this.sysledPage >= totalPages ? "disabled" : ""
+            }><span class="material-symbols-outlined text-lg">chevron_right</span></button>
         </div>`;
 
     if (termoBusca) {
       const searchInput = document.getElementById("sysled-filter-search");
-      if (searchInput && document.activeElement !== searchInput) searchInput.focus();
+      if (searchInput && document.activeElement !== searchInput)
+        searchInput.focus();
     }
   }
   /**
@@ -913,7 +988,7 @@ renderSysledTable() {
     this.sysledData = this.sysledData.filter(
       (item) => String(item.parceiroCodigo) !== codigoParceiro
     );
-    
+
     // 4. Remove do array filtrado também para atualizar a tela imediatamente
     this.sysledFilteredData = this.sysledFilteredData.filter(
       (item) => String(item.parceiroCodigo) !== codigoParceiro
@@ -2577,21 +2652,21 @@ renderSysledTable() {
     }
   }
 
-/**
+  /**
    * Busca dados da API Sysled com Loading Localizado.
    */
   async fetchSysledData(forceRefresh = false) {
     const container = document.getElementById("sysled-table-container");
-    
+
     // --- 1. INJETA O LOADING ---
     if (container) {
-        container.style.position = 'relative'; // Prende o loading aqui
+      container.style.position = "relative"; // Prende o loading aqui
 
-        // Remove anterior se houver
-        const existing = document.getElementById('sysled-loading-overlay');
-        if (existing) existing.remove();
+      // Remove anterior se houver
+      const existing = document.getElementById("sysled-loading-overlay");
+      if (existing) existing.remove();
 
-        const loadingHtml = `
+      const loadingHtml = `
             <div id="sysled-loading-overlay" class="absolute inset-0 z-[50] flex flex-col items-center justify-center bg-[#0D1A13]/80 backdrop-blur-sm rounded-2xl transition-all duration-300">
                 <div class="relative flex items-center justify-center mb-4">
                     <div class="absolute w-20 h-20 border-8 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
@@ -2599,65 +2674,64 @@ renderSysledTable() {
                 </div>
             </div>
         `;
-        
-        // Tenta injetar dentro do Card se ele existir, senão no container geral
-        const uiStructure = document.getElementById('sysled-ui-structure-card');
-        if (uiStructure) {
-            uiStructure.insertAdjacentHTML('beforeend', loadingHtml);
-        } else {
-            container.insertAdjacentHTML('beforeend', loadingHtml);
-        }
+
+      // Tenta injetar dentro do Card se ele existir, senão no container geral
+      const uiStructure = document.getElementById("sysled-ui-structure-card");
+      if (uiStructure) {
+        uiStructure.insertAdjacentHTML("beforeend", loadingHtml);
+      } else {
+        container.insertAdjacentHTML("beforeend", loadingHtml);
+      }
     }
 
     try {
       // Delay visual para não piscar
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       // --- 2. CHAMADA API ---
       if (!this.sysledApiUrl) throw new Error("URL da API não configurada.");
 
       console.log("Iniciando fetch...");
-      
+
       const response = await fetch(this.sysledApiUrl, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
-          throw new Error(`Erro API: ${response.status}`);
+        throw new Error(`Erro API: ${response.status}`);
       }
 
       const json = await response.json();
-      
+
       // Tratamento de dados
       if (Array.isArray(json)) {
-          this.sysledData = json;
+        this.sysledData = json;
       } else if (json && json.data && Array.isArray(json.data)) {
-          this.sysledData = json.data;
+        this.sysledData = json.data;
       } else {
-          this.sysledData = [];
-          console.warn("Formato inesperado:", json);
+        this.sysledData = [];
+        console.warn("Formato inesperado:", json);
       }
 
       this.sysledPage = 1;
-      
+
       // Sucesso: Renderiza a tabela
       this.renderSysledTable();
-
     } catch (error) {
       console.error("Erro no fetch:", error);
-      
+
       // Remove loading
-      const overlay = document.getElementById('sysled-loading-overlay');
+      const overlay = document.getElementById("sysled-loading-overlay");
       if (overlay) overlay.remove();
 
       // Mostra tela de erro amigável
       if (container) {
-          // Se não tem dados anteriores, mostra o card de erro
-          if (this.sysledData.length === 0) {
-            container.innerHTML = `
+        // Se não tem dados anteriores, mostra o card de erro
+        if (this.sysledData.length === 0) {
+          container.innerHTML = `
                 <div class="h-full w-full p-6 animate-fade-in">
                     <div class="flex flex-col items-center justify-center h-full text-red-400 gap-6 bg-[#0D1A13] border border-red-500/20 rounded-2xl shadow-xl">
                         <span class="material-symbols-outlined text-6xl opacity-50">cloud_off</span>
@@ -2671,11 +2745,15 @@ renderSysledTable() {
                     </div>
                 </div>
             `;
-            // Listener global para o botão acima (gambiarra segura para onclick string)
-            document.addEventListener('retry-sysled', () => this.fetchSysledData(true), { once: true });
-          } else {
-              alert(`Erro ao atualizar: ${error.message}`);
-          }
+          // Listener global para o botão acima (gambiarra segura para onclick string)
+          document.addEventListener(
+            "retry-sysled",
+            () => this.fetchSysledData(true),
+            { once: true }
+          );
+        } else {
+          alert(`Erro ao atualizar: ${error.message}`);
+        }
       }
     }
   }
@@ -4271,11 +4349,14 @@ renderSysledTable() {
           // --- MUDANÇA AQUI: LIMPEZA DE NOMES ---
           labels: top5.map((p) => {
             let cleanName = p.nome || "";
-            
+
             // 1. Remove prefixos comuns (Case Insensitive)
             // A regex busca por esses termos no início (^) da string seguidos de espaço
-            cleanName = cleanName.replace(/^(Lighting Designer|Lighting Design|Light Design|Arquiteto|Arquitetura|Arq\.|Ld\.|Design|Designer)\s+/i, "");
-            
+            cleanName = cleanName.replace(
+              /^(Lighting Designer|Lighting Design|Light Design|Arquiteto|Arquitetura|Arq\.|Ld\.|Design|Designer)\s+/i,
+              ""
+            );
+
             // 2. Remove espaços extras e pega apenas as 2 primeiras palavras (Nome + Sobrenome)
             return cleanName.trim().split(" ").slice(0, 2).join(" ");
           }),
@@ -4305,7 +4386,7 @@ renderSysledTable() {
           },
         },
       });
-    } 
+    }
 
     // Gráfico Funil
     const ctxFunil = document.getElementById("chartFunil");
@@ -4652,13 +4733,31 @@ renderSysledTable() {
     const container = document.getElementById("crm-opportunities-container");
     if (!container) return;
 
-    // 1. Estrutura Visual
     if (!document.getElementById("crm-ui-structure-card")) {
-      
-      // Gera as opções do Select baseado no STAGE_MAP
+      // Gera opções de Fases
       const stageOptions = Object.entries(this.STAGE_MAP)
-        .map(([id, name]) => `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`)
+        .map(
+          ([id, name]) =>
+            `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`
+        )
         .join("");
+
+      // Gera opções de Responsáveis (NOVO)
+      const assignedOptions = Object.entries(this.ASSIGNED_MAP)
+        .map(
+          ([id, name]) =>
+            `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`
+        )
+        .join("");
+
+      // Helper para ícone de ordenação
+      const getSortIcon = (col) => {
+        if (this.crmSortColumn !== col)
+          return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
+        return this.crmSortDirection === "asc"
+          ? '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_less</span>'
+          : '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_more</span>';
+      };
 
       container.innerHTML = `
         <div class="flex flex-col h-full p-6 animate-fade-in">
@@ -4671,16 +4770,27 @@ renderSysledTable() {
                                 <span class="material-symbols-outlined text-blue-500 text-3xl">handshake</span>
                                 Oportunidades CRM
                             </h1>
-                            <p class="text-gray-400 text-sm mt-1">Funil 8: Negócios em andamento.</p>
+                            <p class="text-gray-400 text-sm mt-1">Funil 221: [StudioA] Especificador.</p>
                         </div>
                         
-                        <div class="flex gap-3 items-center">
+                        <div class="flex flex-wrap gap-3 items-center justify-end">
+                            
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">person</span>
+                                <select id="crm-assigned-filter" class="h-9 pl-9 pr-8 rounded-lg bg-[#1a2e25]/50 border border-white/10 text-gray-300 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer hover:bg-[#1a2e25]">
+                                    <option value="" class="bg-[#0D1A13]">Todos Responsáveis</option>
+                                    ${assignedOptions}
+                                </select>
+                                <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">arrow_drop_down</span>
+                            </div>
+
                             <div class="relative group">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">filter_alt</span>
-                                <select id="crm-stage-filter" class="h-9 pl-9 pr-4 rounded-lg bg-[#1a2e25]/50 border border-white/10 text-gray-300 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer hover:bg-[#1a2e25]">
+                                <select id="crm-stage-filter" class="h-9 pl-9 pr-8 rounded-lg bg-[#1a2e25]/50 border border-white/10 text-gray-300 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer hover:bg-[#1a2e25]">
                                     <option value="" class="bg-[#0D1A13]">Todas as Fases</option>
                                     ${stageOptions}
                                 </select>
+                                <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">arrow_drop_down</span>
                             </div>
 
                             <button id="crm-refresh-btn" class="h-9 px-4 rounded-lg bg-[#1a2e25] hover:bg-[#234235] text-blue-400 text-xs font-bold uppercase tracking-wide border border-blue-500/20 transition-all flex items-center gap-2 hover:shadow-[0_0_10px_rgba(59,130,246,0.1)]">
@@ -4703,12 +4813,24 @@ renderSysledTable() {
                         <table class="w-full border-collapse">
                             <thead class="bg-[#0a0f0d]">
                                 <tr>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">ID</th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Título</th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Arquiteto</th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Valor (R$)</th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Fase</th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Data</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="contactName">
+                                        Arquiteto ${getSortIcon("contactName")}
+                                    </th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">
+                                        ID
+                                    </th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">
+                                        Título
+                                    </th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="opportunity">
+                                        Valor (R$) ${getSortIcon("opportunity")}
+                                    </th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">
+                                        Fase
+                                    </th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="date">
+                                        Data ${getSortIcon("date")}
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="crm-table-body" class="divide-y divide-white/5 text-gray-300 font-medium text-sm"></tbody>
@@ -4725,7 +4847,6 @@ renderSysledTable() {
                 
                 <div class="bg-[#0a0f0d]/90 backdrop-blur-sm px-6 py-3 border-t border-white/10 shrink-0 z-20 flex justify-between items-center text-xs text-gray-400">
                     <span id="crm-total-info">0 registros</span>
-                    
                     <div class="flex items-center gap-3">
                         <button id="crm-prev-page" class="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white"><span class="material-symbols-outlined">chevron_left</span></button>
                         <span id="crm-page-indicator" class="font-mono font-bold text-white">1 / 1</span>
@@ -4735,52 +4856,89 @@ renderSysledTable() {
             </div>
         </div>`;
 
-      // --- EVENT LISTENERS ---
+      // --- EVENT LISTENERS ATUALIZADOS ---
 
-      // 1. Refresh (Reset Total)
-      document.getElementById("crm-refresh-btn").addEventListener("click", () => {
-         this.crmNextStart = 0;
-         this.crmDeals = [];
-         this.crmCurrentPage = 1; // Reseta página
-         this.fetchBitrixData(0);
-      });
+      // 1. Refresh Global
+      document
+        .getElementById("crm-refresh-btn")
+        .addEventListener("click", () => {
+          this.crmNextStart = 0;
+          this.crmDeals = [];
+          this.crmCurrentPage = 1;
+          this.fetchBitrixData(0);
+        });
 
-      // 2. Load More (Busca +50)
-      document.getElementById("crm-load-more-btn").addEventListener("click", () => {
+      // 2. Load More
+      document
+        .getElementById("crm-load-more-btn")
+        .addEventListener("click", () => {
           this.fetchBitrixData(this.crmNextStart);
-      });
+        });
 
-      // 3. Filtro de Fase (Reset Total + Filtro Novo)
-      document.getElementById("crm-stage-filter").addEventListener("change", (e) => {
+      // 3. Filtro Fase
+      document
+        .getElementById("crm-stage-filter")
+        .addEventListener("change", (e) => {
           this.crmStageFilter = e.target.value;
           this.crmNextStart = 0;
           this.crmDeals = [];
           this.crmCurrentPage = 1;
           this.fetchBitrixData(0);
+        });
+
+      // 4. Filtro Responsável (NOVO)
+      document
+        .getElementById("crm-assigned-filter")
+        .addEventListener("change", (e) => {
+          this.crmAssignedFilter = e.target.value;
+          this.crmNextStart = 0;
+          this.crmDeals = [];
+          this.crmCurrentPage = 1;
+          this.fetchBitrixData(0);
+        });
+
+      // 5. Ordenação (NOVO) - Delegação de evento para os headers
+      const headers = container.querySelectorAll(".crm-sort-trigger");
+      headers.forEach((th) => {
+        th.addEventListener("click", (e) => {
+          const col = e.currentTarget.dataset.col;
+          if (this.crmSortColumn === col) {
+            this.crmSortDirection =
+              this.crmSortDirection === "asc" ? "desc" : "asc";
+          } else {
+            this.crmSortColumn = col;
+            this.crmSortDirection = "asc"; // Data geralmente queremos desc, mas padrão é asc
+            if (col === "date" || col === "opportunity")
+              this.crmSortDirection = "desc";
+          }
+          this.renderCrmTab(); // Re-renderiza para atualizar ícones
+          this.renderCrmTableRows(); // Reorganiza linhas
+        });
       });
 
-      // 4. Paginação Local (Anterior/Próximo)
+      // 6. Paginação Local
       document.getElementById("crm-prev-page").addEventListener("click", () => {
-          if (this.crmCurrentPage > 1) {
-              this.crmCurrentPage--;
-              this.renderCrmTableRows();
-          }
+        if (this.crmCurrentPage > 1) {
+          this.crmCurrentPage--;
+          this.renderCrmTableRows();
+        }
       });
 
       document.getElementById("crm-next-page").addEventListener("click", () => {
-          const totalPages = Math.ceil(this.crmDeals.length / this.crmItemsPerPage);
-          if (this.crmCurrentPage < totalPages) {
-              this.crmCurrentPage++;
-              this.renderCrmTableRows();
-          }
+        const totalPages = Math.ceil(
+          this.crmDeals.length / this.crmItemsPerPage
+        );
+        if (this.crmCurrentPage < totalPages) {
+          this.crmCurrentPage++;
+          this.renderCrmTableRows();
+        }
       });
     }
 
-    // Lógica Inicial
     if (this.crmDeals.length === 0) {
-        await this.fetchBitrixData();
+      await this.fetchBitrixData();
     } else {
-        this.renderCrmTableRows();
+      this.renderCrmTableRows();
     }
   }
 
@@ -4793,158 +4951,250 @@ renderSysledTable() {
   async fetchBitrixData(start = 0) {
     const loading = document.getElementById("crm-loading-overlay");
     const loadMoreBtn = document.getElementById("crm-load-more-btn");
-    const loadMoreContainer = document.getElementById("crm-load-more-container");
-    
+    const loadMoreContainer = document.getElementById(
+      "crm-load-more-container"
+    );
+
     if (start === 0 && loading) loading.classList.remove("hidden");
     if (start > 0 && loadMoreBtn) loadMoreBtn.innerText = "Carregando...";
-    
+
     try {
-        if (!this.bitrixWebhookUrl) throw new Error("URL não configurada.");
+      if (!this.bitrixWebhookUrl) throw new Error("URL não configurada.");
 
-        // --- CONSTRUÇÃO DO FILTRO ---
-        let filterObj = {
-            "CATEGORY_ID": 8
-        };
+      // --- CONSTRUÇÃO DO FILTRO ---
+      let filterObj = {
+        CATEGORY_ID: 221,
+      };
 
-        if (this.crmStageFilter) {
-            // Cenário 1: Usuário selecionou UMA fase específica no dropdown
-            filterObj["STAGE_ID"] = this.crmStageFilter;
-        } else {
-            // Cenário 2: "Todas as Fases" (Visualização Geral)
-            // AQUI ESTÁ O TRUQUE: Pegamos apenas as chaves do seu STAGE_MAP.
-            // Isso força o Bitrix a trazer ESTRITAMENTE o que está no seu mapa.
-            // C8:WON e C8:LOSE não virão pois não estão nessa lista.
-            filterObj["STAGE_ID"] = Object.keys(this.STAGE_MAP);
+      // Filtro de Fase
+      if (this.crmStageFilter) {
+        filterObj["STAGE_ID"] = this.crmStageFilter;
+      } else {
+        filterObj["STAGE_ID"] = Object.keys(this.STAGE_MAP);
+      }
+
+      // Filtro de Responsável (NOVO)
+      if (this.crmAssignedFilter) {
+        filterObj["ASSIGNED_BY_ID"] = this.crmAssignedFilter;
+      }
+
+      const dealResponse = await fetch(
+        `${this.bitrixWebhookUrl}crm.deal.list`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            order: { DATE_CREATE: "DESC" },
+            select: [
+              "ID",
+              "TITLE",
+              "OPPORTUNITY",
+              "STAGE_ID",
+              "CONTACT_ID",
+              "DATE_CREATE",
+            ],
+            filter: filterObj,
+            start: start,
+          }),
         }
+      );
 
-        const dealResponse = await fetch(`${this.bitrixWebhookUrl}crm.deal.list`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+      const dealResult = await dealResponse.json();
+      if (dealResult.error) throw new Error(dealResult.error_description);
+
+      const newDealsRaw = dealResult.result || [];
+      this.crmNextStart = dealResult.next ? dealResult.next : 0;
+
+      // Buscar Contatos
+      const contactIds = [
+        ...new Set(newDealsRaw.map((d) => d.CONTACT_ID).filter((id) => id > 0)),
+      ];
+      let contactsMap = {};
+      if (contactIds.length > 0) {
+        const contactResponse = await fetch(
+          `${this.bitrixWebhookUrl}crm.contact.list`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                order: { "DATE_CREATE": "DESC" },
-                select: ["ID", "TITLE", "OPPORTUNITY", "STAGE_ID", "CONTACT_ID", "DATE_CREATE"],
-                filter: filterObj,
-                start: start
-            })
+              filter: { ID: contactIds },
+              select: ["ID", "NAME", "LAST_NAME"],
+            }),
+          }
+        );
+        const contactResult = await contactResponse.json();
+        (contactResult.result || []).forEach((c) => {
+          contactsMap[c.ID] = `${c.NAME || ""} ${c.LAST_NAME || ""}`.trim();
         });
+      }
 
-        const dealResult = await dealResponse.json();
-        if (dealResult.error) throw new Error(dealResult.error_description);
-        
-        const newDealsRaw = dealResult.result || [];
-        this.crmNextStart = dealResult.next ? dealResult.next : 0; 
+      // --- PROCESSAMENTO E LIMPEZA DE DADOS ---
+      const processedBatch = newDealsRaw.map((deal) => {
+        // Lógica de Limpeza do Título (NOVO)
+        let cleanTitle = deal.TITLE || "";
+        // Cria regex dinâmica: ^(Prefixo A|Prefixo B...)\s*[-–]?\s*
+        // Explicacao: Começa com um dos prefixos, seguido opcionalmente de espaços, traço, e mais espaços
+        const regex = new RegExp(
+          `^(${this.TITLE_PREFIXES.join("|")})\\s*[-–]?\\s*`,
+          "i"
+        );
+        cleanTitle = cleanTitle.replace(regex, "").trim();
 
-        // Buscar Contatos (Lote)
-        const contactIds = [...new Set(newDealsRaw.map(d => d.CONTACT_ID).filter(id => id > 0))];
-        let contactsMap = {};
-        if (contactIds.length > 0) {
-            const contactResponse = await fetch(`${this.bitrixWebhookUrl}crm.contact.list`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    filter: { "ID": contactIds },
-                    select: ["ID", "NAME", "LAST_NAME"]
-                })
-            });
-            const contactResult = await contactResponse.json();
-            (contactResult.result || []).forEach(c => {
-                contactsMap[c.ID] = `${c.NAME || ''} ${c.LAST_NAME || ''}`.trim();
-            });
-        }
+        let rawContactName = contactsMap[deal.CONTACT_ID] || "";
 
-        // Processar
-        const processedBatch = newDealsRaw.map(deal => ({
-            id: deal.ID,
-            title: deal.TITLE,
-            opportunity: parseFloat(deal.OPPORTUNITY) || 0,
-            // Usa o STAGE_MAP definido no constructor, ou o ID cru se não achar
-            stage: this.STAGE_MAP[deal.STAGE_ID] || deal.STAGE_ID, 
-            date: deal.DATE_CREATE,
-            contactName: contactsMap[deal.CONTACT_ID] || "",
-            contactId: deal.CONTACT_ID
-        }));
+        // Regex para remover: "Arquiteto", "Arq.", "Arq", "Arquitetura" (no início da string)
+        // ^ = início da linha
+        // \.? = ponto opcional (pega "Arq" e "Arq.")
+        // \s+ = um ou mais espaços depois
+        // i = case insensitive (pega maiúscula e minúscula)
+        let cleanContactName = rawContactName
+          .replace(/^(Arquiteto|Arquiteta|Lighting Design|Designer|Arquitetura|Arq\.?)\s+/i, "")
+          .trim();
 
-        // Atualizar Estado
-        if (start === 0) {
-            this.crmDeals = processedBatch;
+        return {
+          id: deal.ID,
+          title: cleanTitle, // Usa o título limpo
+          opportunity: parseFloat(deal.OPPORTUNITY) || 0,
+          stage: this.STAGE_MAP[deal.STAGE_ID] || deal.STAGE_ID,
+          date: deal.DATE_CREATE,
+          contactName: cleanContactName,
+          contactId: deal.CONTACT_ID,
+        };
+      });
+
+      if (start === 0) {
+        this.crmDeals = processedBatch;
+      } else {
+        this.crmDeals = [...this.crmDeals, ...processedBatch];
+      }
+
+      this.renderCrmTableRows();
+
+      if (loadMoreContainer) {
+        if (this.crmNextStart > 0) {
+          loadMoreContainer.classList.remove("hidden");
+          loadMoreBtn.innerHTML =
+            '<span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix';
         } else {
-            this.crmDeals = [...this.crmDeals, ...processedBatch];
+          loadMoreContainer.classList.add("hidden");
         }
-
-        // IMPORTANTE: Se carregou mais dados e estávamos na última página, talvez valha a pena avançar ou manter.
-        // A renderização cuidará de atualizar o "Total de Páginas".
-        this.renderCrmTableRows();
-
-        // Botão Load More (API)
-        if (loadMoreContainer) {
-            if (this.crmNextStart > 0) {
-                loadMoreContainer.classList.remove("hidden");
-                loadMoreBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix';
-            } else {
-                loadMoreContainer.classList.add("hidden");
-            }
-        }
-
+      }
     } catch (error) {
-        console.error(error);
-        alert("Erro: " + error.message);
+      console.error(error);
+      alert("Erro: " + error.message);
     } finally {
-        if (loading) loading.classList.add("hidden");
-        if (loadMoreBtn) loadMoreBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix';
+      if (loading) loading.classList.add("hidden");
+      if (loadMoreBtn)
+        loadMoreBtn.innerHTML =
+          '<span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix';
     }
   }
 
   /**
    * Renderiza apenas as linhas da tabela CRM
    */
- renderCrmTableRows() {
-      const tbody = document.getElementById("crm-table-body");
-      const totalInfo = document.getElementById("crm-total-info");
-      const pageIndicator = document.getElementById("crm-page-indicator");
-      const btnPrev = document.getElementById("crm-prev-page");
-      const btnNext = document.getElementById("crm-next-page");
+  // Helper de ordenação
+  sortCrmData() {
+    if (!this.crmSortColumn) return;
 
-      if (!tbody) return;
+    this.crmDeals.sort((a, b) => {
+      let valA = a[this.crmSortColumn];
+      let valB = b[this.crmSortColumn];
 
-      // 1. Cálculos de Paginação
-      const totalItems = this.crmDeals.length;
-      const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
-      
-      // Segurança para não ficar em página inexistente (ex: filtro reduziu lista)
-      if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
-
-      const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
-      const endIndex = startIndex + this.crmItemsPerPage;
-      
-      // 2. Fatiar os dados (Slice)
-      const pageData = this.crmDeals.slice(startIndex, endIndex);
-
-      // 3. Atualizar Controles Visuais
-      if (totalInfo) totalInfo.textContent = `${totalItems} registros carregados (Vendo ${startIndex + 1}-${Math.min(endIndex, totalItems)})`;
-      if (pageIndicator) pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
-      
-      if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
-      if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
-
-      // 4. Renderizar Tabela
-      if (pageData.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio nesta visualização.</td></tr>`;
-          return;
+      // Tratamento específico para Texto vs Número
+      if (
+        this.crmSortColumn === "contactName" ||
+        this.crmSortColumn === "title"
+      ) {
+        valA = valA.toLowerCase();
+        valB = valB.toLowerCase();
+        if (valA < valB) return this.crmSortDirection === "asc" ? -1 : 1;
+        if (valA > valB) return this.crmSortDirection === "asc" ? 1 : -1;
+        return 0;
       }
 
-      tbody.innerHTML = pageData.map((deal, index) => {
-          const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
-          // Corzinha badge para a fase
-          let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
-          if (deal.stage === "Ganho") badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
-          if (deal.stage === "Perdido") badgeColor = "bg-red-900 text-red-200 border-red-700";
-          
-          return `
+      if (this.crmSortColumn === "date") {
+        valA = new Date(valA);
+        valB = new Date(valB);
+      }
+
+      // Numérico / Data
+      if (valA < valB) return this.crmSortDirection === "asc" ? -1 : 1;
+      if (valA > valB) return this.crmSortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  renderCrmTableRows() {
+    const tbody = document.getElementById("crm-table-body");
+    // ... (outras referências: totalInfo, pageIndicator, btns...)
+    // Certifique-se de pegar as referências igual ao código anterior
+
+    const totalInfo = document.getElementById("crm-total-info");
+    const pageIndicator = document.getElementById("crm-page-indicator");
+    const btnPrev = document.getElementById("crm-prev-page");
+    const btnNext = document.getElementById("crm-next-page");
+
+    if (!tbody) return;
+
+    // 1. APLICA ORDENAÇÃO ANTES DE FATIAR
+    this.sortCrmData();
+
+    // 2. Paginação
+    const totalItems = this.crmDeals.length;
+    const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
+
+    if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
+
+    const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
+    const endIndex = startIndex + this.crmItemsPerPage;
+    const pageData = this.crmDeals.slice(startIndex, endIndex);
+
+    // 3. Atualizar Controles UI (Igual ao código anterior)
+    if (totalInfo)
+      totalInfo.textContent = `${totalItems} registros carregados (Vendo ${
+        startIndex + 1
+      }-${Math.min(endIndex, totalItems)})`;
+    if (pageIndicator)
+      pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
+    if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
+    if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
+
+    // 4. Renderizar (ORDEM COLUNAS ALTERADA)
+    if (pageData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio nesta visualização.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = pageData
+      .map((deal, index) => {
+        const bgClass =
+          index % 2 === 0 ? "bg-transparent" : "bg-[#10b981]/[0.02]";
+        let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
+        if (deal.stage === "Ganho")
+          badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
+        if (deal.stage === "Perdido")
+          badgeColor = "bg-red-900 text-red-200 border-red-700";
+
+        // COLUNAS: Arquiteto -> ID -> Título -> Valor -> Fase -> Data
+        return `
             <tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-300">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">${deal.id}</td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-white truncate max-w-[200px]" title="${deal.title}">${deal.title}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-blue-300 truncate max-w-[180px]">${deal.contactName}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-emerald-400">${formatCurrency(deal.opportunity)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-blue-300 font-medium truncate max-w-[220px]" title="${
+                  deal.contactName
+                }">
+                    ${deal.contactName}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                    ${deal.id}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-white truncate max-w-[250px]" title="${
+                  deal.title
+                }">
+                    ${deal.title}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-emerald-400">
+                    ${formatCurrency(deal.opportunity)}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                     <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${badgeColor}">
                         ${deal.stage}
@@ -4955,7 +5205,8 @@ renderSysledTable() {
                 </td>
             </tr>
           `;
-      }).join("");
+      })
+      .join("");
   }
 }
 
