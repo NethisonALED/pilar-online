@@ -56,6 +56,22 @@ class RelacionamentoApp {
     this.sysledApiUrl = CONFIG.SYSLED.API_URL;
     this.sysledAuthToken = CONFIG.SYSLED.AUTH_TOKEN;
 
+    this.crmDeals = []
+    this.crmLoading = false
+    this.bitrixWebhookUrl = "https://atacadaoled.bitrix24.com.br/rest/2647/vaoafc68g9602xzh/"
+    this.crmNextStart = 0;
+
+    this.crmStageFilter = ""; // Vazio = Todas
+    this.crmCurrentPage = 1;
+    this.crmItemsPerPage = 15;
+
+    this.STAGE_MAP = {
+            "C8:UC_JF57DU": "Acompanhamento",
+            "C8:NEW": "Fechamentos Mês",
+            "C8:UC_YE7R3J": "Oportunidades",
+            "C8:UC_RBNO3W": "Proposta Enviada",
+        };
+
     this.init();
   }
 
@@ -108,6 +124,10 @@ class RelacionamentoApp {
       // Se a aba inicial for a do Sysled, busca os dados da API automaticamente
       if (activeTab === "consulta-sysled") {
          this.fetchSysledData();
+      }
+
+      if (activeTab === "crm-opportunities") {
+        this.renderCrmTab();
       }
 
     } catch (error) {
@@ -4244,10 +4264,22 @@ renderSysledTable() {
       const top5 = [...data]
         .sort((a, b) => (b.vendas || 0) - (a.vendas || 0))
         .slice(0, 5);
+
       this.charts.top5 = new Chart(ctxTop5, {
         type: "bar",
         data: {
-          labels: top5.map((p) => p.nome.split(" ").slice(0, 2).join(" ")),
+          // --- MUDANÇA AQUI: LIMPEZA DE NOMES ---
+          labels: top5.map((p) => {
+            let cleanName = p.nome || "";
+            
+            // 1. Remove prefixos comuns (Case Insensitive)
+            // A regex busca por esses termos no início (^) da string seguidos de espaço
+            cleanName = cleanName.replace(/^(Lighting Designer|Lighting Design|Light Design|Arquiteto|Arquitetura|Arq\.|Ld\.|Design|Designer)\s+/i, "");
+            
+            // 2. Remove espaços extras e pega apenas as 2 primeiras palavras (Nome + Sobrenome)
+            return cleanName.trim().split(" ").slice(0, 2).join(" ");
+          }),
+          // --------------------------------------
           datasets: [
             {
               label: `Vendas (${this.carteiraPeriod})`,
@@ -4273,7 +4305,7 @@ renderSysledTable() {
           },
         },
       });
-    }
+    } 
 
     // Gráfico Funil
     const ctxFunil = document.getElementById("chartFunil");
@@ -4607,6 +4639,323 @@ renderSysledTable() {
         this.renderCarteiraTab();
       }
     }
+  }
+
+  // =========================================================================
+  // MÓDULO CRM (BITRIX24) - OPORTUNIDADES
+  // =========================================================================
+
+  /**
+   * Renderiza a estrutura da aba CRM e inicia a busca de dados.
+   */
+  async renderCrmTab() {
+    const container = document.getElementById("crm-opportunities-container");
+    if (!container) return;
+
+    // 1. Estrutura Visual
+    if (!document.getElementById("crm-ui-structure-card")) {
+      
+      // Gera as opções do Select baseado no STAGE_MAP
+      const stageOptions = Object.entries(this.STAGE_MAP)
+        .map(([id, name]) => `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`)
+        .join("");
+
+      container.innerHTML = `
+        <div class="flex flex-col h-full p-6 animate-fade-in">
+            <div id="crm-ui-structure-card" class="flex flex-col flex-1 bg-[#0D1A13]/60 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden relative ring-1 ring-white/5">
+                
+                <div class="px-6 pt-6 pb-4 bg-[#0D1A13]/50 z-20 shrink-0 border-b border-white/5">
+                    <div class="flex flex-col md:flex-row justify-between items-end gap-4">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                                <span class="material-symbols-outlined text-blue-500 text-3xl">handshake</span>
+                                Oportunidades CRM
+                            </h1>
+                            <p class="text-gray-400 text-sm mt-1">Funil 8: Negócios em andamento.</p>
+                        </div>
+                        
+                        <div class="flex gap-3 items-center">
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">filter_alt</span>
+                                <select id="crm-stage-filter" class="h-9 pl-9 pr-4 rounded-lg bg-[#1a2e25]/50 border border-white/10 text-gray-300 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer hover:bg-[#1a2e25]">
+                                    <option value="" class="bg-[#0D1A13]">Todas as Fases</option>
+                                    ${stageOptions}
+                                </select>
+                            </div>
+
+                            <button id="crm-refresh-btn" class="h-9 px-4 rounded-lg bg-[#1a2e25] hover:bg-[#234235] text-blue-400 text-xs font-bold uppercase tracking-wide border border-blue-500/20 transition-all flex items-center gap-2 hover:shadow-[0_0_10px_rgba(59,130,246,0.1)]">
+                                <span class="material-symbols-outlined text-base">sync</span> Atualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-hidden relative flex flex-col">
+                    <div id="crm-loading-overlay" class="hidden absolute inset-0 z-[50] flex flex-col items-center justify-center bg-[#0D1A13]/80 backdrop-blur-sm transition-all duration-300">
+                        <div class="relative flex items-center justify-center mb-4">
+                            <div class="absolute w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+                            <span class="material-symbols-outlined text-3xl text-blue-500">cloud_sync</span>
+                        </div>
+                        <span class="text-gray-300 font-mono text-sm animate-pulse">Sincronizando Bitrix24...</span>
+                    </div>
+
+                    <div class="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                        <table class="w-full border-collapse">
+                            <thead class="bg-[#0a0f0d]">
+                                <tr>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">ID</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Título</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Arquiteto</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Valor (R$)</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Fase</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Data</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crm-table-body" class="divide-y divide-white/5 text-gray-300 font-medium text-sm"></tbody>
+                        </table>
+                        
+                        <div id="crm-load-more-container" class="hidden py-6 text-center">
+                            <button id="crm-load-more-btn" class="text-xs font-bold uppercase tracking-wide text-emerald-400 hover:text-white border border-emerald-500/30 hover:bg-emerald-600 rounded-lg px-6 py-2 transition-all shadow-lg flex items-center gap-2 mx-auto">
+                                <span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix
+                            </button>
+                            <p class="text-[10px] text-gray-500 mt-2">Isso trará +50 registros para a memória</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-[#0a0f0d]/90 backdrop-blur-sm px-6 py-3 border-t border-white/10 shrink-0 z-20 flex justify-between items-center text-xs text-gray-400">
+                    <span id="crm-total-info">0 registros</span>
+                    
+                    <div class="flex items-center gap-3">
+                        <button id="crm-prev-page" class="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white"><span class="material-symbols-outlined">chevron_left</span></button>
+                        <span id="crm-page-indicator" class="font-mono font-bold text-white">1 / 1</span>
+                        <button id="crm-next-page" class="p-1 rounded hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-white"><span class="material-symbols-outlined">chevron_right</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+      // --- EVENT LISTENERS ---
+
+      // 1. Refresh (Reset Total)
+      document.getElementById("crm-refresh-btn").addEventListener("click", () => {
+         this.crmNextStart = 0;
+         this.crmDeals = [];
+         this.crmCurrentPage = 1; // Reseta página
+         this.fetchBitrixData(0);
+      });
+
+      // 2. Load More (Busca +50)
+      document.getElementById("crm-load-more-btn").addEventListener("click", () => {
+          this.fetchBitrixData(this.crmNextStart);
+      });
+
+      // 3. Filtro de Fase (Reset Total + Filtro Novo)
+      document.getElementById("crm-stage-filter").addEventListener("change", (e) => {
+          this.crmStageFilter = e.target.value;
+          this.crmNextStart = 0;
+          this.crmDeals = [];
+          this.crmCurrentPage = 1;
+          this.fetchBitrixData(0);
+      });
+
+      // 4. Paginação Local (Anterior/Próximo)
+      document.getElementById("crm-prev-page").addEventListener("click", () => {
+          if (this.crmCurrentPage > 1) {
+              this.crmCurrentPage--;
+              this.renderCrmTableRows();
+          }
+      });
+
+      document.getElementById("crm-next-page").addEventListener("click", () => {
+          const totalPages = Math.ceil(this.crmDeals.length / this.crmItemsPerPage);
+          if (this.crmCurrentPage < totalPages) {
+              this.crmCurrentPage++;
+              this.renderCrmTableRows();
+          }
+      });
+    }
+
+    // Lógica Inicial
+    if (this.crmDeals.length === 0) {
+        await this.fetchBitrixData();
+    } else {
+        this.renderCrmTableRows();
+    }
+  }
+
+  /**
+   * Lógica Principal: Busca Deals -> Extrai IDs de Contato -> Busca Contatos -> Mescla Dados.
+   */
+  /**
+   * Busca Deals com paginação e filtro CATEGORY_ID = 8
+   */
+  async fetchBitrixData(start = 0) {
+    const loading = document.getElementById("crm-loading-overlay");
+    const loadMoreBtn = document.getElementById("crm-load-more-btn");
+    const loadMoreContainer = document.getElementById("crm-load-more-container");
+    
+    if (start === 0 && loading) loading.classList.remove("hidden");
+    if (start > 0 && loadMoreBtn) loadMoreBtn.innerText = "Carregando...";
+    
+    try {
+        if (!this.bitrixWebhookUrl) throw new Error("URL não configurada.");
+
+        // --- CONSTRUÇÃO DO FILTRO ---
+        let filterObj = {
+            "CATEGORY_ID": 8
+        };
+
+        if (this.crmStageFilter) {
+            // Cenário 1: Usuário selecionou UMA fase específica no dropdown
+            filterObj["STAGE_ID"] = this.crmStageFilter;
+        } else {
+            // Cenário 2: "Todas as Fases" (Visualização Geral)
+            // AQUI ESTÁ O TRUQUE: Pegamos apenas as chaves do seu STAGE_MAP.
+            // Isso força o Bitrix a trazer ESTRITAMENTE o que está no seu mapa.
+            // C8:WON e C8:LOSE não virão pois não estão nessa lista.
+            filterObj["STAGE_ID"] = Object.keys(this.STAGE_MAP);
+        }
+
+        const dealResponse = await fetch(`${this.bitrixWebhookUrl}crm.deal.list`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                order: { "DATE_CREATE": "DESC" },
+                select: ["ID", "TITLE", "OPPORTUNITY", "STAGE_ID", "CONTACT_ID", "DATE_CREATE"],
+                filter: filterObj,
+                start: start
+            })
+        });
+
+        const dealResult = await dealResponse.json();
+        if (dealResult.error) throw new Error(dealResult.error_description);
+        
+        const newDealsRaw = dealResult.result || [];
+        this.crmNextStart = dealResult.next ? dealResult.next : 0; 
+
+        // Buscar Contatos (Lote)
+        const contactIds = [...new Set(newDealsRaw.map(d => d.CONTACT_ID).filter(id => id > 0))];
+        let contactsMap = {};
+        if (contactIds.length > 0) {
+            const contactResponse = await fetch(`${this.bitrixWebhookUrl}crm.contact.list`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    filter: { "ID": contactIds },
+                    select: ["ID", "NAME", "LAST_NAME"]
+                })
+            });
+            const contactResult = await contactResponse.json();
+            (contactResult.result || []).forEach(c => {
+                contactsMap[c.ID] = `${c.NAME || ''} ${c.LAST_NAME || ''}`.trim();
+            });
+        }
+
+        // Processar
+        const processedBatch = newDealsRaw.map(deal => ({
+            id: deal.ID,
+            title: deal.TITLE,
+            opportunity: parseFloat(deal.OPPORTUNITY) || 0,
+            // Usa o STAGE_MAP definido no constructor, ou o ID cru se não achar
+            stage: this.STAGE_MAP[deal.STAGE_ID] || deal.STAGE_ID, 
+            date: deal.DATE_CREATE,
+            contactName: contactsMap[deal.CONTACT_ID] || "",
+            contactId: deal.CONTACT_ID
+        }));
+
+        // Atualizar Estado
+        if (start === 0) {
+            this.crmDeals = processedBatch;
+        } else {
+            this.crmDeals = [...this.crmDeals, ...processedBatch];
+        }
+
+        // IMPORTANTE: Se carregou mais dados e estávamos na última página, talvez valha a pena avançar ou manter.
+        // A renderização cuidará de atualizar o "Total de Páginas".
+        this.renderCrmTableRows();
+
+        // Botão Load More (API)
+        if (loadMoreContainer) {
+            if (this.crmNextStart > 0) {
+                loadMoreContainer.classList.remove("hidden");
+                loadMoreBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix';
+            } else {
+                loadMoreContainer.classList.add("hidden");
+            }
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro: " + error.message);
+    } finally {
+        if (loading) loading.classList.add("hidden");
+        if (loadMoreBtn) loadMoreBtn.innerHTML = '<span class="material-symbols-outlined text-base">cloud_download</span> Carregar Mais do Bitrix';
+    }
+  }
+
+  /**
+   * Renderiza apenas as linhas da tabela CRM
+   */
+ renderCrmTableRows() {
+      const tbody = document.getElementById("crm-table-body");
+      const totalInfo = document.getElementById("crm-total-info");
+      const pageIndicator = document.getElementById("crm-page-indicator");
+      const btnPrev = document.getElementById("crm-prev-page");
+      const btnNext = document.getElementById("crm-next-page");
+
+      if (!tbody) return;
+
+      // 1. Cálculos de Paginação
+      const totalItems = this.crmDeals.length;
+      const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
+      
+      // Segurança para não ficar em página inexistente (ex: filtro reduziu lista)
+      if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
+
+      const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
+      const endIndex = startIndex + this.crmItemsPerPage;
+      
+      // 2. Fatiar os dados (Slice)
+      const pageData = this.crmDeals.slice(startIndex, endIndex);
+
+      // 3. Atualizar Controles Visuais
+      if (totalInfo) totalInfo.textContent = `${totalItems} registros carregados (Vendo ${startIndex + 1}-${Math.min(endIndex, totalItems)})`;
+      if (pageIndicator) pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
+      
+      if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
+      if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
+
+      // 4. Renderizar Tabela
+      if (pageData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio nesta visualização.</td></tr>`;
+          return;
+      }
+
+      tbody.innerHTML = pageData.map((deal, index) => {
+          const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
+          // Corzinha badge para a fase
+          let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
+          if (deal.stage === "Ganho") badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
+          if (deal.stage === "Perdido") badgeColor = "bg-red-900 text-red-200 border-red-700";
+          
+          return `
+            <tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-300">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">${deal.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-white truncate max-w-[200px]" title="${deal.title}">${deal.title}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-blue-300 truncate max-w-[180px]">${deal.contactName}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-emerald-400">${formatCurrency(deal.opportunity)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${badgeColor}">
+                        ${deal.stage}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-xs text-gray-500">
+                    ${formatApiDateToBR(deal.date)}
+                </td>
+            </tr>
+          `;
+      }).join("");
   }
 }
 

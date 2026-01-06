@@ -51,6 +51,11 @@ export function initializeEventListeners(app) {
         app.renderCarteiraTab();
       }
 
+      // ADICIONE ISTO:
+      if (targetTab === "crm-opportunities") {
+          app.renderCrmTab();
+      }
+
       if (targetTab === "consulta-sysled") {
           // Verifica se já existem dados na memória
           if (app.sysledData && app.sysledData.length > 0) {
