@@ -101,6 +101,8 @@ class RelacionamentoApp {
       "C221:UC_R0WTIC": "Proposta Enviada",
     };
 
+    this.crmArchitectFilterList = [];
+
     this.init();
   }
 
@@ -4733,32 +4735,25 @@ class RelacionamentoApp {
     const container = document.getElementById("crm-opportunities-container");
     if (!container) return;
 
+    // Só cria a estrutura se ela ainda não existir
     if (!document.getElementById("crm-ui-structure-card")) {
-      // Gera opções de Fases
+      
+      // Gera opções para os selects (Fase e Responsável)
       const stageOptions = Object.entries(this.STAGE_MAP)
-        .map(
-          ([id, name]) =>
-            `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`
-        )
-        .join("");
-
-      // Gera opções de Responsáveis (NOVO)
+        .map(([id, name]) => `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`).join("");
+      
       const assignedOptions = Object.entries(this.ASSIGNED_MAP)
-        .map(
-          ([id, name]) =>
-            `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`
-        )
-        .join("");
+        .map(([id, name]) => `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`).join("");
 
-      // Helper para ícone de ordenação
+      // Helper de ícone de ordenação
       const getSortIcon = (col) => {
-        if (this.crmSortColumn !== col)
-          return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
-        return this.crmSortDirection === "asc"
-          ? '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_less</span>'
-          : '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_more</span>';
+          if (this.crmSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
+          return this.crmSortDirection === 'asc' 
+            ? '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_less</span>' 
+            : '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_more</span>';
       };
 
+      // --- INJEÇÃO DO HTML DA ABA ---
       container.innerHTML = `
         <div class="flex flex-col h-full p-6 animate-fade-in">
             <div id="crm-ui-structure-card" class="flex flex-col flex-1 bg-[#0D1A13]/60 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden relative ring-1 ring-white/5">
@@ -4801,36 +4796,52 @@ class RelacionamentoApp {
                 </div>
 
                 <div class="flex-1 overflow-hidden relative flex flex-col">
-                    <div id="crm-loading-overlay" class="hidden absolute inset-0 z-[50] flex flex-col items-center justify-center bg-[#0D1A13]/80 backdrop-blur-sm transition-all duration-300">
+                    
+                    <div id="crm-architect-filter-menu" class="hidden absolute z-50 bg-[#1a1f2e] border border-white/20 rounded-lg shadow-2xl w-64 max-h-[400px] flex flex-col animate-fade-in-down top-12 left-6">
+                        <div class="p-3 border-b border-white/10 space-y-2">
+                            <button id="crm-sort-az" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-white/10 rounded flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">arrow_downward</span> Classificar de A a Z
+                            </button>
+                            <button id="crm-sort-za" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-white/10 rounded flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">arrow_upward</span> Classificar de Z a A
+                            </button>
+                        </div>
+                        <div class="p-3 border-b border-white/10">
+                            <input type="text" id="crm-architect-search" placeholder="Pesquisar..." class="w-full bg-black/20 border border-white/10 rounded px-2 py-1 text-xs text-white focus:border-emerald-500 outline-none">
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin scrollbar-thumb-white/10" id="crm-architect-list">
+                            </div>
+                        <div class="p-3 border-t border-white/10 flex justify-between">
+                            <button id="crm-filter-clear" class="text-xs text-gray-400 hover:text-white">Limpar</button>
+                            <button id="crm-filter-apply" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded font-bold">OK</button>
+                        </div>
+                    </div>
+                    <div id="crm-loading-overlay" class="hidden absolute inset-0 z-[40] flex flex-col items-center justify-center bg-[#0D1A13]/80 backdrop-blur-sm">
                         <div class="relative flex items-center justify-center mb-4">
                             <div class="absolute w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
                             <span class="material-symbols-outlined text-3xl text-blue-500">cloud_sync</span>
                         </div>
-                        <span class="text-gray-300 font-mono text-sm animate-pulse">Sincronizando Bitrix24...</span>
+                        <span class="text-gray-300 font-mono text-sm animate-pulse">Sincronizando...</span>
                     </div>
 
                     <div class="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                         <table class="w-full border-collapse">
                             <thead class="bg-[#0a0f0d]">
                                 <tr>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="contactName">
-                                        Arquiteto ${getSortIcon("contactName")}
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md group">
+                                        <div class="flex items-center justify-between cursor-pointer hover:text-white transition-colors" id="crm-architect-header">
+                                            <span>Arquiteto</span>
+                                            <span class="material-symbols-outlined text-sm text-gray-600 group-hover:text-emerald-400 transition-colors" id="architect-filter-icon">filter_list</span>
+                                        </div>
                                     </th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">
-                                        ID
-                                    </th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">
-                                        Título
-                                    </th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="opportunity">
-                                        Valor (R$) ${getSortIcon("opportunity")}
-                                    </th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">
-                                        Fase
-                                    </th>
-                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="date">
-                                        Data ${getSortIcon("date")}
-                                    </th>
+                                    
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">ID Pedido</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Título</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="opportunity">Valor (R$) ${getSortIcon('opportunity')}</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Fase</th>
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md cursor-pointer hover:text-white transition-colors crm-sort-trigger" data-col="date">Data ${getSortIcon('date')}</th>
+                                    
+                                    <th class="px-6 py-4 bg-[#0a0f0d]/95 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-widest sticky top-0 z-10 border-b border-white/5 backdrop-blur-md">Link</th>
                                 </tr>
                             </thead>
                             <tbody id="crm-table-body" class="divide-y divide-white/5 text-gray-300 font-medium text-sm"></tbody>
@@ -4856,90 +4867,216 @@ class RelacionamentoApp {
             </div>
         </div>`;
 
-      // --- EVENT LISTENERS ATUALIZADOS ---
-
-      // 1. Refresh Global
-      document
-        .getElementById("crm-refresh-btn")
-        .addEventListener("click", () => {
-          this.crmNextStart = 0;
-          this.crmDeals = [];
-          this.crmCurrentPage = 1;
-          this.fetchBitrixData(0);
-        });
-
-      // 2. Load More
-      document
-        .getElementById("crm-load-more-btn")
-        .addEventListener("click", () => {
-          this.fetchBitrixData(this.crmNextStart);
-        });
-
-      // 3. Filtro Fase
-      document
-        .getElementById("crm-stage-filter")
-        .addEventListener("change", (e) => {
-          this.crmStageFilter = e.target.value;
-          this.crmNextStart = 0;
-          this.crmDeals = [];
-          this.crmCurrentPage = 1;
-          this.fetchBitrixData(0);
-        });
-
-      // 4. Filtro Responsável (NOVO)
-      document
-        .getElementById("crm-assigned-filter")
-        .addEventListener("change", (e) => {
-          this.crmAssignedFilter = e.target.value;
-          this.crmNextStart = 0;
-          this.crmDeals = [];
-          this.crmCurrentPage = 1;
-          this.fetchBitrixData(0);
-        });
-
-      // 5. Ordenação (NOVO) - Delegação de evento para os headers
-      const headers = container.querySelectorAll(".crm-sort-trigger");
-      headers.forEach((th) => {
-        th.addEventListener("click", (e) => {
-          const col = e.currentTarget.dataset.col;
-          if (this.crmSortColumn === col) {
-            this.crmSortDirection =
-              this.crmSortDirection === "asc" ? "desc" : "asc";
+      // --- EVENT LISTENERS ---
+      
+      // 1. Abertura do Menu de Filtro Arquiteto
+      document.getElementById("crm-architect-header").addEventListener("click", (e) => {
+          e.stopPropagation(); 
+          const menu = document.getElementById("crm-architect-filter-menu");
+          if (menu.classList.contains("hidden")) {
+              this.populateArchitectFilterList(); // Popula lista antes de abrir
+              menu.classList.remove("hidden");
           } else {
-            this.crmSortColumn = col;
-            this.crmSortDirection = "asc"; // Data geralmente queremos desc, mas padrão é asc
-            if (col === "date" || col === "opportunity")
-              this.crmSortDirection = "desc";
+              menu.classList.add("hidden");
           }
-          this.renderCrmTab(); // Re-renderiza para atualizar ícones
-          this.renderCrmTableRows(); // Reorganiza linhas
-        });
       });
 
-      // 6. Paginação Local
-      document.getElementById("crm-prev-page").addEventListener("click", () => {
-        if (this.crmCurrentPage > 1) {
-          this.crmCurrentPage--;
-          this.renderCrmTableRows();
-        }
+      // Fechar menu ao clicar fora
+      document.addEventListener("click", (e) => {
+          const menu = document.getElementById("crm-architect-filter-menu");
+          const header = document.getElementById("crm-architect-header");
+          if (menu && !menu.classList.contains("hidden") && !menu.contains(e.target) && !header.contains(e.target)) {
+              menu.classList.add("hidden");
+          }
       });
 
-      document.getElementById("crm-next-page").addEventListener("click", () => {
-        const totalPages = Math.ceil(
-          this.crmDeals.length / this.crmItemsPerPage
-        );
-        if (this.crmCurrentPage < totalPages) {
-          this.crmCurrentPage++;
+      // 2. Ordenação dentro do Menu (A-Z / Z-A)
+      document.getElementById("crm-sort-az").addEventListener("click", () => {
+          this.crmSortColumn = "contactName";
+          this.crmSortDirection = "asc";
           this.renderCrmTableRows();
-        }
+          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+      });
+      document.getElementById("crm-sort-za").addEventListener("click", () => {
+          this.crmSortColumn = "contactName";
+          this.crmSortDirection = "desc";
+          this.renderCrmTableRows();
+          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+      });
+
+      // 3. Pesquisa dentro do Filtro
+      document.getElementById("crm-architect-search").addEventListener("input", (e) => {
+          const term = e.target.value.toLowerCase();
+          const items = document.querySelectorAll(".architect-filter-item");
+          items.forEach(item => {
+              const name = item.querySelector("span").textContent.toLowerCase();
+              item.style.display = name.includes(term) ? "flex" : "none";
+          });
+      });
+
+      // 4. Botão OK (Aplicar Filtro)
+      document.getElementById("crm-filter-apply").addEventListener("click", () => {
+          const checkboxes = document.querySelectorAll(".architect-checkbox:checked");
+          const selected = Array.from(checkboxes).map(cb => cb.value);
+          
+          const allCheck = document.getElementById("crm-filter-select-all");
+          if (allCheck && allCheck.checked) {
+              this.crmArchitectFilterList = [];
+          } else {
+              this.crmArchitectFilterList = selected;
+          }
+          
+          const icon = document.getElementById("architect-filter-icon");
+          if (this.crmArchitectFilterList.length > 0) {
+              icon.textContent = "filter_alt";
+              icon.classList.add("text-emerald-400");
+          } else {
+              icon.textContent = "filter_list";
+              icon.classList.remove("text-emerald-400");
+          }
+
+          this.crmCurrentPage = 1;
+          this.renderCrmTableRows();
+          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+      });
+
+      // 5. Botão Limpar
+      document.getElementById("crm-filter-clear").addEventListener("click", () => {
+          this.crmArchitectFilterList = [];
+          const icon = document.getElementById("architect-filter-icon");
+          icon.textContent = "filter_list";
+          icon.classList.remove("text-emerald-400");
+          
+          this.crmCurrentPage = 1;
+          this.renderCrmTableRows();
+          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+      });
+
+      // 6. Refresh Global
+      document.getElementById("crm-refresh-btn").addEventListener("click", () => {
+         this.crmNextStart = 0; 
+         this.crmDeals = []; 
+         this.crmCurrentPage = 1; 
+         this.crmArchitectFilterList = []; // Limpa filtro de arquiteto
+         const icon = document.getElementById("architect-filter-icon");
+         if(icon) { icon.textContent = "filter_list"; icon.classList.remove("text-emerald-400"); }
+         this.fetchBitrixData(0);
+      });
+
+      // 7. Load More
+      document.getElementById("crm-load-more-btn").addEventListener("click", () => this.fetchBitrixData(this.crmNextStart));
+
+      // 8. Filtro Fase
+      document.getElementById("crm-stage-filter").addEventListener("change", (e) => {
+          this.crmStageFilter = e.target.value; 
+          this.crmNextStart = 0; 
+          this.crmDeals = []; 
+          this.crmCurrentPage = 1; 
+          this.fetchBitrixData(0);
+      });
+
+      // 9. Filtro Responsável
+      document.getElementById("crm-assigned-filter").addEventListener("change", (e) => {
+          this.crmAssignedFilter = e.target.value; 
+          this.crmNextStart = 0; 
+          this.crmDeals = []; 
+          this.crmCurrentPage = 1; 
+          this.fetchBitrixData(0);
+      });
+
+      // 10. Paginação (Anterior/Próximo)
+      document.getElementById("crm-prev-page").addEventListener("click", () => { if (this.crmCurrentPage > 1) { this.crmCurrentPage--; this.renderCrmTableRows(); }});
+      document.getElementById("crm-next-page").addEventListener("click", () => { const total = this.getFilteredData().length; const pages = Math.ceil(total / this.crmItemsPerPage); if (this.crmCurrentPage < pages) { this.crmCurrentPage++; this.renderCrmTableRows(); }});
+      
+      // 11. Ordenação (Sort Trigger)
+      const headers = container.querySelectorAll(".crm-sort-trigger");
+      headers.forEach(th => {
+          th.addEventListener("click", (e) => {
+              const col = e.currentTarget.dataset.col;
+              if(this.crmSortColumn === col) { this.crmSortDirection = this.crmSortDirection === 'asc' ? 'desc' : 'asc'; } 
+              else { this.crmSortColumn = col; this.crmSortDirection = 'asc'; if(col === 'date' || col === 'opportunity') this.crmSortDirection = 'desc'; }
+              this.renderCrmTab(); this.renderCrmTableRows();
+          });
       });
     }
 
-    if (this.crmDeals.length === 0) {
-      await this.fetchBitrixData();
-    } else {
-      this.renderCrmTableRows();
-    }
+    // Lógica Inicial
+    if (this.crmDeals.length === 0) await this.fetchBitrixData();
+    else this.renderCrmTableRows();
+  }
+
+  populateArchitectFilterList() {
+      const listContainer = document.getElementById("crm-architect-list");
+      if (!listContainer) return;
+
+      // Extrai nomes únicos dos dados carregados
+      const uniqueNames = [...new Set(this.crmDeals.map(d => d.contactName))].sort();
+      
+      const isAllSelected = this.crmArchitectFilterList.length === 0;
+
+      let html = `
+        <label class="flex items-center gap-2 p-2 hover:bg-white/5 rounded cursor-pointer architect-filter-item">
+            <input type="checkbox" id="crm-filter-select-all" class="rounded bg-black/20 border-white/20 text-emerald-500 focus:ring-0" ${isAllSelected ? 'checked' : ''}>
+            <span class="text-xs text-gray-200 font-bold">(Selecionar Tudo)</span>
+        </label>
+        <div class="h-px bg-white/10 my-1"></div>
+      `;
+
+      html += uniqueNames.map(name => {
+          // Se a lista de filtro estiver vazia, todos estão "visualmente" selecionados (comportamento padrão)
+          // Se tiver itens, checa se este está incluso
+          const isChecked = isAllSelected || this.crmArchitectFilterList.includes(name);
+          return `
+            <label class="flex items-center gap-2 p-2 hover:bg-white/5 rounded cursor-pointer architect-filter-item">
+                <input type="checkbox" value="${name}" class="architect-checkbox rounded bg-black/20 border-white/20 text-emerald-500 focus:ring-0" ${isChecked ? 'checked' : ''}>
+                <span class="text-xs text-gray-300">${name}</span>
+            </label>
+          `;
+      }).join("");
+
+      listContainer.innerHTML = html;
+
+      // Lógica do "Select All"
+      const selectAll = document.getElementById("crm-filter-select-all");
+      const checkboxes = listContainer.querySelectorAll(".architect-checkbox");
+
+      selectAll.addEventListener("change", (e) => {
+          checkboxes.forEach(cb => cb.checked = e.target.checked);
+      });
+  }
+
+  getFilteredData() {
+      // 1. Filtro Local de Arquiteto (Se houver seleção)
+      let data = this.crmDeals;
+      if (this.crmArchitectFilterList.length > 0) {
+          data = data.filter(d => this.crmArchitectFilterList.includes(d.contactName));
+      }
+
+      // 2. Ordenação
+      if (this.crmSortColumn) {
+          data.sort((a, b) => {
+              let valA = a[this.crmSortColumn];
+              let valB = b[this.crmSortColumn];
+
+              if (this.crmSortColumn === 'contactName' || this.crmSortColumn === 'title') {
+                  valA = valA.toLowerCase();
+                  valB = valB.toLowerCase();
+                  if (valA < valB) return this.crmSortDirection === 'asc' ? -1 : 1;
+                  if (valA > valB) return this.crmSortDirection === 'asc' ? 1 : -1;
+                  return 0;
+              }
+              
+              if (this.crmSortColumn === 'date') {
+                  valA = new Date(valA);
+                  valB = new Date(valB);
+              }
+
+              if (valA < valB) return this.crmSortDirection === 'asc' ? -1 : 1;
+              if (valA > valB) return this.crmSortDirection === 'asc' ? 1 : -1;
+              return 0;
+          });
+      }
+      return data;
   }
 
   /**
@@ -4991,6 +5128,7 @@ class RelacionamentoApp {
               "OPPORTUNITY",
               "STAGE_ID",
               "CONTACT_ID",
+              "UF_CRM_1643216420578",
               "DATE_CREATE",
             ],
             filter: filterObj,
@@ -5058,6 +5196,7 @@ class RelacionamentoApp {
           stage: this.STAGE_MAP[deal.STAGE_ID] || deal.STAGE_ID,
           date: deal.DATE_CREATE,
           contactName: cleanContactName,
+          pedidoId: deal.UF_CRM_1643216420578,
           contactId: deal.CONTACT_ID,
         };
       });
@@ -5126,87 +5265,66 @@ class RelacionamentoApp {
   }
 
   renderCrmTableRows() {
-    const tbody = document.getElementById("crm-table-body");
-    // ... (outras referências: totalInfo, pageIndicator, btns...)
-    // Certifique-se de pegar as referências igual ao código anterior
+      const tbody = document.getElementById("crm-table-body");
+      const totalInfo = document.getElementById("crm-total-info");
+      const pageIndicator = document.getElementById("crm-page-indicator");
+      const btnPrev = document.getElementById("crm-prev-page");
+      const btnNext = document.getElementById("crm-next-page");
 
-    const totalInfo = document.getElementById("crm-total-info");
-    const pageIndicator = document.getElementById("crm-page-indicator");
-    const btnPrev = document.getElementById("crm-prev-page");
-    const btnNext = document.getElementById("crm-next-page");
+      if (!tbody) return;
 
-    if (!tbody) return;
+      // Usa os dados filtrados
+      const filteredData = this.getFilteredData();
 
-    // 1. APLICA ORDENAÇÃO ANTES DE FATIAR
-    this.sortCrmData();
+      // Paginação
+      const totalItems = filteredData.length;
+      const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
+      
+      if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
 
-    // 2. Paginação
-    const totalItems = this.crmDeals.length;
-    const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
+      const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
+      const endIndex = startIndex + this.crmItemsPerPage;
+      const pageData = filteredData.slice(startIndex, endIndex);
 
-    if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
+      // Info no rodapé
+      if (totalInfo) totalInfo.textContent = `${totalItems} registros visíveis (Total carregado: ${this.crmDeals.length})`;
+      if (pageIndicator) pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
+      if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
+      if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
 
-    const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
-    const endIndex = startIndex + this.crmItemsPerPage;
-    const pageData = this.crmDeals.slice(startIndex, endIndex);
+      if (pageData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio encontrado com estes filtros.</td></tr>`;
+          return;
+      }
 
-    // 3. Atualizar Controles UI (Igual ao código anterior)
-    if (totalInfo)
-      totalInfo.textContent = `${totalItems} registros carregados (Vendo ${
-        startIndex + 1
-      }-${Math.min(endIndex, totalItems)})`;
-    if (pageIndicator)
-      pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
-    if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
-    if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
-
-    // 4. Renderizar (ORDEM COLUNAS ALTERADA)
-    if (pageData.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio nesta visualização.</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = pageData
-      .map((deal, index) => {
-        const bgClass =
-          index % 2 === 0 ? "bg-transparent" : "bg-[#10b981]/[0.02]";
-        let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
-        if (deal.stage === "Ganho")
-          badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
-        if (deal.stage === "Perdido")
-          badgeColor = "bg-red-900 text-red-200 border-red-700";
-
-        // COLUNAS: Arquiteto -> ID -> Título -> Valor -> Fase -> Data
-        return `
+     // Renderiza Linhas
+      tbody.innerHTML = pageData.map((deal, index) => {
+          const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
+          let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
+          if (deal.stage === "Ganho") badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
+          if (deal.stage === "Perdido") badgeColor = "bg-red-900 text-red-200 border-red-700";
+          
+          return `
             <tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-300">
-                <td class="px-6 py-4 whitespace-nowrap text-blue-300 font-medium truncate max-w-[220px]" title="${
-                  deal.contactName
-                }">
+                <td class="px-6 py-4 whitespace-nowrap text-blue-300 font-medium truncate max-w-[220px]" title="${deal.contactName}">
                     ${deal.contactName}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
-                    ${deal.id}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-white truncate max-w-[250px]" title="${
-                  deal.title
-                }">
-                    ${deal.title}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-emerald-400">
-                    ${formatCurrency(deal.opportunity)}
-                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">${deal.pedidoId}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-white truncate max-w-[250px]" title="${deal.title}">${deal.title}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-emerald-400">${formatCurrency(deal.opportunity)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${badgeColor}">
-                        ${deal.stage}
-                    </span>
+                    <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${badgeColor}">${deal.stage}</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center text-xs text-gray-500">
-                    ${formatApiDateToBR(deal.date)}
+                <td class="px-6 py-4 whitespace-nowrap text-center text-xs text-gray-500">${formatApiDateToBR(deal.date)}</td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <a href="https://atacadaoled.bitrix24.com.br/crm/deal/details/${deal.id}/" target="_blank" class="inline-flex items-center justify-center p-2 rounded-lg text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 transition-all" title="Abrir no Bitrix">
+                        <span class="material-symbols-outlined text-lg">open_in_new</span>
+                    </a>
                 </td>
             </tr>
           `;
-      })
-      .join("");
+      }).join("");
   }
 }
 
