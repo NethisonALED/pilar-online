@@ -1,122 +1,116 @@
-import { supabase } from './utils.js';
+import { supabase } from "./utils.js";
 
 /**
  * Classe para gerenciar permissões do usuário
  */
 class PermissionsManager {
-    constructor() {
-        this.userPermissions = new Set();
-        this.userRole = null;
-        this.isLoaded = false;
+  constructor() {
+    this.userPermissions = new Set();
+    this.userRole = null;
+    this.isLoaded = false;
+  }
+
+  
+  /**
+   * Carrega as permissões do usuário atual
+   */
+async loadUserPermissions() {
+    try {
+      // 1. Pega o usuário logado da sessão (Isso vem do auth.users, que funciona)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.warn("Nenhuma sessão ativa");
+        return false;
+      }
+
+      const userEmail = session.user.email;
+
+      // 2. Busca na tabela pública 'perfis'
+      // Usamos .ilike para ignorar maiúsculas/minúsculas no email
+      // Usamos .maybeSingle() para não dar erro vermelho no console se não achar
+      const { data: userProfile, error: profileError } = await supabase
+        .from("perfis") 
+        .select("nivel_acesso") 
+        .ilike("email", userEmail) 
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Erro de banco ao buscar perfil:", profileError);
+        this.userRole = "visualizador"; 
+      } else if (!userProfile) {
+        console.warn("Perfil não encontrado na tabela 'perfis' para este email.");
+        this.userRole = "visualizador";
+      } else {
+        this.userRole = userProfile.nivel_acesso; 
+      }
+
+
+      // Removemos a busca por role_permissions que não existe
+      this.isLoaded = true;
+      return true;
+
+    } catch (error) {
+      console.error("Erro crítico em loadUserPermissions:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Verifica se o usuário tem uma permissão específica
+   */
+  hasPermission(permission) {
+    if (!this.isLoaded) {
+      console.warn("Permissões ainda não foram carregadas");
+      return false;
     }
+    return this.userPermissions.has(permission);
+  }
 
-    /**
-     * Carrega as permissões do usuário atual
-     */
-    async loadUserPermissions() {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                console.warn('Nenhuma sessão ativa');
-                return false;
-            }
+  /**
+   * Verifica se o usuário tem QUALQUER uma das permissões listadas
+   */
+  hasAnyPermission(permissions) {
+    return permissions.some((perm) => this.hasPermission(perm));
+  }
 
-            const userId = session.user.id;
+  /**
+   * Verifica se o usuário tem TODAS as permissões listadas
+   */
+  hasAllPermissions(permissions) {
+    return permissions.every((perm) => this.hasPermission(perm));
+  }
 
-            // Busca o role do usuário
-            const { data: userRoleData, error: roleError } = await supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', userId)
-                .single();
+  /**
+   * Retorna o role do usuário
+   */
+  getUserRole() {
+    return this.userRole;
+  }
 
-            if (roleError) {
-                console.error('Erro ao buscar role do usuário:', roleError);
-                // Se não tem role definido, considera como viewer por padrão
-                this.userRole = 'viewer';
-            } else {
-                this.userRole = userRoleData.role;
-            }
+  /**
+   * Verifica se é admin
+   */
+  isAdmin() {
+    return this.userRole === "admin";
+  }
 
-            // Busca as permissões do role
-            const { data: permissions, error: permError } = await supabase
-                .from('role_permissions')
-                .select('permission')
-                .eq('role', this.userRole);
+  /**
+   * Verifica se é manager
+   */
+  isManager() {
+    return this.userRole === "manager" || this.userRole === "editor";
+  }
 
-            if (permError) {
-                console.error('Erro ao buscar permissões:', permError);
-                return false;
-            }
-
-            // Armazena as permissões em um Set para busca rápida
-            this.userPermissions = new Set(permissions.map(p => p.permission));
-            this.isLoaded = true;
-
-            console.log(`Permissões carregadas para role: ${this.userRole}`, [...this.userPermissions]);
-            return true;
-
-        } catch (error) {
-            console.error('Erro ao carregar permissões:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Verifica se o usuário tem uma permissão específica
-     */
-    hasPermission(permission) {
-        if (!this.isLoaded) {
-            console.warn('Permissões ainda não foram carregadas');
-            return false;
-        }
-        return this.userPermissions.has(permission);
-    }
-
-    /**
-     * Verifica se o usuário tem QUALQUER uma das permissões listadas
-     */
-    hasAnyPermission(permissions) {
-        return permissions.some(perm => this.hasPermission(perm));
-    }
-
-    /**
-     * Verifica se o usuário tem TODAS as permissões listadas
-     */
-    hasAllPermissions(permissions) {
-        return permissions.every(perm => this.hasPermission(perm));
-    }
-
-    /**
-     * Retorna o role do usuário
-     */
-    getUserRole() {
-        return this.userRole;
-    }
-
-    /**
-     * Verifica se é admin
-     */
-    isAdmin() {
-        return this.userRole === 'admin';
-    }
-
-    /**
-     * Verifica se é manager
-     */
-    isManager() {
-        return this.userRole === 'manager';
-    }
-
-    /**
-     * Limpa as permissões (útil no logout)
-     */
-    clear() {
-        this.userPermissions.clear();
-        this.userRole = null;
-        this.isLoaded = false;
-    }
+  /**
+   * Limpa as permissões (útil no logout)
+   */
+  clear() {
+    this.userPermissions.clear();
+    this.userRole = null;
+    this.isLoaded = false;
+  }
 }
+
 
 // Exporta uma instância única (singleton)
 export const permissionsManager = new PermissionsManager();
@@ -125,41 +119,41 @@ export const permissionsManager = new PermissionsManager();
  * Mapeamento de funcionalidades para permissões necessárias
  */
 export const PERMISSIONS_MAP = {
-    // Navegação/Visualização
-    'view_import_vendas': ['import_data'],
-    'view_consulta_sysled': ['view_relatorios'],
-    'view_inclusao_manual': ['manage_comissoes', 'view_comissoes'],
-    'view_arquitetos': ['view_arquitetos'],
-    'view_pontuacao': ['view_relatorios'],
-    'view_comprovantes': ['view_pagamentos'],
-    'view_resgates': ['view_pagamentos'],
-    'view_arquivos': ['view_relatorios'],
-    'view_resultados': ['view_relatorios'],
-    'view_eventos': ['view_logs'],
+  // Navegação/Visualização
+  view_import_vendas: ["import_data"],
+  view_consulta_sysled: ["view_relatorios"],
+  view_inclusao_manual: ["manage_comissoes", "view_comissoes"],
+  view_arquitetos: ["view_arquitetos"],
+  view_pontuacao: ["view_relatorios"],
+  view_comprovantes: ["view_pagamentos"],
+  view_resgates: ["view_pagamentos"],
+  view_arquivos: ["view_relatorios"],
+  view_resultados: ["view_relatorios"],
+  view_eventos: ["view_logs"],
 
-    // Ações específicas
-    'import_vendas': ['import_data'],
-    'export_arquitetos': ['export_data'],
-    'add_arquiteto': ['edit_arquitetos'],
-    'edit_arquiteto': ['edit_arquitetos'],
-    'delete_arquiteto': ['delete_arquitetos'],
-    'manage_comissoes': ['manage_comissoes'],
-    'approve_comissoes': ['approve_pagamentos'],
-    'manage_pagamentos': ['manage_pagamentos'],
-    'gerar_pagamentos': ['manage_pagamentos'],
-    'manage_pontos': ['manage_comissoes'],
+  // Ações específicas
+  import_vendas: ["import_data"],
+  export_arquitetos: ["export_data"],
+  add_arquiteto: ["edit_arquitetos"],
+  edit_arquiteto: ["edit_arquitetos"],
+  delete_arquiteto: ["delete_arquitetos"],
+  manage_comissoes: ["manage_comissoes"],
+  approve_comissoes: ["approve_pagamentos"],
+  manage_pagamentos: ["manage_pagamentos"],
+  gerar_pagamentos: ["manage_pagamentos"],
+  manage_pontos: ["manage_comissoes"],
 };
 
 /**
  * Função auxiliar para verificar permissão de uma ação
  */
 export function canPerformAction(actionKey) {
-    const requiredPermissions = PERMISSIONS_MAP[actionKey];
-    if (!requiredPermissions) {
-        console.warn(`Ação não mapeada: ${actionKey}`);
-        return false;
-    }
-    return permissionsManager.hasAnyPermission(requiredPermissions);
+  const requiredPermissions = PERMISSIONS_MAP[actionKey];
+  if (!requiredPermissions) {
+    console.warn(`Ação não mapeada: ${actionKey}`);
+    return false;
+  }
+  return permissionsManager.hasAnyPermission(requiredPermissions);
 }
 
 /**
@@ -171,44 +165,64 @@ export function applyUIPermissions() {
         return;
     }
 
-    // Controle de visibilidade de abas do menu
-    const menuItems = {
-        'relatorio-rt': canPerformAction('view_import_vendas'),
-        'consulta-sysled': canPerformAction('view_consulta_sysled'),
-        'inclusao-manual': canPerformAction('view_inclusao_manual'),
-        'arquitetos': canPerformAction('view_arquitetos'),
-        'pontuacao': canPerformAction('view_pontuacao'),
-        'comprovantes': canPerformAction('view_comprovantes'),
-        'resgates': canPerformAction('view_resgates'),
-        'arquivos-importados': canPerformAction('view_arquivos'),
-        'resultados': canPerformAction('view_resultados'),
-        'eventos': canPerformAction('view_eventos'),
-    };
+    const role = permissionsManager.getUserRole();
+    console.log(`Aplicando regras de UI para o cargo: ${role}`);
 
-    // Esconde/mostra itens do menu
-    Object.entries(menuItems).forEach(([tabName, hasPermission]) => {
-        const menuLink = document.querySelector(`.menu-link[data-tab="${tabName}"]`);
-        if (menuLink) {
-            menuLink.style.display = hasPermission ? '' : 'none';
-        }
-    });
+    // --- 1. CONTROLE DO MENU LATERAL ---
+    
+    // Lista de abas que o VISUALIZADOR (Vendedor) pode ver
+    // 'carteira' = Aba Carteira
+    // 'crm-opportunities' = Aba Oportunidades CRM
+    // 'comprovantes' = Geralmente vendedor precisa ver seus comprovantes (opcional, adicione se quiser)
+    const visualizadorAllowedTabs = ['carteira', 'crm-opportunities'];
 
-    // Controle de botões específicos
-    const buttonPermissions = {
-        'export-csv-btn': canPerformAction('export_arquitetos'),
-        'delete-all-arquitetos-btn': permissionsManager.isAdmin(),
-        'gerar-pagamentos-rt-btn': canPerformAction('gerar_pagamentos'),
-        'aprovar-inclusao-manual-btn': canPerformAction('approve_comissoes'),
-    };
+    const menuLinks = document.querySelectorAll('.menu-link');
 
-    Object.entries(buttonPermissions).forEach(([buttonId, hasPermission]) => {
-        const button = document.getElementById(buttonId);
-        if (button) {
-            if (!hasPermission) {
-                button.style.display = 'none';
+    menuLinks.forEach(link => {
+        const tabName = link.dataset.tab;
+
+        // Regra: Editor/Admin/Gestor vê TUDO. Visualizador vê FILTRADO.
+        if (role === 'admin' || role === 'editor' || role === 'gestor') {
+            link.style.display = 'flex'; // Mostra tudo
+        } else {
+            // É visualizador (ou qualquer outro)
+            if (visualizadorAllowedTabs.includes(tabName)) {
+                link.style.display = 'flex';
+            } else {
+                link.style.display = 'none'; // Esconde o resto
             }
         }
     });
+
+
+    // --- 2. CONTROLE DE BOTÕES ESPECÍFICOS ---
+    
+    // Se for visualizador, escondemos botões de "Deletar", "Editar", "Exportar CSV" etc.
+    const isRestricted = (role !== 'admin' && role !== 'editor' && role !== 'gestor');
+
+    const restrictedButtons = [
+        'export-csv-btn',           // Exportar Excel
+        'delete-all-arquitetos-btn', // Deletar Tudo
+        'gerar-pagamentos-rt-btn',   // Gerar Pagamento em Lote
+        'aprovar-inclusao-manual-btn', // Aprovar Comissão
+        'add-arquiteto-form',        // Formulário de adicionar
+        'btn-open-carteira-manual'   // Adicionar parceiro manual na carteira
+    ];
+
+    restrictedButtons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.style.display = isRestricted ? 'none' : '';
+        }
+    });
+    
+    // Remove botões de delete/edit das tabelas via CSS se for restrito
+    if (isRestricted) {
+        // Exemplo: Esconder botões de ação na tabela de arquitetos via classe global
+        document.body.classList.add('user-restricted');
+    } else {
+        document.body.classList.remove('user-restricted');
+    }
 
     // Exibe badge com o role do usuário
     displayUserRole();
@@ -218,40 +232,43 @@ export function applyUIPermissions() {
  * Exibe o role do usuário na interface
  */
 function displayUserRole() {
-    const roleLabels = {
-        'admin': { text: 'Administrador', color: 'bg-red-500/80' },
-        'manager': { text: 'Gestor', color: 'bg-blue-500/80' },
-        'operator': { text: 'Operador', color: 'bg-green-500/80' },
-        'viewer': { text: 'Visualizador', color: 'bg-gray-500/80' }
-    };
+  const roleLabels = {
+    admin: { text: "Administrador", color: "bg-red-500/80" },
+    manager: { text: "Gestor", color: "bg-blue-500/80" },
+    editor: { text: "Editor", color: "bg-purple-500/80" }, 
+    operator: { text: "Operador", color: "bg-green-500/80" },
+    viewer: { text: "Visualizador", color: "bg-gray-500/80" },
+  };
+  const role = permissionsManager.getUserRole();
+  const roleInfo = roleLabels[role] || {
+    text: "Usuário",
+    color: "bg-gray-500/80",
+  };
 
-    const role = permissionsManager.getUserRole();
-    const roleInfo = roleLabels[role] || { text: 'Usuário', color: 'bg-gray-500/80' };
-
-    // Adiciona badge no header
-    const header = document.querySelector('header .flex.items-center.gap-4');
-    if (header && !document.getElementById('user-role-badge')) {
-        const badge = document.createElement('span');
-        badge.id = 'user-role-badge';
-        badge.className = `px-3 py-1 rounded-full text-xs font-semibold text-white ${roleInfo.color}`;
-        badge.textContent = roleInfo.text;
-        header.insertBefore(badge, header.firstChild);
-    }
+  // Adiciona badge no header
+  const header = document.querySelector("header .flex.items-center.gap-4");
+  if (header && !document.getElementById("user-role-badge")) {
+    const badge = document.createElement("span");
+    badge.id = "user-role-badge";
+    badge.className = `px-3 py-1 rounded-full text-xs font-semibold text-white ${roleInfo.color}`;
+    badge.textContent = roleInfo.text;
+    header.insertBefore(badge, header.firstChild);
+  }
 }
 
 /**
  * Middleware para verificar permissão antes de executar uma ação
  */
 export function requirePermission(actionKey, callback, deniedCallback = null) {
-    if (canPerformAction(actionKey)) {
-        return callback();
+  if (canPerformAction(actionKey)) {
+    return callback();
+  } else {
+    console.warn(`Permissão negada para: ${actionKey}`);
+    if (deniedCallback) {
+      deniedCallback();
     } else {
-        console.warn(`Permissão negada para: ${actionKey}`);
-        if (deniedCallback) {
-            deniedCallback();
-        } else {
-            alert('Você não tem permissão para realizar esta ação.');
-        }
-        return false;
+      alert("Você não tem permissão para realizar esta ação.");
     }
+    return false;
+  }
 }

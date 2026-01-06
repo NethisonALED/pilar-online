@@ -10,6 +10,7 @@ import {
 } from "./utils.js";
 import { initializeEventListeners } from "./events.js";
 import { CONFIG } from "./config.js";
+import { permissionsManager, applyUIPermissions } from "./permissions.js";
 
 class RelacionamentoApp {
   constructor() {
@@ -43,6 +44,12 @@ class RelacionamentoApp {
     this.schemaHasRtAcumulado = false;
     this.schemaHasRtTotalPago = false;
 
+    this.currentUserEmail = ""; 
+    
+    // NOVOS ESTADOS PARA CONTROLE DE ACESSO
+    this.currentBitrixUserId = null; // Guardará o ID (ex: 100)
+    this.isBitrixRestricted = false; // Se true, só vê os próprios dados
+
     // Dados da API Sysled
     this.sysledData = [];
     this.sysledFilteredData = [];
@@ -60,6 +67,8 @@ class RelacionamentoApp {
     this.crmLoading = false;
     this.bitrixWebhookUrl =
       "https://atacadaoled.bitrix24.com.br/rest/2647/vaoafc68g9602xzh/";
+
+    this.bitrixWebhookUserSearch = "https://atacadaoled.bitrix24.com.br/rest/2647/fvieh5naykrzk6u0/"
     this.crmNextStart = 0;
 
     this.crmStageFilter = ""; // Vazio = Todas
@@ -135,9 +144,37 @@ class RelacionamentoApp {
       this.currentUserEmail = data.session.user.email;
       this.currentUserId = data.session.user.id;
 
+      await permissionsManager.loadUserPermissions();
+      const userRole = permissionsManager.getUserRole();
+
+      applyUIPermissions();
+
+      // 2. DEFINIR SE É RESTRITO (Lógica de Negócio)
+      // Se NÃO for admin ou manager, assume que é vendedor e restringe
+      if (userRole !== 'admin' && userRole !== 'manager' && userRole !== 'editor') {
+          this.isBitrixRestricted = true;
+      } else {
+          this.isBitrixRestricted = false;
+      }
+
+      // 3. BUSCAR ID NO BITRIX PELO EMAIL
+      await this.fetchBitrixUserId();
+
       // 2. LEITURA DA URL E ABAS
       const params = new URLSearchParams(window.location.search);
+
       const activeTab = params.get("tab") || "arquitetos";
+      // --- PROTEÇÃO DE ROTA ---
+      // Se for visualizador e tentar acessar algo que não pode, joga pra carteira
+      if (this.isBitrixRestricted && activeTab !== 'carteira' && activeTab !== 'crm-opportunities') {
+          activeTab = 'carteira';
+          // Atualiza a URL visualmente sem recarregar
+          const newUrl = new URL(window.location);
+          newUrl.searchParams.set("tab", activeTab);
+          window.history.replaceState({}, "", newUrl);
+      }
+      // ------------------------
+
       this.switchTabVisuals(activeTab);
 
       // 3. CARREGAMENTO DE DADOS DO BANCO
@@ -172,6 +209,41 @@ class RelacionamentoApp {
         }, 500);
       }
     }
+  }
+
+  /**
+   * Busca o ID do usuário no Bitrix baseado no e-mail logado no Pilar.
+   */
+  async fetchBitrixUserId() {
+      if (!this.bitrixWebhookUrl || !this.currentUserEmail) return;
+
+      try {
+          // Método user.search busca por EMAIL
+          const response = await fetch(`${this.bitrixWebhookUserSearch}user.get`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                  "filter": { "email": this.currentUserEmail }
+              })
+          });
+
+          const result = await response.json();
+
+          if (result.result && result.result.length > 0) {
+              // Pega o primeiro usuário encontrado
+              const user = result.result[0];
+              this.currentBitrixUserId = user.ID;
+              
+              // Se for restrito, já fixa o filtro
+              if (this.isBitrixRestricted) {
+                  this.crmAssignedFilter = user.ID;
+              }
+          } else {
+              console.warn("E-mail não encontrado no Bitrix24.");
+          }
+      } catch (error) {
+          console.error("Erro ao buscar usuário Bitrix:", error);
+      }
   }
 
   /**
@@ -3544,7 +3616,7 @@ class RelacionamentoApp {
     const controlsHtml = `
             <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros</h2>
+                    <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros ([Lojas] Especificadores)</h2>
                     <div class="relative" id="custom-period-dropdown">
                         <button id="period-dropdown-btn" class="flex items-center justify-between w-48 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white text-sm font-medium rounded-lg pl-4 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all shadow-lg backdrop-blur-sm">
                             <span id="period-selected-text">${currentLabel}</span>
@@ -4733,6 +4805,7 @@ class RelacionamentoApp {
    */
   async renderCrmTab() {
     const container = document.getElementById("crm-opportunities-container");
+    const assignedDisabled = this.isBitrixRestricted ? "disabled opacity-50 cursor-not-allowed" : "";
     if (!container) return;
 
     // Só cria a estrutura se ela ainda não existir
@@ -4765,14 +4838,14 @@ class RelacionamentoApp {
                                 <span class="material-symbols-outlined text-blue-500 text-3xl">handshake</span>
                                 Oportunidades CRM
                             </h1>
-                            <p class="text-gray-400 text-sm mt-1">Funil 221: [StudioA] Especificador.</p>
+                            <p class="text-gray-400 text-sm mt-1">Funil 221: [Lojas] Especificadores.</p>
                         </div>
                         
                         <div class="flex flex-wrap gap-3 items-center justify-end">
                             
                             <div class="relative group">
                                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">person</span>
-                                <select id="crm-assigned-filter" class="h-9 pl-9 pr-8 rounded-lg bg-[#1a2e25]/50 border border-white/10 text-gray-300 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer hover:bg-[#1a2e25]">
+                                <select id="crm-assigned-filter" ${assignedDisabled} class="h-9 pl-9 pr-8 rounded-lg bg-[#1a2e25]/50 border border-white/10 text-gray-300 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all appearance-none cursor-pointer hover:bg-[#1a2e25]">
                                     <option value="" class="bg-[#0D1A13]">Todos Responsáveis</option>
                                     ${assignedOptions}
                                 </select>
@@ -4866,6 +4939,11 @@ class RelacionamentoApp {
                 </div>
             </div>
         </div>`;
+
+        if (this.isBitrixRestricted && this.currentBitrixUserId) {
+        const select = document.getElementById("crm-assigned-filter");
+        if(select) select.value = this.currentBitrixUserId;
+    }
 
       // --- EVENT LISTENERS ---
       
@@ -5114,6 +5192,23 @@ class RelacionamentoApp {
       if (this.crmAssignedFilter) {
         filterObj["ASSIGNED_BY_ID"] = this.crmAssignedFilter;
       }
+
+      if (this.isBitrixRestricted) {
+            // SEGURANÇA MÁXIMA: Se for vendedor, FORÇA o filtro pelo ID dele
+            // Mesmo que ele tente hackear o HTML para mudar o value, aqui sobrescreve.
+            if (this.currentBitrixUserId) {
+                filterObj["ASSIGNED_BY_ID"] = this.currentBitrixUserId;
+            } else {
+                // Se é vendedor mas não achamos o ID no Bitrix (email não bate), 
+                // força um ID inexistente para não mostrar nada (segurança por falha)
+                filterObj["ASSIGNED_BY_ID"] = -1; 
+            }
+        } else {
+            // Se for Admin/Gestor, usa o filtro selecionado na tela (ou vazio para todos)
+            if (this.crmAssignedFilter) {
+                filterObj["ASSIGNED_BY_ID"] = this.crmAssignedFilter;
+            }
+        }
 
       const dealResponse = await fetch(
         `${this.bitrixWebhookUrl}crm.deal.list`,
