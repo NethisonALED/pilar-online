@@ -163,7 +163,7 @@ class RelacionamentoApp {
       // 2. LEITURA DA URL E ABAS
       const params = new URLSearchParams(window.location.search);
 
-      const activeTab = params.get("tab") || "arquitetos";
+      let activeTab = params.get("tab") || "arquitetos";
       // --- PROTEÇÃO DE ROTA ---
       // Se for visualizador e tentar acessar algo que não pode, joga pra carteira
       if (this.isBitrixRestricted && activeTab !== 'carteira' && activeTab !== 'crm-opportunities') {
