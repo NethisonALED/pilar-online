@@ -30,14 +30,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutButton) {
         logoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
+            
+            // Tenta fazer o signout
             const { error } = await supabase.auth.signOut();
+            
+            // INDEPENDENTE se deu erro (ex: session missing) ou sucesso,
+            // nós limpamos o estado local e recarregamos.
             if (error) {
-                alert('Erro ao sair: ' + error.message);
-            } else {
-                // SUCESSO: Recarrega a página.
-                // O app.js vai rodar o init(), não ver token e mostrar o login.
-                window.location.reload();
+                console.warn('Aviso ao sair:', error.message);
             }
+            
+            // Limpa forçadamente qualquer resquício local do Supabase (opcional, mas recomendado)
+            localStorage.removeItem('sb-api-auth-token'); // Ajuste conforme a chave do seu projeto se souber, senão o reload resolve
+            
+            // Recarrega a página para voltar ao Login
+            window.location.reload();
         });
     }
 });
