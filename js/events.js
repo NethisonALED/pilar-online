@@ -210,6 +210,9 @@ export function initializeEventListeners(app) {
       case "edit-rt-form":
         app.handleUpdateRtValue(e);
         break;
+      case "change-password-form":
+        app.handleChangePassword(e);
+        break;
       case "novo-arquiteto-form":
         app.handleNovoArquitetoSubmit(e);
         break;

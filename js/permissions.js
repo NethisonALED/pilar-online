@@ -1,4 +1,4 @@
-import { supabase } from "./utils.js";
+import { supabase, showToast } from "./utils.js";
 
 /**
  * Classe para gerenciar permissões do usuário
@@ -232,28 +232,7 @@ export function applyUIPermissions() {
  * Exibe o role do usuário na interface
  */
 function displayUserRole() {
-  const roleLabels = {
-    admin: { text: "Administrador", color: "bg-red-500/80" },
-    manager: { text: "Gestor", color: "bg-blue-500/80" },
-    editor: { text: "Editor", color: "bg-purple-500/80" }, 
-    operator: { text: "Operador", color: "bg-green-500/80" },
-    viewer: { text: "Visualizador", color: "bg-gray-500/80" },
-  };
-  const role = permissionsManager.getUserRole();
-  const roleInfo = roleLabels[role] || {
-    text: "Usuário",
-    color: "bg-gray-500/80",
-  };
-
-  // Adiciona badge no header
-  const header = document.querySelector("header .flex.items-center.gap-4");
-  if (header && !document.getElementById("user-role-badge")) {
-    const badge = document.createElement("span");
-    badge.id = "user-role-badge";
-    badge.className = `px-3 py-1 rounded-full text-xs font-semibold text-white ${roleInfo.color}`;
-    badge.textContent = roleInfo.text;
-    header.insertBefore(badge, header.firstChild);
-  }
+    // Badge desabilitado no header a pedido do usuário.
 }
 
 /**
@@ -267,7 +246,7 @@ export function requirePermission(actionKey, callback, deniedCallback = null) {
     if (deniedCallback) {
       deniedCallback();
     } else {
-      alert("Você não tem permissão para realizar esta ação.");
+      showToast("Você não tem permissão para realizar esta ação.", "error");
     }
     return false;
   }

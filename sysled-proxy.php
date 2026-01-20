@@ -7,7 +7,7 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 // Função para capturar erros fatais e devolver JSON
-register_shutdown_function(function() {
+register_shutdown_function(function () {
     $error = error_get_last();
     if ($error !== NULL && $error['type'] === E_ERROR) {
         header('Content-Type: application/json');
@@ -21,7 +21,7 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowed_domains = [
     'https://www.seusite.com.br',
     'https://seusite.com.br',
-    'http://localhost:8000', 
+    'http://localhost:8000',
     'http://127.0.0.1:5500'
 ];
 
@@ -30,7 +30,7 @@ if (in_array($origin, $allowed_domains)) {
 } else {
     // Opcional: Se quiser ser restrito, descomente abaixo. 
     // Por enquanto pode deixar * se tiver medo de errar o domínio.
-    header("Access-Control-Allow-Origin: *"); 
+    header("Access-Control-Allow-Origin: *");
 }
 
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
@@ -44,26 +44,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // --- FUNÇÃO ROBUSTA PARA LER .ENV ---
-function getEnvValue($key) {
+function getEnvValue($key)
+{
     $envPath = __DIR__ . '/.env';
-    
+
     if (!file_exists($envPath)) {
         throw new Exception("Arquivo .env não encontrado em: " . $envPath);
     }
 
     $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        
+        if (strpos(trim($line), '#') === 0)
+            continue;
+
         // Quebra na primeira ocorrência de '='
         $parts = explode('=', $line, 2);
-        
+
         if (count($parts) === 2) {
             $name = trim($parts[0]);
             $value = trim($parts[1]);
             // Remove aspas simples ou duplas se existirem
             $value = trim($value, '"\'');
-            
+
             if ($name === $key) {
                 return $value;
             }
@@ -73,8 +75,28 @@ function getEnvValue($key) {
 }
 
 try {
+    // 0. Verifica se é pedido de config (Frontend)
+    if (isset($_GET['get_config']) && $_GET['get_config'] === '1') {
+        $config = [
+            'SUPABASE' => [
+                'URL' => getEnvValue('API_SUPABASE_URL'),
+                'ANON_KEY' => getEnvValue('API_SUPABASE_KEY'),
+            ],
+            // Opcional: retornar a própria URL do proxy se necessário
+            'SYSLED' => [
+                'PROXY_URL' => './sysled-proxy.php'
+            ]
+        ];
+        echo json_encode($config);
+        exit();
+    }
+
+    // 1. Busca as credenciais
+
+
     // 1. Busca as credenciais
     $sysledUrl = getEnvValue('API_SYSLED_URL');
+
     $sysledToken = getEnvValue('API_SYSLED_KEY');
 
     if (!$sysledUrl || !$sysledToken) {
@@ -91,7 +113,7 @@ try {
     // 3. Prepara a URL final (mantendo query params do JS)
     $queryString = $_SERVER['QUERY_STRING'] ?? '';
     $finalUrl = $sysledUrl;
-    
+
     // Se o JS mandou filtros, adiciona na URL
     if (!empty($queryString)) {
         $separator = (strpos($sysledUrl, '?') !== false) ? '&' : '?';
@@ -103,8 +125,8 @@ try {
     curl_setopt($ch, CURLOPT_URL, $finalUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     // IMPORTANTE PARA HOSTINGER: Desabilita verificação SSL estrita se der erro de certificado
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-    
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Authorization: " . $sysledToken,
         "Content-Type: application/json"
@@ -113,7 +135,7 @@ try {
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
-    
+
     curl_close($ch);
 
     if ($curlError) {

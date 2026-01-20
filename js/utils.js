@@ -2,10 +2,36 @@
 // Esta instância é exportada para ser usada em toda a aplicação.
 // Importa e configura o dotenv
 import { CONFIG } from './config.js';
-export const supabase = window.supabase.createClient(
-    CONFIG.SUPABASE.URL, 
-    CONFIG.SUPABASE.ANON_KEY
-);
+
+let supabaseInstance = null;
+
+if (CONFIG.SUPABASE.URL && CONFIG.SUPABASE.ANON_KEY) {
+    try {
+        supabaseInstance = window.supabase.createClient(
+            CONFIG.SUPABASE.URL, 
+            CONFIG.SUPABASE.ANON_KEY
+        );
+    } catch (e) {
+        console.error("Erro ao inicializar Supabase:", e);
+    }
+} else {
+    // Falha silenciosa na inicialização, a UI deve tratar isso
+    console.error("CONFIGURAÇÃO DE SEGURANÇA AUSENTE: Não foi possível carregar as chaves do Supabase via proxy PHP.");
+    // Exibe overlay de erro fatal
+    window.addEventListener('load', () => {
+         document.body.innerHTML = `
+            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;text-align:center;font-family:sans-serif;">
+                <h1 style="color:#ef4444;font-size:2rem;margin-bottom:1rem;">Erro de Configuração de Segurança</h1>
+                <p>O sistema não conseguiu carregar as chaves de acesso de forma segura.</p>
+                <p style="margin-top:1rem;color:#94a3b8;">Motivo provável: O servidor PHP não está rodando ou não está acessível.</p>
+                <code style="background:#1e293b;padding:1rem;border-radius:0.5rem;margin-top:2rem;font-family:monospace;">php -S localhost:8000</code>
+                <p style="margin-top:1rem;color:#94a3b8;">Execute o comando acima na pasta do projeto e acesse via <a href="http://localhost:8000" style="color:#38bdf8;">http://localhost:8000</a></p>
+            </div>
+         `;
+    });
+}
+
+export const supabase = supabaseInstance;
 
 
 // --- FUNÇÕES UTILITÁRIAS EXPORTADAS ---
@@ -91,3 +117,83 @@ export const formatApiNumberToBR = (value) => {
     if (isNaN(number)) return value;
     return number.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
+
+/**
+ * Escapa caracteres HTML perigosos para prevenir XSS.
+ * @param {string} str - A string a ser escapada.
+ * @returns {string} A string segura para inserção em HTML.
+ */
+export const escapeHTML = (str) => {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
+
+/**
+ * Exibe uma notificação do tipo Toast.
+ * @param {string} message - A mensagem a ser exibida.
+ * @param {string} type - O tipo da notificação ('success', 'error', 'info', 'warning').
+ * @param {number} duration - Duração em ms (padrão 3000).
+ */
+export const showToast = (message, type = 'info', duration = 3000) => {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Icon selection
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'error') icon = 'exclamation-circle';
+    if (type === 'warning') icon = 'exclamation-triangle';
+
+    // Title translation
+    const titles = {
+        success: 'Sucesso',
+        error: 'Erro',
+        info: 'Informação',
+        warning: 'Atenção'
+    };
+
+    toast.innerHTML = `
+        <div class="toast-icon"><i class="fas fa-${icon}"></i></div>
+        <div class="toast-content">
+            <div class="toast-title">${titles[type] || 'Notificação'}</div>
+            <div class="toast-message">${escapeHTML(message)}</div>
+        </div>
+        <button class="toast-close"><i class="fas fa-times"></i></button>
+        <div class="toast-progress">
+            <div class="toast-progress-bar" style="transition-duration: ${duration}ms;"></div>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+        const progressBar = toast.querySelector('.toast-progress-bar');
+        if (progressBar) {
+            progressBar.style.transform = 'scaleX(0)';
+        }
+    });
+
+    const removeToast = () => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    };
+
+    const timeout = setTimeout(removeToast, duration);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => {
+        clearTimeout(timeout);
+        removeToast();
+    });
+};
+

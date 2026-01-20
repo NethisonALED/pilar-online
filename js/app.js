@@ -7,6 +7,8 @@ import {
   formatApiDateToBR,
   formatApiNumberToBR,
   parseApiNumber,
+  escapeHTML,
+  showToast,
 } from "./utils.js";
 import { initializeEventListeners } from "./events.js";
 import { CONFIG } from "./config.js";
@@ -44,8 +46,6 @@ class RelacionamentoApp {
     // Flags para funcionalidades condicionais baseadas no schema do DB
     this.schemaHasRtAcumulado = false;
     this.schemaHasRtTotalPago = false;
-
-    this.currentUserEmail = ""; 
     
     // NOVOS ESTADOS PARA CONTROLE DE ACESSO
     this.currentBitrixUserId = null; // Guardará o ID (ex: 100)
@@ -114,6 +114,10 @@ class RelacionamentoApp {
     this.crmArchitectFilterList = [];
 
     this.init();
+  }
+
+  get allPagamentos() {
+    return Object.values(this.pagamentos).flat().concat(this.resgates);
   }
 
   /**
@@ -185,6 +189,9 @@ class RelacionamentoApp {
 
       // 4. FINALIZAÇÃO
       initializeEventListeners(this);
+      
+      this.updateSettingsProfile(); // Atualiza a seção de perfil nas configurações
+      
       this.renderAll();
 
       if (activeTab === "carteira") {
@@ -202,7 +209,7 @@ class RelacionamentoApp {
       }
     } catch (error) {
       console.error("Erro crítico:", error);
-      alert("Erro ao iniciar. Tente recarregar.");
+      showToast("Erro ao iniciar. Tente recarregar.", "error");
     } finally {
       if (globalLoader && !globalLoader.classList.contains("hidden")) {
         globalLoader.style.opacity = "0";
@@ -272,13 +279,13 @@ class RelacionamentoApp {
       if (!file) return;
 
       if (!file.type.startsWith("image/")) {
-          alert("Por favor, selecione apenas arquivos de imagem.");
+          showToast("Por favor, selecione apenas arquivos de imagem.", "warning");
           return;
       }
 
       // Limite de 2MB para não estourar localStorage
       if (file.size > 2 * 1024 * 1024) {
-          alert("A imagem deve ter no máximo 2MB.");
+          showToast("A imagem deve ter no máximo 2MB.", "warning");
           return;
       }
 
@@ -296,11 +303,11 @@ class RelacionamentoApp {
               }
               
               // Opcional: Feedback
-              // alert("Foto atualizada com sucesso!");
+              // showToast("Foto atualizada com sucesso!", "success");
           }
       } catch (e) {
           console.error("Erro ao salvar foto de perfil:", e);
-          alert("Erro ao processar imagem.");
+          showToast("Erro ao processar imagem.", "error");
       }
   }
 
@@ -436,7 +443,99 @@ class RelacionamentoApp {
     console.log("Todos os componentes foram renderizados.");
   }
 
+
+  // --- HELPERS PARA TABELAS UNIFICADAS ---
+
+  createPaymentRow(p, type) {
+    const hasComprovante = p.comprovante && p.comprovante.url;
+    return `<tr>
+              ${type === "resgate" ? `<td>${formatApiDateToBR(p.data_geracao)}</td>` : ""}
+              <td>${p.id_parceiro}</td>
+              <td>${escapeHTML(p.parceiro)}</td>
+              <td>${escapeHTML(p.consultor || "N/A")}</td>
+              <td class="text-right font-semibold">
+                ${formatCurrency(p.rt_valor)}
+                <button class="edit-rt-btn text-blue-400 hover:text-blue-300 ml-2" title="Editar Valor RT" data-id="${p.id}">
+                  <span class="material-symbols-outlined text-base align-middle">edit</span>
+                </button>
+              </td>
+              <td class="text-center">
+                <input type="checkbox" class="pagamento-status h-5 w-5 rounded bg-background-dark border-white/20 text-primary focus:ring-primary" 
+                  data-id="${p.id}" ${p.pago ? "checked" : ""}>
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <label for="comprovante-input-${p.id}" class="file-input-label bg-white/10 hover:bg-white/20 text-xs py-1 px-3 !font-medium whitespace-nowrap">Anexar</label>
+                  <input type="file" id="comprovante-input-${p.id}" class="comprovante-input file-input" data-id="${p.id}">
+                  <span class="file-status-text text-xs ${hasComprovante ? "text-green-400 font-semibold" : "text-gray-400"}">
+                    ${hasComprovante ? "Comprovante anexado" : "Nenhum arquivo"}
+                  </span>
+                </div>
+              </td>
+              <td class="text-center">
+                <button class="view-comprovante-btn text-primary/80 hover:text-primary font-semibold" 
+                  data-id="${p.id}" ${!hasComprovante ? "disabled" : ""} 
+                  style="${!hasComprovante ? "opacity: 0.5; cursor: not-allowed;" : ""}">Ver</button>
+              </td>
+            </tr>`;
+  }
+
+  renderPaymentTableGeneric(containerId, data, type, emptyMessage, filter) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    // Filtro unificado
+    const filteredData = data.filter(p => !filter || (p.id_parceiro && p.id_parceiro.toString().includes(filter)));
+
+    if (filteredData.length === 0) {
+      container.innerHTML = `<p class="text-center text-gray-400 py-4">${emptyMessage}${filter ? ' para o ID informado' : ''}.</p>`;
+      return;
+    }
+
+    // Ordenação
+    filteredData.sort((a, b) => new Date(b.data_geracao) - new Date(a.data_geracao));
+
+    // Se for Pagamento (agrupado por data), a lógica muda um pouco, mas vamos uniformizar para lista simples ou manter o agrupamento?
+    // O original `renderPagamentos` agrupa por data. `renderResgates` é lista corrida.
+    // Vamos manter a distinção na renderização final.
+    
+    if (type === 'resgate') {
+      const rows = filteredData.map(p => this.createPaymentRow(p, type)).join("");
+      container.innerHTML = `<div class="overflow-x-auto"><table><thead><tr><th>Data</th><th>ID Parceiro</th><th>Parceiro</th><th>Consultor</th><th class="text-right">Valor RT</th><th class="text-center">Pago</th><th>Anexar Comprovante</th><th class="text-center">Ver</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    } else {
+      // Pagamentos (Agrupados)
+      container.innerHTML = "";
+      // Agrupa por data
+      const grouped = filteredData.reduce((acc, p) => {
+        const dateRaw = p.data_geracao || new Date().toISOString();
+        const dateKey = new Date(dateRaw.split("T")[0] + "T00:00:00").toLocaleDateString("pt-BR");
+        if (!acc[dateKey]) acc[dateKey] = [];
+        acc[dateKey].push(p);
+        return acc;
+      }, {});
+
+      // Ordena chaves de data (mais recente primeiro)
+      const dates = Object.keys(grouped).sort((a, b) => new Date(b.split("/").reverse().join("-")) - new Date(a.split("/").reverse().join("-")));
+
+      dates.forEach(date => {
+        const rows = grouped[date].map(p => this.createPaymentRow(p, type)).join("");
+        container.innerHTML += `<div class="payment-group-card">
+              <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+                  <h2 class="text-xl font-semibold">Pagamentos Gerados em ${date}</h2>
+                  <div class="flex items-center gap-2">
+                      <button class="gerar-relatorio-btn btn-modal !py-1 !px-3 !text-xs bg-blue-500/80 hover:bg-blue-500" data-date="${date}">Gerar Relatório</button>
+                      <button class="download-xlsx-btn btn-modal !py-1 !px-3 !text-xs bg-green-500/80 hover:bg-green-500" data-date="${date}">Baixar XLSX</button>
+                      <button class="delete-pagamentos-btn btn-modal !py-1 !px-3 !text-xs bg-red-600/80 hover:bg-red-600" data-date="${date}">Excluir Lote</button>
+                  </div>
+              </div>
+              <div class="overflow-x-auto"><table><thead><tr><th>ID Parceiro</th><th>Parceiro</th><th>Consultor</th><th class="text-right">Valor RT</th><th class="text-center">Pago</th><th>Anexar Comprovante</th><th class="text-center">Ver</th></tr></thead><tbody>${rows}</tbody></table></div>
+          </div>`;
+      });
+    }
+  }
+
   // --- MÉTODOS DE RENDERIZAÇÃO E UI ---
+
 
   renderArquitetosTable() {
     const container = document.getElementById("arquitetos-table-container");
@@ -565,130 +664,20 @@ class RelacionamentoApp {
   }
 
   renderPagamentos(filter = "") {
-    const container = document.getElementById("pagamentos-container");
-    if (!container) return;
-    container.innerHTML = "";
-    const dates = Object.keys(this.pagamentos).sort(
-      (a, b) =>
-        new Date(b.split("/").reverse().join("-")) -
-        new Date(a.split("/").reverse().join("-"))
-    );
-    if (dates.length === 0) {
-      container.innerHTML = `<div class="glass-card rounded-lg p-6 text-center text-gray-400">Nenhum pagamento foi gerado ainda.</div>`;
-      return;
-    }
-
-    let hasResults = false;
-    dates.forEach((date) => {
-      let pagamentosDoDia = this.pagamentos[date].filter(
-        (p) =>
-          !filter ||
-          (p.id_parceiro && p.id_parceiro.toString().includes(filter))
-      );
-      if (pagamentosDoDia.length > 0) {
-        hasResults = true;
-        const rowsHtml = pagamentosDoDia
-          .map((p) => {
-            const hasComprovante = p.comprovante && p.comprovante.url;
-            return `<tr>
-                                <td>${p.id_parceiro}</td>
-                                <td>${p.parceiro}</td>
-                                <td>${p.consultor || "N/A"}</td>
-                                <td class="text-right font-semibold">${formatCurrency(
-                                  p.rt_valor
-                                )}<button class="edit-rt-btn text-blue-400 hover:text-blue-300 ml-2" title="Editar Valor RT" data-id="${
-              p.id
-            }"><span class="material-symbols-outlined text-base align-middle">edit</span></button></td>
-                                <td class="text-center"><input type="checkbox" class="pagamento-status h-5 w-5 rounded bg-background-dark border-white/20 text-primary focus:ring-primary" data-id="${
-                                  p.id
-                                }" ${p.pago ? "checked" : ""}></td>
-                                <td><div class="flex items-center gap-2"><label for="comprovante-input-${
-                                  p.id
-                                }" class="file-input-label bg-white/10 hover:bg-white/20 text-xs py-1 px-3 !font-medium whitespace-nowrap">Anexar</label><input type="file" id="comprovante-input-${
-              p.id
-            }" class="comprovante-input file-input" data-id="${
-              p.id
-            }"><span class="file-status-text text-xs ${
-              hasComprovante ? "text-green-400 font-semibold" : "text-gray-400"
-            }">${
-              hasComprovante ? "Comprovante anexado" : "Nenhum arquivo"
-            }</span></div></td>
-                                <td class="text-center"><button class="view-comprovante-btn text-primary/80 hover:text-primary font-semibold" data-id="${
-                                  p.id
-                                }" ${
-              !hasComprovante ? "disabled" : ""
-            } style="${
-              !hasComprovante ? "opacity: 0.5; cursor: not-allowed;" : ""
-            }">Ver</button></td>
-                            </tr>`;
-          })
-          .join("");
-        container.innerHTML += `<div class="payment-group-card"><div class="flex flex-wrap justify-between items-center mb-4 gap-4"><h2 class="text-xl font-semibold">Pagamentos Gerados em ${date}</h2><div class="flex items-center gap-2"><button class="gerar-relatorio-btn btn-modal !py-1 !px-3 !text-xs bg-blue-500/80 hover:bg-blue-500" data-date="${date}">Gerar Relatório</button><button class="download-xlsx-btn btn-modal !py-1 !px-3 !text-xs bg-green-500/80 hover:bg-green-500" data-date="${date}">Baixar XLSX</button><button class="delete-pagamentos-btn btn-modal !py-1 !px-3 !text-xs bg-red-600/80 hover:bg-red-600" data-date="${date}">Excluir Lote</button></div></div><div class="overflow-x-auto"><table><thead><tr><th>ID Parceiro</th><th>Parceiro</th><th>Consultor</th><th class="text-right">Valor RT</th><th class="text-center">Pago</th><th>Anexar Comprovante</th><th class="text-center">Ver</th></tr></thead><tbody>${rowsHtml}</tbody></table></div></div>`;
-      }
-    });
-    if (!hasResults && filter)
-      container.innerHTML = `<div class="glass-card rounded-lg p-6 text-center text-gray-400">Nenhum pagamento encontrado para o ID informado.</div>`;
+    // Flatten pagamentos for generic filter logic inside helper, 
+    // BUT the helper expects data array to then group if type != resgate.
+    // Wait, the current pagamentos structure is Object { date: [items] }.
+    // Let's pass a flat array to the generic renderer which handles grouping for 'pagamento' type.
+    const flatData = Object.values(this.pagamentos).flat();
+    this.renderPaymentTableGeneric("pagamentos-container", flatData, "pagamento", "Nenhum pagamento encontrado", filter);
   }
+
 
   /**
    * NOVO: Renderiza a tabela unificada de resgates.
    */
   renderResgates(filter = "") {
-    const container = document.getElementById("resgates-container");
-    if (!container) return;
-
-    let filteredResgates = this.resgates.filter(
-      (p) =>
-        !filter || (p.id_parceiro && p.id_parceiro.toString().includes(filter))
-    );
-
-    if (filteredResgates.length === 0) {
-      container.innerHTML = `<p class="text-center text-gray-400 py-4">Nenhum resgate encontrado.</p>`;
-      return;
-    }
-
-    // Ordena por data, o mais recente primeiro
-    filteredResgates.sort(
-      (a, b) => new Date(b.data_geracao) - new Date(a.data_geracao)
-    );
-
-    const rowsHtml = filteredResgates
-      .map((p) => {
-        const hasComprovante = p.comprovante && p.comprovante.url;
-        return `<tr>
-                        <td>${formatApiDateToBR(p.data_geracao)}</td>
-                        <td>${p.id_parceiro}</td>
-                        <td>${p.parceiro}</td>
-                        <td>${p.consultor || "N/A"}</td>
-                        <td class="text-right font-semibold">${formatCurrency(
-                          p.rt_valor
-                        )}<button class="edit-rt-btn text-blue-400 hover:text-blue-300 ml-2" title="Editar Valor RT" data-id="${
-          p.id
-        }"><span class="material-symbols-outlined text-base align-middle">edit</span></button></td>
-                        <td class="text-center"><input type="checkbox" class="pagamento-status h-5 w-5 rounded bg-background-dark border-white/20 text-primary focus:ring-primary" data-id="${
-                          p.id
-                        }" ${p.pago ? "checked" : ""}></td>
-                        <td><div class="flex items-center gap-2"><label for="comprovante-input-${
-                          p.id
-                        }" class="file-input-label bg-white/10 hover:bg-white/20 text-xs py-1 px-3 !font-medium whitespace-nowrap">Anexar</label><input type="file" id="comprovante-input-${
-          p.id
-        }" class="comprovante-input file-input" data-id="${
-          p.id
-        }"><span class="file-status-text text-xs ${
-          hasComprovante ? "text-green-400 font-semibold" : "text-gray-400"
-        }">${
-          hasComprovante ? "Comprovante anexado" : "Nenhum arquivo"
-        }</span></div></td>
-                        <td class="text-center"><button class="view-comprovante-btn text-primary/80 hover:text-primary font-semibold" data-id="${
-                          p.id
-                        }" ${!hasComprovante ? "disabled" : ""} style="${
-          !hasComprovante ? "opacity: 0.5; cursor: not-allowed;" : ""
-        }">Ver</button></td>
-                    </tr>`;
-      })
-      .join("");
-
-    container.innerHTML = `<div class="overflow-x-auto"><table><thead><tr><th>Data</th><th>ID Parceiro</th><th>Parceiro</th><th>Consultor</th><th class="text-right">Valor RT</th><th class="text-center">Pago</th><th>Anexar Comprovante</th><th class="text-center">Ver</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+    this.renderPaymentTableGeneric("resgates-container", this.resgates, "resgate", "Nenhum resgate encontrado", filter);
   }
 
 
@@ -707,7 +696,7 @@ class RelacionamentoApp {
     }
     dates.forEach((date) => {
       const fileInfo = this.importedFiles[date];
-      container.innerHTML += `<div class="imported-file-card"><div class="flex flex-wrap justify-between items-center gap-4"><div><h3 class="font-semibold text-lg text-white">Importação de ${date}</h3><p class="text-sm text-gray-400 mt-1">${fileInfo.name}</p></div><button class="download-arquivo-btn btn-modal !py-2 !px-4 !text-sm bg-indigo-500/80 hover:bg-indigo-500 flex items-center gap-2" data-date="${date}"><span class="material-symbols-outlined">download</span>Baixar</button></div></div>`;
+      container.innerHTML += `<div class="imported-file-card"><div class="flex flex-wrap justify-between items-center gap-4"><div><h3 class="font-semibold text-lg text-white">Importação de ${date}</h3><p class="text-sm text-gray-400 mt-1">${escapeHTML(fileInfo.name)}</p></div><button class="download-arquivo-btn btn-modal !py-2 !px-4 !text-sm bg-indigo-500/80 hover:bg-indigo-500 flex items-center gap-2" data-date="${date}"><span class="material-symbols-outlined">download</span>Baixar</button></div></div>`;
     });
   }
 
@@ -745,12 +734,12 @@ class RelacionamentoApp {
                     }">${c.id_venda || "N/A"}</a></td>
                     <td>${formatApiDateToBR(c.data_venda)}</td>
                     <td class="text-right">${formatCurrency(c.valor_venda)}</td>
-                    <td title="${c.justificativa}">${(
+                    <td title="${escapeHTML(c.justificativa)}">${escapeHTML((
             c.justificativa || ""
-          ).substring(0, 30)}${
+          ).substring(0, 30))}${
             c.justificativa && c.justificativa.length > 30 ? "..." : ""
           }</td>
-                    <td>${c.consultor || ""}</td>
+                    <td>${escapeHTML(c.consultor || "")}</td>
                     <td class="text-center"><span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">${statusText}</span></td>
                 </tr>`;
         })
@@ -777,9 +766,7 @@ class RelacionamentoApp {
   }
 
   renderResultados() {
-    const todosPagamentos = Object.values(this.pagamentos)
-      .flat()
-      .concat(this.resgates);
+    const todosPagamentos = this.allPagamentos;
 
     // Cálculos de RTs Pagas
     const pagamentosPagos = todosPagamentos.filter((p) => p.pago);
@@ -1428,14 +1415,14 @@ class RelacionamentoApp {
 
   openSaleDetailsModal(pedidoId) {
     if (!pedidoId || pedidoId === "N/A") {
-      alert("ID do Pedido inválido.");
+      showToast("ID do Pedido inválido.", "error");
       return;
     }
     const saleData = this.sysledData.find(
       (row) => String(row.idPedido) === String(pedidoId)
     );
     if (!saleData) {
-      alert(`Detalhes para o pedido ${pedidoId} não foram encontrados.`);
+      showToast(`Detalhes para o pedido ${pedidoId} não foram encontrados.`, "error");
       return;
     }
     document.getElementById(
@@ -1471,7 +1458,7 @@ class RelacionamentoApp {
   openComissaoManualDetailsModal(comissaoId) {
     const comissao = this.comissoesManuais.find((c) => c.id === comissaoId);
     if (!comissao) {
-      alert("Detalhes da comissão não encontrados.");
+      showToast("Detalhes da comissão não encontrados.", "error");
       return;
     }
     const arquiteto = this.arquitetos.find(
@@ -1510,7 +1497,7 @@ class RelacionamentoApp {
             item.label
           }:</p><div class="col-span-2 ${
             item.pre ? "whitespace-pre-wrap" : ""
-          }">${item.value}</div></div>`
+          }">${item.pre ? escapeHTML(item.value) : item.value}</div></div>`
       )
       .join("");
     document.getElementById("comissao-manual-details-content").innerHTML =
@@ -1621,12 +1608,12 @@ class RelacionamentoApp {
         mapping[s.name] = s.value;
       });
     if (!mapping.id_parceiro || !mapping.valor_venda) {
-      alert("Os campos 'ID Parceiro' e 'Valor Venda' são obrigatórios.");
+      showToast("Os campos 'ID Parceiro' e 'Valor Venda' são obrigatórios.", "warning");
       return;
     }
     if (this.isSysledImport && !mapping.id_prevenda) {
-      alert(
-        "O 'ID Prevenda' é obrigatório para importações Sysled para evitar duplicatas."
+      showToast(
+        "O 'ID Prevenda' é obrigatório para importações Sysled para evitar duplicatas.", "warning"
       );
       return;
     }
@@ -1650,7 +1637,7 @@ class RelacionamentoApp {
           .select("id_pedido")
           .in("id_pedido", pedidoIds);
         if (error) {
-          alert("Erro ao verificar vendas existentes: " + error.message);
+          showToast("Erro ao verificar vendas existentes: " + error.message, "error");
           this.closeRtMappingModal();
           return;
         }
@@ -1664,17 +1651,17 @@ class RelacionamentoApp {
           (row) => !existingIds.has(String(row.id_prevenda))
         );
         if (alreadyImported.length > 0)
-          alert(
+          showToast(
             `Venda(s) já importada(s) e ignorada(s): ${alreadyImported
               .map((r) => r.id_prevenda)
-              .join(", ")}`
+              .join(", ")}`, "warning"
           );
       }
     }
     if (processedData.length > 0) {
       await this.processRTData(processedData);
     } else {
-      alert("Nenhuma venda nova para importar.");
+      showToast("Nenhuma venda nova para importar.", "info");
     }
     this.closeRtMappingModal();
   }
@@ -1778,15 +1765,15 @@ class RelacionamentoApp {
       }));
       const { error } = await supabase.from("sysled_imports").insert(payload);
       if (error) {
-        alert(
+        showToast(
           "AVISO: Os dados dos arquitetos foram atualizados, mas ocorreu um erro ao salvar o histórico de importação para evitar duplicatas. Vendas podem ser importadas novamente no futuro. Erro: " +
-            error.message
+            error.message, "warning"
         );
         console.error("Erro ao salvar na tabela sysled_imports:", error);
       }
     }
 
-    alert("Dados de vendas processados com sucesso!");
+    showToast("Dados de vendas processados com sucesso!", "success");
     await this.loadData();
     this.renderAll();
     this.isSysledImport = false;
@@ -1797,7 +1784,7 @@ class RelacionamentoApp {
     const id = document.getElementById("arquiteto-id").value;
     const nome = document.getElementById("arquiteto-nome").value;
     if (this.arquitetos.some((a) => a.id === id)) {
-      alert("ID já existe.");
+      showToast("ID já existe.", "error");
       return;
     }
     const newArquiteto = {
@@ -1819,7 +1806,7 @@ class RelacionamentoApp {
       .select()
       .single();
     if (error) {
-      alert("Erro: " + error.message);
+      showToast("Erro: " + error.message, "error");
     } else {
       this.arquitetos.push(data);
       this.pontuacoes[data.id] = data.pontos;
@@ -1862,7 +1849,7 @@ class RelacionamentoApp {
       });
 
     if (!mapping.id || !mapping.nome) {
-      alert("Os campos 'ID' e 'Nome' são obrigatórios no mapeamento.");
+      showToast("Os campos 'ID' e 'Nome' são obrigatórios no mapeamento.", "warning");
       return;
     }
 
@@ -1947,14 +1934,14 @@ class RelacionamentoApp {
       if (novosCount === 0 && atualizadosCount === 0)
         alertMessage = "Nenhum arquiteto para importar ou atualizar.";
 
-      alert(alertMessage.trim());
+      showToast(alertMessage.trim(), "warning");
       await this.logAction(
         `Importou ${novosCount} e atualizou ${atualizadosCount} arquitetos via planilha.`
       );
       await this.loadData();
       this.renderAll();
     } else {
-      alert("Ocorreu um erro durante o processo:\n" + errorMessage);
+      showToast("Ocorreu um erro durante o processo:\n" + errorMessage, "error");
     }
 
     this.closeArquitetoMappingModal();
@@ -1998,7 +1985,7 @@ class RelacionamentoApp {
       .select()
       .single();
     if (error) {
-      alert("Erro ao salvar: " + error.message);
+      showToast("Erro ao salvar: " + error.message, "error");
     } else {
       const index = this.arquitetos.findIndex((a) => a.id === originalId);
       this.arquitetos[index] = { ...this.arquitetos[index], ...data };
@@ -2020,7 +2007,7 @@ class RelacionamentoApp {
     ) {
       const { error } = await supabase.from("arquitetos").delete().eq("id", id);
       if (error) {
-        alert("Erro ao apagar: " + error.message);
+        showToast("Erro ao apagar: " + error.message, "error");
       } else {
         this.arquitetos = this.arquitetos.filter((a) => a.id !== id);
         delete this.pontuacoes[id];
@@ -2046,9 +2033,9 @@ class RelacionamentoApp {
         Boolean
       );
       if (errors.length > 0)
-        alert("Ocorreram erros: " + errors.map((e) => e.message).join("\n"));
+        showToast("Ocorreram erros: " + errors.map((e) => e.message).join("\n"), "error");
       else {
-        alert("Todos os dados foram apagados com sucesso.");
+        showToast("Todos os dados foram apagados com sucesso.", "success");
         await this.logAction(`APAGOU TODOS OS DADOS DO SISTEMA.`);
       }
       await this.loadData();
@@ -2058,7 +2045,7 @@ class RelacionamentoApp {
 
   exportArquitetosCSV() {
     if (this.arquitetos.length === 0) {
-      alert("Não há dados para exportar.");
+      showToast("Não há dados para exportar.", "info");
       return;
     }
     const data = this.arquitetos.map((a) => {
@@ -2107,7 +2094,7 @@ class RelacionamentoApp {
         .select()
         .single();
       if (error) {
-        alert("Erro: " + error.message);
+        showToast("Erro: " + error.message, "error");
       } else {
         const index = this.arquitetos.findIndex((a) => a.id === id);
         this.arquitetos[index] = data;
@@ -2182,6 +2169,100 @@ class RelacionamentoApp {
     }
   }
 
+  /**
+   * Tenta alterar a senha do usuário.
+   * Requer re-autenticação com a senha antiga para segurança.
+   */
+  async handleChangePassword(e) {
+    e.preventDefault();
+    const currentPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (newPassword !== confirmPassword) {
+      showToast("A nova senha e a confirmação não coincidem.", "warning");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      showToast("A nova senha deve ter pelo menos 6 caracteres.", "warning");
+      return;
+    }
+
+    const submitBtn = e.target.querySelector("button[type='submit']");
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<div class="animate-spin h-5 w-5 border-2 border-white/20 border-t-white rounded-full mx-auto"></div>`;
+
+    try {
+      // 1. Verificar senha antiga (Re-autenticação)
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: this.currentUserEmail,
+        password: currentPassword,
+      });
+
+      if (signInError) {
+        throw new Error("A senha atual está incorreta.");
+      }
+
+      // 2. Atualizar para a nova senha
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      showToast("Senha alterada com sucesso!", "success");
+      e.target.reset();
+    } catch (error) {
+      console.error("Erro ao alterar senha:", error);
+      let msg = error.message || "Erro ao atualizar senha.";
+      if (msg.includes("New password should be different from the old password")) {
+        msg = "A nova senha deve ser diferente da atual.";
+      }
+      showToast(msg, "error");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  }
+
+  updateSettingsProfile() {
+    const profilePic = document.getElementById("settings-profile-picture");
+    const nameEl = document.getElementById("settings-user-name");
+    const emailEl = document.getElementById("settings-user-email");
+    const roleEl = document.getElementById("settings-user-role");
+
+    if (this.currentUserEmail) {
+        emailEl.textContent = this.currentUserEmail;
+        // Tenta pegar o nome do mapa de assinados (se houver) ou usa o email
+        // Como não temos nome no auth.user, usamos o email ou lookup se possível
+        nameEl.textContent = this.currentUserEmail.split('@')[0]; 
+        
+        // Carrega foto salva localmente
+        const savedPic = localStorage.getItem(`pilar_profile_pic_${this.currentUserEmail}`);
+        if(savedPic && profilePic) {
+            profilePic.style.backgroundImage = `url('${savedPic}')`;
+        }
+    }
+
+    if (roleEl) {
+        const role = permissionsManager.getUserRole();
+        roleEl.textContent = role.toUpperCase();
+        // Cores baseadas no cargo
+        if (role === 'admin') {
+            roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30";
+        } else if (role === 'manager') {
+            roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30";
+        } else {
+            roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-gray-500/20 text-gray-400 border border-gray-500/30";
+        }
+    }
+  }
+
+
   async updatePagamentoStatus(pagamentoId, isChecked, type) {
     let pagamento;
     if (type === "resgate") {
@@ -2197,7 +2278,7 @@ class RelacionamentoApp {
         .from("pagamentos")
         .update({ pago: isChecked })
         .eq("id", pagamento.id);
-      if (error) alert("Erro: " + error.message);
+      if (error) showToast("Erro: " + error.message, "error");
       else {
         pagamento.pago = isChecked;
         await this.logAction(
@@ -2229,7 +2310,7 @@ class RelacionamentoApp {
         .from("pagamentos")
         .update({ comprovante: pagamento.comprovante })
         .eq("id", pagamento.id);
-      if (error) alert("Erro: " + error.message);
+      if (error) showToast("Erro: " + error.message, "error");
       else {
         await this.logAction(
           `Anexou comprovante para o ${type} (ID: ${pagamentoId}) de ${pagamento.parceiro}.`
@@ -2247,7 +2328,7 @@ class RelacionamentoApp {
         .delete()
         .in("id", ids);
       if (error) {
-        alert("Erro: " + error.message);
+        showToast("Erro: " + error.message, "error");
       } else {
         delete this.pagamentos[date];
         await this.logAction(`Apagou o lote de pagamentos gerado em ${date}.`);
@@ -2263,7 +2344,7 @@ class RelacionamentoApp {
     const type = form.dataset.type;
     const newValue = parseFloat(document.getElementById("edit-rt-input").value);
     if (isNaN(newValue) || newValue < 0) {
-      alert("Valor inválido.");
+      showToast("Valor inválido.", "error");
       return;
     }
 
@@ -2283,7 +2364,7 @@ class RelacionamentoApp {
         .update({ rt_valor: newValue })
         .eq("id", pagamento.id);
       if (error) {
-        alert("Erro: " + error.message);
+        showToast("Erro: " + error.message, "error");
       } else {
         pagamento.rt_valor = newValue;
         await this.logAction(
@@ -2294,7 +2375,7 @@ class RelacionamentoApp {
         type === "resgate" ? this.renderResgates() : this.renderPagamentos();
         this.renderResultados();
         this.closeEditRtModal();
-        alert("Valor atualizado!");
+        showToast("Valor atualizado!", "success");
       }
     }
   }
@@ -2302,7 +2383,7 @@ class RelacionamentoApp {
   exportPagamentosXLSX(date) {
     const data = this.pagamentos[date];
     if (!data || data.length === 0) {
-      alert("Sem dados para exportar.");
+      showToast("Sem dados para exportar.", "info");
       return;
     }
     const reportData = data.map((p) => ({
@@ -2324,7 +2405,7 @@ class RelacionamentoApp {
     // <-- FUNÇÃO MODIFICADA
     const data = this.pagamentos[date];
     if (!data || data.length === 0) {
-      alert("Sem dados para gerar relatório.");
+      showToast("Sem dados para gerar relatório.", "info");
       return;
     }
     const total = data.reduce(
@@ -2346,8 +2427,8 @@ class RelacionamentoApp {
 
       if (error) {
         console.error("Erro ao buscar IDs de pedido:", error);
-        alert(
-          "Erro ao buscar IDs de pedido. O relatório será gerado sem eles."
+        showToast(
+          "Erro ao buscar IDs de pedido. O relatório será gerado sem eles.", "warning"
         );
       } else {
         // 3. Processar os resultados para agrupar pedidos com o mesmo timestamp
@@ -2428,12 +2509,12 @@ class RelacionamentoApp {
 
   async handleGerarPagamentosClick() {
     if (!this.schemaHasRtAcumulado || !this.schemaHasRtTotalPago) {
-      alert("Funcionalidade desabilitada. Verifique o console.");
+      showToast("Funcionalidade desabilitada. Verifique o console.", "warning");
       return;
     }
     const { data, error } = await supabase.from("arquitetos").select("*");
     if (error) {
-      alert("Não foi possível buscar dados atualizados.");
+      showToast("Não foi possível buscar dados atualizados.", "error");
       return;
     }
     this.arquitetos = data || [];
@@ -2441,10 +2522,10 @@ class RelacionamentoApp {
       (a) => parseFloat(a.rt_acumulado || 0) >= this.minPaymentValue
     );
     if (this.eligibleForPayment.length === 0) {
-      alert(
+      showToast(
         `Nenhum arquiteto atingiu o valor mínimo para pagamento (${formatCurrency(
           this.minPaymentValue
-        )}).`
+        )}).`, "info"
       );
       return;
     }
@@ -2462,7 +2543,7 @@ class RelacionamentoApp {
       .order("data_finalizacao_prevenda", { ascending: false });
 
     if (consultantError) {
-      alert("Erro ao buscar dados do consultor: " + consultantError.message);
+      showToast("Erro ao buscar dados do consultor: " + consultantError.message, "error");
       return;
     }
 
@@ -2490,7 +2571,7 @@ class RelacionamentoApp {
       .from("pagamentos")
       .insert(pagamentos);
     if (insertError) {
-      alert("Erro ao gerar comprovantes: " + insertError.message);
+      showToast("Erro ao gerar comprovantes: " + insertError.message, "error");
       return;
     }
 
@@ -2507,7 +2588,7 @@ class RelacionamentoApp {
     );
     await Promise.all(updates);
 
-    alert(`${this.eligibleForPayment.length} comprovantes gerados!`);
+    showToast(`${this.eligibleForPayment.length} comprovantes gerados!`, "success");
     await this.logAction(
       `Gerou ${this.eligibleForPayment.length} pagamentos em lote.`
     );
@@ -2524,7 +2605,7 @@ class RelacionamentoApp {
     if (!arq) return;
     const valor = parseFloat(arq.rt_acumulado || 0);
     if (valor <= 0) {
-      alert("Arquiteto sem saldo de RT acumulado.");
+      showToast("Arquiteto sem saldo de RT acumulado.", "warning");
       return;
     }
     if (
@@ -2564,7 +2645,7 @@ class RelacionamentoApp {
       ]);
 
       if (insertError) {
-        alert("Erro ao gerar comprovante: " + insertError.message);
+        showToast("Erro ao gerar comprovante: " + insertError.message, "error");
         return;
       }
 
@@ -2576,12 +2657,12 @@ class RelacionamentoApp {
         })
         .eq("id", arq.id);
       if (updateError)
-        alert(
+        showToast(
           "Comprovante gerado, mas erro ao atualizar saldo: " +
-            updateError.message
+            updateError.message, "warning"
         );
       else {
-        alert(`Comprovante gerado com sucesso para ${arq.nome}!`);
+        showToast(`Comprovante gerado com sucesso para ${arq.nome}!`, "success");
         await this.logAction(
           `Gerou pagamento individual de ${formatCurrency(valor)} para ${
             arq.nome
@@ -2609,7 +2690,7 @@ class RelacionamentoApp {
         "handleGerarResgateFicha: Arquiteto não encontrado com o ID:",
         id
       );
-      alert("Erro: Arquiteto não encontrado.");
+      showToast("Erro: Arquiteto não encontrado.", "error");
       return;
     }
     console.log("handleGerarResgateFicha: Arquiteto encontrado:", arq);
@@ -2618,7 +2699,7 @@ class RelacionamentoApp {
     console.log("handleGerarResgateFicha: Valor do resgate:", valor);
 
     if (valor <= 0) {
-      alert("Arquiteto sem saldo de RT acumulado para resgate.");
+      showToast("Arquiteto sem saldo de RT acumulado para resgate.", "warning");
       return;
     }
 
@@ -2679,7 +2760,7 @@ class RelacionamentoApp {
           "handleGerarResgateFicha: Erro ao inserir resgate no Supabase:",
           insertError
         );
-        alert("Erro ao gerar resgate: " + insertError.message);
+        showToast("Erro ao gerar resgate: " + insertError.message, "error");
         return;
       }
       console.log("handleGerarResgateFicha: Resgate inserido com sucesso.");
@@ -2704,18 +2785,18 @@ class RelacionamentoApp {
           "handleGerarResgateFicha: Erro ao atualizar saldo do arquiteto:",
           updateError
         );
-        alert(
+        showToast(
           "Resgate gerado, mas erro ao atualizar saldo do arquiteto: " +
-            updateError.message
+            updateError.message, "error"
         );
       } else {
         console.log(
           "handleGerarResgateFicha: Saldo do arquiteto atualizado com sucesso."
         );
-        alert(
+        showToast(
           `Resgate de ${formatCurrency(valor)} gerado com sucesso para ${
             arq.nome
-          }!`
+          }!`, "success"
         );
         await this.logAction(
           `Gerou resgate individual de ${formatCurrency(valor)} para ${
@@ -2833,7 +2914,7 @@ class RelacionamentoApp {
             { once: true }
           );
         } else {
-          alert(`Erro ao atualizar: ${error.message}`);
+          showToast(`Erro ao atualizar: ${error.message}`, "error");
         }
       }
     }
@@ -2849,8 +2930,8 @@ class RelacionamentoApp {
 
   async handleCopyToRTClick() {
     if (this.sysledFilteredData.length === 0) {
-      alert(
-        "Não há dados filtrados para copiar. Por favor, filtre os dados primeiro ou atualize a consulta."
+      showToast(
+        "Não há dados filtrados para copiar. Por favor, filtre os dados primeiro ou atualize a consulta.", "info"
       );
       return;
     }
@@ -2883,8 +2964,8 @@ class RelacionamentoApp {
       !firstRow.hasOwnProperty(mapping.valor_venda) ||
       !firstRow.hasOwnProperty(mapping.id_prevenda)
     ) {
-      alert(
-        "Os dados da Sysled parecem estar incompletos. Colunas essenciais como 'idParceiro', 'valorNota' ou 'idPedido' não foram encontradas. Importação cancelada."
+      showToast(
+        "Os dados da Sysled parecem estar incompletos. Colunas essenciais como 'idParceiro', 'valorNota' ou 'idPedido' não foram encontradas. Importação cancelada.", "error"
       );
       this.isSysledImport = false;
       return;
@@ -2925,7 +3006,7 @@ class RelacionamentoApp {
         .in("id_pedido", pedidoIds);
 
       if (error) {
-        alert("Erro ao verificar vendas existentes: " + error.message);
+        showToast("Erro ao verificar vendas existentes: " + error.message, "error");
         this.isSysledImport = false;
         return;
       }
@@ -2941,10 +3022,10 @@ class RelacionamentoApp {
       );
 
       if (alreadyImported.length > 0) {
-        alert(
+        showToast(
           `Venda(s) já importada(s) e ignorada(s): ${alreadyImported
             .map((r) => r.id_prevenda)
-            .join(", ")}`
+            .join(", ")}`, "warning"
         );
       }
     }
@@ -2952,8 +3033,8 @@ class RelacionamentoApp {
     if (dataToProcess.length > 0) {
       await this.processRTData(dataToProcess);
     } else {
-      alert(
-        "Nenhuma venda nova para importar. Todas as vendas filtradas já foram processadas anteriormente."
+      showToast(
+        "Nenhuma venda nova para importar. Todas as vendas filtradas já foram processadas anteriormente.", "info"
       );
       this.isSysledImport = false;
     }
@@ -3004,12 +3085,12 @@ class RelacionamentoApp {
       .eq("id_pedido", id)
       .maybeSingle();
     if (existing) {
-      alert(`Venda ${id} já importada.`);
+      showToast(`Venda ${id} já importada.`, "warning");
       return;
     }
     const sale = this.sysledData.find((row) => String(row.idPedido) === id);
     if (!sale) {
-      alert("Dados da venda não encontrados.");
+      showToast("Dados da venda não encontrados.", "error");
       return;
     }
     const data = [
@@ -3089,7 +3170,7 @@ class RelacionamentoApp {
     );
 
     if (!idParceiro || isNaN(valorVenda) || valorVenda <= 0) {
-      alert("Preencha o ID do Parceiro e um Valor de Venda válido.");
+      showToast("Preencha o ID do Parceiro e um Valor de Venda válido.", "warning");
       return;
     }
 
@@ -3103,14 +3184,14 @@ class RelacionamentoApp {
         .maybeSingle();
 
       if (importError) {
-        alert(
-          "Erro ao verificar duplicidade de importação: " + importError.message
+        showToast(
+          "Erro ao verificar duplicidade de importação: " + importError.message, "error"
         );
         return;
       }
       if (existingImport) {
-        alert(
-          `Venda com ID ${idVenda} já foi importada anteriormente e não pode ser incluída manualmente.`
+        showToast(
+          `Venda com ID ${idVenda} já foi importada anteriormente e não pode ser incluída manualmente.`, "warning"
         );
         return;
       }
@@ -3123,21 +3204,21 @@ class RelacionamentoApp {
         .maybeSingle();
 
       if (manualError) {
-        alert(
+        showToast(
           "Erro ao verificar duplicidade de comissão manual: " +
-            manualError.message
+            manualError.message, "error"
         );
         return;
       }
       if (existingManual) {
-        alert(`Já existe uma inclusão manual para a venda com ID ${idVenda}.`);
+        showToast(`Já existe uma inclusão manual para a venda com ID ${idVenda}.`, "warning");
         return;
       }
     }
 
     const arq = this.arquitetos.find((a) => a.id === idParceiro);
     if (!arq) {
-      alert(`Arquiteto com ID ${idParceiro} não encontrado.`);
+      showToast(`Arquiteto com ID ${idParceiro} não encontrado.`, "error");
       return;
     }
 
@@ -3156,11 +3237,11 @@ class RelacionamentoApp {
       .insert(newComissao);
 
     if (error) {
-      alert("Erro ao salvar solicitação: " + error.message);
+      showToast("Erro ao salvar solicitação: " + error.message, "error");
       return;
     }
 
-    alert("Solicitação de comissão manual enviada para aprovação!");
+    showToast("Solicitação de comissão manual enviada para aprovação!", "success");
     await this.logAction(
       `Enviou comissão manual para aprovação de ${formatCurrency(
         valorVenda
@@ -3178,12 +3259,12 @@ class RelacionamentoApp {
     const comissaoId = parseInt(btn.dataset.comissaoId, 10);
     const comissao = this.comissoesManuais.find((c) => c.id === comissaoId);
     if (!comissao) {
-      alert("Erro: Comissão não encontrada.");
+      showToast("Erro: Comissão não encontrada.", "error");
       return;
     }
 
     if (comissao.status === "aprovada") {
-      alert("Esta comissão já foi aprovada.");
+      showToast("Esta comissão já foi aprovada.", "info");
       return;
     }
 
@@ -3196,13 +3277,13 @@ class RelacionamentoApp {
         .maybeSingle();
 
       if (checkError) {
-        alert("Erro ao verificar a existência da venda: " + checkError.message);
+        showToast("Erro ao verificar a existência da venda: " + checkError.message, "error");
         return;
       }
 
       if (existingSale) {
-        alert(
-          `Não é possível aprovar. A venda com ID ${comissao.id_venda} já foi importada anteriormente.`
+        showToast(
+          `Não é possível aprovar. A venda com ID ${comissao.id_venda} já foi importada anteriormente.`, "error"
         );
         return;
       }
@@ -3219,7 +3300,7 @@ class RelacionamentoApp {
 
     const arq = this.arquitetos.find((a) => a.id === comissao.id_parceiro);
     if (!arq) {
-      alert(`Arquiteto com ID ${comissao.id_parceiro} não foi encontrado.`);
+      showToast(`Arquiteto com ID ${comissao.id_parceiro} não foi encontrado.`, "error");
       return;
     }
 
@@ -3242,7 +3323,7 @@ class RelacionamentoApp {
       .update(payload)
       .eq("id", comissao.id_parceiro);
     if (updateError) {
-      alert("Erro ao atualizar dados do arquiteto: " + updateError.message);
+      showToast("Erro ao atualizar dados do arquiteto: " + updateError.message, "error");
       return;
     }
 
@@ -3251,9 +3332,9 @@ class RelacionamentoApp {
       .update({ status: "aprovada" })
       .eq("id", comissaoId);
     if (comissaoError) {
-      alert(
+      showToast(
         "Dados do arquiteto atualizados, mas falha ao marcar comissão como aprovada: " +
-          comissaoError.message
+          comissaoError.message, "error"
       );
     }
 
@@ -3266,12 +3347,12 @@ class RelacionamentoApp {
         consultor: comissao.consultor, // Adicionado o campo consultor
       });
       if (error)
-        alert(
-          "Aviso: Erro ao registrar na tabela de controle de duplicados (sysled_imports)."
+        showToast(
+          "Aviso: Erro ao registrar na tabela de controle de duplicados (sysled_imports).", "warning"
         );
     }
 
-    alert("Comissão aprovada e valores contabilizados com sucesso!");
+    showToast("Comissão aprovada e valores contabilizados com sucesso!", "success");
     await this.logAction(
       `Aprovou comissão manual de ${formatCurrency(valorVenda)} para ${
         arq.nome
@@ -3354,7 +3435,7 @@ class RelacionamentoApp {
     const telefone = document.getElementById("novo-arquiteto-telefone").value;
 
     if (!email || !pix) {
-      alert("E-mail e Chave PIX são obrigatórios.");
+      showToast("E-mail e Chave PIX são obrigatórios.", "warning");
       return;
     }
 
@@ -3381,7 +3462,7 @@ class RelacionamentoApp {
         .single();
 
       if (error) {
-        alert("Erro ao cadastrar arquiteto: " + error.message);
+        showToast("Erro ao cadastrar arquiteto: " + error.message, "error");
         return;
       }
 
@@ -3401,7 +3482,7 @@ class RelacionamentoApp {
         await this.continuarImportacao();
       }
     } catch (error) {
-      alert("Erro ao cadastrar arquiteto: " + error.message);
+      showToast("Erro ao cadastrar arquiteto: " + error.message, "error");
     }
   }
 
@@ -3422,7 +3503,7 @@ class RelacionamentoApp {
         .in("id_pedido", pedidoIds);
 
       if (error) {
-        alert("Erro ao verificar vendas existentes: " + error.message);
+        showToast("Erro ao verificar vendas existentes: " + error.message, "error");
         this.isSysledImport = false;
         return;
       }
@@ -3438,18 +3519,18 @@ class RelacionamentoApp {
       );
 
       if (alreadyImported.length > 0) {
-        alert(
+        showToast(
           `Venda(s) já importada(s) e ignorada(s): ${alreadyImported
             .map((r) => r.id_prevenda)
-            .join(", ")}`
+            .join(", ")}`, "warning"
         );
       }
 
       if (newDataToProcess.length > 0) {
         await this.processRTData(newDataToProcess);
       } else {
-        alert(
-          "Nenhuma venda nova para importar. Todas as vendas filtradas já foram processadas anteriormente."
+        showToast(
+          "Nenhuma venda nova para importar. Todas as vendas filtradas já foram processadas anteriormente.", "info"
         );
         this.isSysledImport = false;
       }
@@ -3477,9 +3558,9 @@ class RelacionamentoApp {
       .eq("id", userId);
 
     if (error) {
-      alert(`Erro ao atualizar permissão para ${userEmail}: ${error.message}`);
+      showToast(`Erro ao atualizar permissão para ${userEmail}: ${error.message}`, "error");
     } else {
-      alert(`Permissão de ${userEmail} atualizada para '${newRole}'.`);
+      showToast(`Permissão de ${userEmail} atualizada para '${newRole}'.`, "success");
       await this.logAction(
         `Alterou a permissão de ${userEmail} para ${newRole}.`
       );
@@ -4836,7 +4917,7 @@ class RelacionamentoApp {
       });
 
     if (!mapping.id_parceiro || !mapping.nome) {
-      alert("Todos os campos são obrigatórios.");
+      showToast("Todos os campos são obrigatórios.", "warning");
       return;
     }
 
@@ -4848,7 +4929,7 @@ class RelacionamentoApp {
       .filter((item) => item.id_parceiro && item.nome);
 
     if (dataToInsert.length === 0) {
-      alert("Nenhum dado válido encontrado.");
+      showToast("Nenhum dado válido encontrado.", "warning");
       return;
     }
 
@@ -4860,7 +4941,7 @@ class RelacionamentoApp {
       .in("id_parceiro", idsToCheck);
 
     if (fetchError) {
-      alert("Erro ao verificar existentes: " + fetchError.message);
+      showToast("Erro ao verificar existentes: " + fetchError.message, "error");
       return;
     }
 
@@ -4891,10 +4972,10 @@ class RelacionamentoApp {
     }
 
     if (errorMsg) {
-      alert("Ocorreram erros durante a importação:\n" + errorMsg);
+      showToast("Ocorreram erros durante a importação:\n" + errorMsg, "error");
     } else {
-      alert(
-        `${dataToInsert.length} registros importados/atualizados com sucesso!`
+      showToast(
+        `${dataToInsert.length} registros importados/atualizados com sucesso!`, "success"
       );
       await this.logAction(
         `Importou ${dataToInsert.length} registros para a Carteira.`
@@ -4912,7 +4993,7 @@ class RelacionamentoApp {
     const nome = document.getElementById("carteira-manual-nome").value.trim();
 
     if (!id || !nome) {
-      alert("ID e Nome são obrigatórios.");
+      showToast("ID e Nome são obrigatórios.", "warning");
       return;
     }
 
@@ -4941,7 +5022,7 @@ class RelacionamentoApp {
       .maybeSingle();
 
     if (checkError) {
-      alert("Erro ao verificar parceiro: " + checkError.message);
+      showToast("Erro ao verificar parceiro: " + checkError.message, "error");
       return;
     }
 
@@ -4961,11 +5042,11 @@ class RelacionamentoApp {
     }
 
     if (actionError) {
-      alert("Erro ao cadastrar parceiro: " + actionError.message);
+      showToast("Erro ao cadastrar parceiro: " + actionError.message, "error");
     } else {
       // Feedback rico para o usuário
-      alert(
-        `Parceiro cadastrado com sucesso!\n\nDados da Sysled:\n- Projetos Fechados: ${kpis.projeto_fechado}\n- Projetos Enviados: ${kpis.projeto_enviado}\n- Saúde: ${kpis.saude_carteira}`
+      showToast(
+        `Parceiro cadastrado com sucesso!\n\nDados da Sysled:\n- Projetos Fechados: ${kpis.projeto_fechado}\n- Projetos Enviados: ${kpis.projeto_enviado}\n- Saúde: ${kpis.saude_carteira}`, "success"
       );
 
       await this.logAction(
@@ -4997,7 +5078,7 @@ class RelacionamentoApp {
         .eq("id_parceiro", id);
 
       if (error) {
-        alert("Erro ao remover parceiro: " + error.message);
+        showToast("Erro ao remover parceiro: " + error.message, "error");
       } else {
         this.carteira = this.carteira.filter(
           (c) => String(c.id_parceiro) !== String(id)
@@ -5529,7 +5610,7 @@ class RelacionamentoApp {
       }
     } catch (error) {
       console.error(error);
-      alert("Erro: " + error.message);
+      showToast("Erro: " + error.message, "error");
     } finally {
       if (loading) loading.classList.add("hidden");
       if (loadMoreBtn)

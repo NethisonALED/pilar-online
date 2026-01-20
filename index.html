@@ -114,12 +114,12 @@
     <div id="app-container" class="relative min-h-screen w-full" style="display: none;">
         <div class="relative flex min-h-screen">
             <!-- Barra Lateral (Sidebar) -->
-            <aside id="app-sidebar" class="w-64 flex-shrink-0 glass-sidebar flex flex-col">
+            <aside id="app-sidebar" class="w-64 flex-shrink-0 glass-sidebar flex flex-col sticky top-0 h-screen">
                 <div class="flex items-center gap-3 px-6 h-20 border-b border-white/10">
                     <span class="material-symbols-outlined text-3xl text-primary">architecture</span>
                     <h2 class="text-xl font-bold">Pilar</h2>
                 </div>
-                <nav id="sidebar-menu" class="flex-1 space-y-2 p-4">
+                <nav id="sidebar-menu" class="flex-1 space-y-2 p-4 overflow-y-auto custom-scrollbar">
 
                     <a href="#"
                         class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
@@ -163,11 +163,31 @@
                     <a href="#"
                         class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
                         data-tab="eventos"><span class="material-symbols-outlined">event</span><span>Eventos</span></a>
+                    <a href="#"
+                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
+                        data-tab="settings"><span
+                            class="material-symbols-outlined">settings</span><span>Configurações</span></a>
                 </nav>
-                <div class="sidebar-footer mt-auto p-4 border-t border-white/10">
+                <div
+                    class="sidebar-footer mt-auto p-4 border-t border-white/10 flex items-center justify-between gap-2">
+                    <!-- Bloco da Foto de Perfil -->
+                    <div id="profile-picture-container" class="relative cursor-pointer group flex-shrink-0">
+                        <div id="profile-picture"
+                            class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all"
+                            style="background-image: url('/img/neth.jpg');"></div>
+                        <div
+                            class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity w-10 h-10">
+                            <span class="material-symbols-outlined text-white text-sm">photo_camera</span>
+                        </div>
+                        <input type="file" id="profile-picture-input" class="hidden"
+                            accept="image/png, image/jpeg, image/gif">
+                    </div>
+
                     <a href="#" id="logout-button"
-                        class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-500/20 hover:text-white transition-all"><span
-                            class="material-symbols-outlined">logout</span><span>Sair</span></a>
+                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-500/20 hover:text-white transition-all">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Sair</span>
+                    </a>
                 </div>
             </aside>
 
@@ -176,20 +196,8 @@
                 <header class="flex items-center justify-between h-20 px-8">
                     <div></div>
                     <div class="flex items-center gap-4">
-                        <button class="p-2 rounded-full text-slate-300 hover:bg-primary/10"><span
-                                class="material-symbols-outlined">notifications</span></button>
-                        <!-- Bloco da Foto de Perfil Atualizado -->
-                        <div id="profile-picture-container" class="relative cursor-pointer group">
-                            <div id="profile-picture"
-                                class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all"
-                                style="background-image: url('/img/neth.jpg');"></div>
-                            <div
-                                class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span class="material-symbols-outlined text-white">photo_camera</span>
-                            </div>
-                            <input type="file" id="profile-picture-input" class="hidden"
-                                accept="image/png, image/jpeg, image/gif">
-                        </div>
+                        <!-- Notifications button removed -->
+                        <!-- Bloco da Foto de Perfil Removido daqui -->
                     </div>
                 </header>
 
@@ -242,6 +250,90 @@
                                     <h2 class="text-xl font-semibold mb-4 text-white">Histórico de Inclusões</h2>
                                     <div id="historico-manual-container" class="max-h-[70vh] overflow-y-auto"></div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba: Configurações -->
+                    <div id="settings-view" class="tab-view hidden">
+                        <div class="glass-content rounded-xl p-8 max-w-2xl mx-auto">
+                            <h1 class="text-3xl font-bold tracking-tight mb-8">Configurações de Conta</h1>
+
+                            <!-- Profile Info Section -->
+                            <div class="glass-card rounded-lg p-6 mb-6 flex items-center gap-6">
+                                <div id="settings-profile-picture"
+                                    class="w-20 h-20 rounded-full bg-cover bg-center border-2 border-primary"
+                                    style="background-image: url('/img/neth.jpg');"></div>
+                                <div>
+                                    <h2 id="settings-user-name" class="text-xl font-bold text-white">Carregando...</h2>
+                                    <p id="settings-user-email" class="text-gray-400 text-sm">...</p>
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <span
+                                            class="px-2 py-0.5 rounded text-xs font-semibold bg-primary/20 text-primary border border-primary/30">CONTA
+                                            ATIVA</span>
+                                        <span id="settings-user-role"
+                                            class="px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">ADMIN</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card rounded-lg p-6">
+                                <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">lock</span>
+                                    Alterar Senha
+                                </h2>
+                                <form id="change-password-form" class="space-y-4">
+                                    <div class="space-y-1">
+                                        <label for="current-password" class="text-sm text-gray-400">Senha Atual</label>
+                                        <div class="relative">
+                                            <input type="password" id="current-password" required
+                                                class="glass-input w-full rounded-lg p-3 pr-10"
+                                                placeholder="Digite sua senha atual">
+                                            <button type="button"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                                onclick="const p = document.getElementById('current-password'); p.type = p.type === 'password' ? 'text' : 'password'; this.querySelector('span').textContent = p.type === 'password' ? 'visibility' : 'visibility_off'">
+                                                <span class="material-symbols-outlined text-lg">visibility</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1">
+                                        <label for="new-password" class="text-sm text-gray-400">Nova Senha</label>
+                                        <div class="relative">
+                                            <input type="password" id="new-password" required minlength="6"
+                                                class="glass-input w-full rounded-lg p-3 pr-10"
+                                                placeholder="Mínimo 6 caracteres">
+                                            <button type="button"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                                onclick="const p = document.getElementById('new-password'); p.type = p.type === 'password' ? 'text' : 'password'; this.querySelector('span').textContent = p.type === 'password' ? 'visibility' : 'visibility_off'">
+                                                <span class="material-symbols-outlined text-lg">visibility</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1">
+                                        <label for="confirm-password" class="text-sm text-gray-400">Confirmar Nova
+                                            Senha</label>
+                                        <div class="relative">
+                                            <input type="password" id="confirm-password" required minlength="6"
+                                                class="glass-input w-full rounded-lg p-3 pr-10"
+                                                placeholder="Repita a nova senha">
+                                            <button type="button"
+                                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                                onclick="const p = document.getElementById('confirm-password'); p.type = p.type === 'password' ? 'text' : 'password'; this.querySelector('span').textContent = p.type === 'password' ? 'visibility' : 'visibility_off'">
+                                                <span class="material-symbols-outlined text-lg">visibility</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <button type="submit"
+                                            class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 flex justify-center items-center gap-2">
+                                            <span class="material-symbols-outlined">save</span>
+                                            Atualizar Senha
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -698,7 +790,10 @@
     <script type="module" src="js/utils.js"></script>
     <script type="module" src="js/events.js"></script>
     <script type="module" src="./js/auth.js"></script>
-    <script src="./env.js"></script>
+
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
     <script type="module">
         import RelacionamentoApp from './js/app.js';
