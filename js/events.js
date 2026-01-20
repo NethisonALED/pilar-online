@@ -206,9 +206,7 @@ export function initializeEventListeners(app) {
       case "add-value-form":
         app.handleAddValue(e);
         break;
-      case "add-pontos-form":
-        app.handleAddPontos(e);
-        break;
+
       case "edit-rt-form":
         app.handleUpdateRtValue(e);
         break;
@@ -257,9 +255,7 @@ export function initializeEventListeners(app) {
 
   mainContainer.addEventListener("change", (e) => {
     switch (e.target.id) {
-      case "rt-file-input":
-        app.handleRTFileSelect(e);
-        break;
+
       case "arquiteto-file-input":
         app.handleArquitetoFileUpload(e);
         break;

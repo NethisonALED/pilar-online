@@ -120,10 +120,7 @@
                     <h2 class="text-xl font-bold">Pilar</h2>
                 </div>
                 <nav id="sidebar-menu" class="flex-1 space-y-2 p-4">
-                    <a href="#"
-                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
-                        data-tab="relatorio-rt"><span
-                            class="material-symbols-outlined">cloud_upload</span><span>Importar Vendas</span></a>
+
                     <a href="#"
                         class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
                         data-tab="consulta-sysled"><span class="material-symbols-outlined">database</span><span>Consulta
@@ -146,10 +143,7 @@
                         class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
                         data-tab="carteira"><span
                             class="material-symbols-outlined">folder_shared</span><span>Carteira</span></a>
-                    <a href="#"
-                        class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
-                        data-tab="pontuacao"><span
-                            class="material-symbols-outlined">monitoring</span><span>Pontuação</span></a>
+
                     <a href="#"
                         class="menu-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-primary/20 hover:text-white transition-all"
                         data-tab="comprovantes"><span
@@ -201,25 +195,7 @@
 
                 <div class="flex-1 p-8 overflow-y-auto">
                     <!-- Aba: Importar Vendas -->
-                    <div id="relatorio-rt-view" class="tab-view active">
-                        <div class="glass-content rounded-xl p-8">
-                            <h1 class="text-3xl font-bold tracking-tight mb-2">Importar Vendas</h1>
-                            <p class="text-gray-300 mb-8">Faça o upload do seu arquivo para registrar novas vendas.</p>
-                            <div
-                                class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-500/50 p-12 text-center hover:border-primary/50 transition-colors">
-                                <input type="file" id="rt-file-input"
-                                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                                    class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"><span
-                                    class="material-symbols-outlined text-5xl text-primary mb-3">upload_file</span><label
-                                    class="mt-4 text-lg font-semibold text-white" for="rt-file-input">Arraste e solte
-                                    seu arquivo aqui, ou</label><label
-                                    class="mt-1 cursor-pointer text-sm text-primary underline"
-                                    for="rt-file-input">Procure nos arquivos</label>
-                                <p class="mt-4 text-xs text-gray-400">XLS, XLSX, ou CSV</p>
-                                <p id="rt-file-name" class="mt-2 text-sm text-gray-300"></p>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <!-- Aba: Consulta Sysled -->
                     <div id="consulta-sysled-view" class="tab-view h-full flex flex-col">
@@ -232,13 +208,13 @@
                     </div>
 
                     <div id="crm-opportunities-view" class="tab-view h-full flex flex-col hidden">
-    <div id="crm-opportunities-container" class="flex-1 flex flex-col h-full overflow-hidden">
-        <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-4">
-            <span class="material-symbols-outlined text-6xl opacity-20">handshake</span>
-            <p class="text-lg font-medium text-gray-400">Carregando interface...</p>
-        </div>
-    </div>
-</div>
+                        <div id="crm-opportunities-container" class="flex-1 flex flex-col h-full overflow-hidden">
+                            <div class="flex flex-col items-center justify-center h-full text-gray-500 gap-4">
+                                <span class="material-symbols-outlined text-6xl opacity-20">handshake</span>
+                                <p class="text-lg font-medium text-gray-400">Carregando interface...</p>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Aba: Inclusão Manual -->
                     <div id="inclusao-manual-view" class="tab-view">
@@ -328,26 +304,7 @@
                     </div>
 
                     <!-- Aba: Pontuação -->
-                    <div id="pontuacao-view" class="tab-view">
-                        <div class="glass-content rounded-xl p-8">
-                            <h1 class="text-3xl font-bold tracking-tight mb-8">Pontuação</h1>
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                <div class="lg:col-span-2 glass-card rounded-lg p-6">
-                                    <h2 class="text-xl font-semibold mb-4 text-white">Ranking de Arquitetos</h2>
-                                    <div id="ranking-table-container"></div>
-                                </div>
-                                <div class="glass-card rounded-lg p-6">
-                                    <h2 class="text-xl font-semibold mb-4 text-white">Ajuste Manual de Pontos</h2>
-                                    <form id="add-pontos-form" class="space-y-4"><select id="arquiteto-select"
-                                            class="glass-input w-full rounded-lg p-3" required></select><input
-                                            type="number" id="pontos-valor" class="glass-input w-full rounded-lg p-3"
-                                            placeholder="Pontos (negativo para remover)" required><button type="submit"
-                                            class="w-full rounded-lg bg-primary py-3 text-sm font-bold text-white transition-colors hover:bg-primary/90">Adicionar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <!-- Aba: Comprovantes -->
                     <div id="comprovantes-view" class="tab-view">

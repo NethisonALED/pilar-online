@@ -35,6 +35,7 @@ class RelacionamentoApp {
     this.carteiraSortColumn = "tempo_sem_envio";
     this.carteiraPeriod = "mensal";
     this.carteiraViewMode = "lista";
+    this.carteiraSearchTerm = ""; // Termo de busca da carteira
     this.CACHE_KEY = "sysled_api_data";
     this.CACHE_DURATION = 10 * 60 * 1000;
     this.sysledPage = 1;
@@ -143,6 +144,8 @@ class RelacionamentoApp {
 
       this.currentUserEmail = data.session.user.email;
       this.currentUserId = data.session.user.id;
+      
+      this.loadProfilePicture(); // Carrega a foto assim que tiver o email
 
       await permissionsManager.loadUserPermissions();
       const userRole = permissionsManager.getUserRole();
@@ -243,6 +246,61 @@ class RelacionamentoApp {
           }
       } catch (error) {
           console.error("Erro ao buscar usuário Bitrix:", error);
+      }
+  }
+
+  /**
+   * Helper: Carrega foto do perfil do localStorage.
+   */
+  loadProfilePicture() {
+      if (!this.currentUserEmail) return;
+      
+      const savedPic = localStorage.getItem(`pilar_profile_pic_${this.currentUserEmail}`);
+      if (savedPic) {
+          const profilePic = document.getElementById("profile-picture");
+          if (profilePic) {
+              profilePic.style.backgroundImage = `url('${savedPic}')`;
+          }
+      }
+  }
+
+  /**
+   * Handler: Upload Nova Foto de Perfil
+   */
+  async handleProfilePictureUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+          alert("Por favor, selecione apenas arquivos de imagem.");
+          return;
+      }
+
+      // Limite de 2MB para não estourar localStorage
+      if (file.size > 2 * 1024 * 1024) {
+          alert("A imagem deve ter no máximo 2MB.");
+          return;
+      }
+
+      try {
+          const base64 = await fileToBase64(file);
+          
+          // Salva no LocalStorage (chave por email para suportar múltiplos usuários no mesmo pc)
+          if(this.currentUserEmail) {
+              localStorage.setItem(`pilar_profile_pic_${this.currentUserEmail}`, base64);
+              
+              // Atualiza visualmente
+              const profilePic = document.getElementById("profile-picture");
+              if (profilePic) {
+                  profilePic.style.backgroundImage = `url('${base64}')`;
+              }
+              
+              // Opcional: Feedback
+              // alert("Foto atualizada com sucesso!");
+          }
+      } catch (e) {
+          console.error("Erro ao salvar foto de perfil:", e);
+          alert("Erro ao processar imagem.");
       }
   }
 
@@ -365,8 +423,7 @@ class RelacionamentoApp {
    */
   renderAll() {
     this.renderArquitetosTable();
-    this.renderRankingTable();
-    this.populateArquitetoSelect();
+    this.renderArquitetosTable();
     this.renderPagamentos();
     this.renderResgates(); // NOVO: Renderiza a tabela de resgates
     this.renderArquivosImportados();
@@ -634,34 +691,7 @@ class RelacionamentoApp {
     container.innerHTML = `<div class="overflow-x-auto"><table><thead><tr><th>Data</th><th>ID Parceiro</th><th>Parceiro</th><th>Consultor</th><th class="text-right">Valor RT</th><th class="text-center">Pago</th><th>Anexar Comprovante</th><th class="text-center">Ver</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
   }
 
-  renderRankingTable() {
-    const container = document.getElementById("ranking-table-container");
-    const ranking = this.arquitetos
-      .map((a) => ({ ...a, pontos: this.pontuacoes[a.id] || 0 }))
-      .sort((a, b) => b.pontos - a.pontos);
-    if (ranking.length === 0) {
-      container.innerHTML = `<p class="text-center text-gray-400">Nenhum arquiteto para exibir.</p>`;
-      return;
-    }
-    const rows = ranking
-      .map(
-        (a) =>
-          `<tr><td>${a.id}</td><td>${a.nome}</td><td class="font-bold text-primary">${a.pontos}</td></tr>`
-      )
-      .join("");
-    container.innerHTML = `<table><thead><tr><th>ID</th><th>Nome</th><th>Pontos</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
 
-  populateArquitetoSelect() {
-    const select = document.getElementById("arquiteto-select");
-    select.innerHTML =
-      '<option value="" class="bg-background-dark">Selecione um arquiteto</option>';
-    this.arquitetos
-      .sort((a, b) => a.nome.localeCompare(b.nome))
-      .forEach((a) => {
-        select.innerHTML += `<option value="${a.id}" class="bg-background-dark">${a.nome}</option>`;
-      });
-  }
 
   renderArquivosImportados() {
     const container = document.getElementById("arquivos-importados-container");
@@ -905,7 +935,7 @@ class RelacionamentoApp {
     let dataToRender = this.sysledData.filter((row) => {
       // 1. REGRA CRÍTICA: STATUS 9
       // Só exibe se pedidoStatus for "9". Se for qualquer outra coisa (ex: "1"), ignora.
-      if (String(row.pedidoStatus) !== "9") return false;
+      if (String(row.pedidoStatus) !== "9" ) return false;
 
       // 2. REGRA DE EXCLUSÃO (Parceiro 0 e 11)
       const pCodigo = String(row.parceiroCodigo || "").trim();
@@ -2093,30 +2123,7 @@ class RelacionamentoApp {
     }
   }
 
-  async handleAddPontos(e) {
-    e.preventDefault();
-    const id = document.getElementById("arquiteto-select").value;
-    const pontos = parseInt(document.getElementById("pontos-valor").value, 10);
-    const arq = this.arquitetos.find((a) => a.id === id);
-    if (arq && !isNaN(pontos)) {
-      const newPoints = (this.pontuacoes[id] || 0) + pontos;
-      const { error } = await supabase
-        .from("arquitetos")
-        .update({ pontos: newPoints })
-        .eq("id", id);
-      if (error) {
-        alert("Erro: " + error.message);
-      } else {
-        this.pontuacoes[id] = newPoints;
-        arq.pontos = newPoints;
-        await this.logAction(
-          `Ajustou ${pontos} pontos para ${arq.nome} (ID: ${id})`
-        );
-        this.renderRankingTable();
-        e.target.reset();
-      }
-    }
-  }
+
 
   handlePagamentosChange(e) {
     const target = e.target;
@@ -3647,9 +3654,25 @@ class RelacionamentoApp {
                     <div class="h-6 w-px bg-white/10 mx-1"></div> 
                     <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar"><span class="material-symbols-outlined text-lg">refresh</span></button>
                     <div class="flex items-center gap-2">
-                        <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95"><span class="material-symbols-outlined text-lg">add</span>Manual</button>
+                          <button id="btn-open-carteira-manual" class="flex items-center gap-2 py-2 px-4 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95"><span class="material-symbols-outlined text-lg">add</span>Manual</button>
                         <label for="carteira-file-input" class="flex items-center gap-2 py-2 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg cursor-pointer text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95"><span class="material-symbols-outlined text-lg">upload</span>Importar</label>
                         <input type="file" id="carteira-file-input" class="hidden" accept=".xlsx, .xls">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="churn-list-overlay" class="fixed inset-0 z-[60] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+                <div class="bg-[#1a1f2e] border border-white/10 rounded-xl w-full max-w-lg p-6 relative shadow-2xl">
+                    <button id="close-churn-list-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-2xl">close</span>
+                    </button>
+                    <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-red-400">warning</span>
+                        Parceiros em Risco de Churn
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-6">Lista de parceiros sem enviar novos projetos há mais de 90 dias.</p>
+                    <div id="churn-list-content" class="max-h-[60vh] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                        <!-- Lista injetada via JS -->
                     </div>
                 </div>
             </div>
@@ -3691,15 +3714,23 @@ class RelacionamentoApp {
                             <p class="text-3xl font-bold text-white mt-2" id="kpi-vendas-total">R$ 0,00</p>
                         </div>
                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-emerald-900/40 to-gray-900/40">
-                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total Comissões (Geral)</h3>
-                            <p class="text-3xl font-bold text-emerald-400 mt-2" id="kpi-comissoes-total">R$ 0,00</p>
+                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Total RT Pendentes</h3>
+                            <p class="text-3xl font-bold text-emerald-400 mt-2" id="kpi-rt-pendentes-total">R$ 0,00</p>
                         </div>
                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gradient-to-br from-blue-900/40 to-gray-900/40">
-                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Saúde Média (Conv.)</h3>
-                            <p class="text-3xl font-bold text-blue-400 mt-2" id="kpi-saude-media">0%</p>
+                            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Conversão Média</h3>
+                            <p class="text-3xl font-bold text-blue-400 mt-2" id="kpi-conversao-media">0%</p>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Saúde da Carteira</h3>
+                                <p class="text-2xl font-bold text-white mt-1" id="kpi-saude-carteira">0%</p>
+                                <p class="text-xs text-gray-500 mt-1" id="kpi-saude-carteira-subtext">0 de 0 ativos</p>
+                            </div>
+                             <div class="p-3 rounded-full bg-teal-500/20 text-teal-400"><span class="material-symbols-outlined text-3xl">check_circle</span></div>
+                        </div>
                         <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
                             <div>
                                 <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest">Ticket Médio</h3>
@@ -3708,11 +3739,11 @@ class RelacionamentoApp {
                             </div>
                             <div class="p-3 rounded-full bg-indigo-500/20 text-indigo-400"><span class="material-symbols-outlined text-3xl">payments</span></div>
                         </div>
-                        <div class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between">
+                        <div id="kpi-churn-card" class="glass-card p-6 rounded-xl border border-white/10 bg-gray-800/40 flex items-center justify-between cursor-pointer hover:bg-gray-800/60 transition-colors">
                             <div>
                                 <h3 class="text-gray-400 text-xs font-bold uppercase tracking-widest text-red-400">Risco de Churn (>90 dias)</h3>
                                 <p class="text-2xl font-bold text-white mt-1" id="kpi-churn-risk">0 Parceiros</p>
-                                <p class="text-xs text-gray-500 mt-1">Sem enviar projetos novos há 3 meses</p>
+                                <p class="text-xs text-gray-500 mt-1">Clique para ver lista</p>
                             </div>
                             <div class="p-3 rounded-full bg-red-500/20 text-red-400"><span class="material-symbols-outlined text-3xl">warning</span></div>
                         </div>
@@ -3733,10 +3764,21 @@ class RelacionamentoApp {
       // MODO LISTA (Tabela)
       contentHtml = `
                 <div class="glass-card rounded-xl p-0 overflow-hidden border border-white/10 shadow-2xl animate-fade-in">
+                    <!-- Barra de Pesquisa de Parceiros (Apenas na Lista) -->
+                    <div class="p-4 border-b border-white/5 bg-[#1a1f2e]">
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                            <input type="text" id="carteira-search-input" 
+                                class="w-full bg-[#111827] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-lg"
+                                placeholder="Pesquisar parceiro por nome ou ID..." value="${this.carteiraSearchTerm}">
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto max-h-[70vh]">
                         <table class="w-full text-left border-collapse">
                             <thead class="sticky top-0 z-20 bg-[#1a1f2e] shadow-md">
                                 <tr>
+                                    <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider text-center">#</th>
                                     <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="id_parceiro">ID ${getSortIcon(
                                       "id_parceiro"
                                     )}</th>
@@ -3746,10 +3788,10 @@ class RelacionamentoApp {
                                     <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="vendas">Vendas (Período) ${getSortIcon(
                                       "vendas"
                                     )}</th>
-                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="comissoes">Comissões (Geral) ${getSortIcon(
-                                      "comissoes"
+                                    <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="rt_pendentes">RT Pendentes ${getSortIcon(
+                                      "rt_pendentes"
                                     )}</th>
-                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Saúde ${getSortIcon(
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Conversão ${getSortIcon(
                                       "saude_carteira"
                                     )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="tempo_sem_envio">Tempo s/ Envio ${getSortIcon(
@@ -3757,8 +3799,12 @@ class RelacionamentoApp {
                                     )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Fechados</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Enviados</th>
-                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Envio</th>
-                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Dt Fechamento</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="data_envio">Dt Envio ${getSortIcon(
+                                      "data_envio"
+                                    )}</th>
+                                    <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="data_fechamento">Dt Fechamento ${getSortIcon(
+                                      "data_fechamento"
+                                    )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
@@ -3874,10 +3920,34 @@ class RelacionamentoApp {
           this.carteiraPeriod
         );
 
+        // Cálculo de RT Pendentes (Req: RT Acumulado + Valores não pagos nos Pagamentos)
+        const rtAcumulado = arq ? (parseFloat(arq.rt_acumulado) || 0) : 0;
+        
+        let rtEmAbertoComprovantes = 0;
+        // Itera sobre todos os dias de pagamentos para somar os pendentes deste parceiro
+        Object.values(this.pagamentos).forEach(diaPagamentos => {
+            diaPagamentos.forEach(p => {
+                if (String(p.id_parceiro) === String(parceiro.id_parceiro) && !p.pago) {
+                    rtEmAbertoComprovantes += (parseFloat(p.rt_valor) || 0);
+                }
+            });
+        });
+
+        // Adiciona também resgates não pagos
+         this.resgates.forEach(r => {
+            if (String(r.id_parceiro) === String(parceiro.id_parceiro) && !r.pago) {
+                rtEmAbertoComprovantes += (parseFloat(r.rt_valor) || 0);
+            }
+        });
+
+
+        const rtPendentesTotal = rtAcumulado + rtEmAbertoComprovantes;
+
         combinedData.push({
           ...parceiro,
           vendas: kpis.vendas_periodo,
-          comissoes: arq ? arq.rt_acumulado : 0,
+          comissoes: rtAcumulado,
+          rt_pendentes: rtPendentesTotal,
           ...kpis,
         });
       }
@@ -3941,11 +4011,21 @@ class RelacionamentoApp {
             "projeto_fechado",
             "projeto_enviado",
             "vendas",
+            "vendas",
             "comissoes",
+            "rt_pendentes"
           ].includes(this.carteiraSortColumn)
         ) {
           valA = parseFloat(String(valA).replace("%", "")) || 0;
           valB = parseFloat(String(valB).replace("%", "")) || 0;
+        } else if (["data_envio", "data_fechamento"].includes(this.carteiraSortColumn)) {
+            // Tratamento para datas (YYYY-MM-DD)
+            // Se vazio, considera data 'zero' ou algo que vá para o final dependendo da ordem, 
+            // mas geralmente sem data = 0 timestamp
+            const timeA = valA ? new Date(valA).getTime() : 0;
+            const timeB = valB ? new Date(valB).getTime() : 0;
+            valA = timeA;
+            valB = timeB;
         }
 
         if (valA < valB) return this.carteiraSortDirection === "asc" ? -1 : 1;
@@ -3967,7 +4047,15 @@ class RelacionamentoApp {
     } else {
       const tbody = document.getElementById("carteira-table-body");
       if (tbody) {
-        const rowsBuffer = data
+        // Filtragem por busca
+        const term = this.carteiraSearchTerm.toLowerCase();
+        const filteredData = data.filter(item => {
+            if (!term) return true;
+            return (String(item.id_parceiro).toLowerCase().includes(term) || 
+                    String(item.nome || "").toLowerCase().includes(term));
+        });
+
+        const rowsBuffer = filteredData
           .map((item, index) => this.createCarteiraRow(item, index))
           .join("");
         tbody.innerHTML =
@@ -4050,10 +4138,12 @@ class RelacionamentoApp {
 
     // --- CÁLCULOS ---
 
-    // 1. Filtrar Vendas Fechadas no Período
+    // 1. Filtrar Vendas Fechadas no Período (Status 9 E Original)
     const vendasFechadas = partnerRecords.filter(
       (p) =>
-        String(p.pedidoStatus) === "9" && isInPeriod(p.dataFinalizacaoPrevenda)
+        String(p.pedidoStatus) === "9" && 
+        (p.idPedidoOriginal === null || p.idPedidoOriginal === "null" || p.idPedidoOriginal === "") &&
+        isInPeriod(p.dataFinalizacaoPrevenda)
     );
 
     const fechadosCount = vendasFechadas.length;
@@ -4070,6 +4160,7 @@ class RelacionamentoApp {
         (p.versaoPedido === null ||
           p.versaoPedido === "null" ||
           p.versaoPedido === "") &&
+        (p.idPedidoOriginal === null || p.idPedidoOriginal === "null" || p.idPedidoOriginal === "") &&
         isInPeriod(p.dataEmissaoPrevenda)
     ).length;
 
@@ -4130,23 +4221,31 @@ class RelacionamentoApp {
         ? "text-yellow-400 font-bold"
         : "text-gray-300";
 
+    // Limpeza do Nome
+    let cleanName = item.nome || "";
+    cleanName = cleanName.replace(
+      /^(Lighting Designer|Lighting Design|Light Design|Arquiteto|Arquitetura|Arq\.|Ld\.|Design|Designer)\s+/i,
+      ""
+    ).trim();
+
     return `
             <tr class="group border-b border-white/5 hover:bg-white/5 transition-colors ${
               index % 2 === 0 ? "bg-white/[0.02]" : ""
             } animate-fade-in">
+                <td class="py-4 px-4 text-center text-gray-500 text-xs font-mono select-none">${index + 1}</td>
                 <td class="py-4 px-4 text-gray-400 text-sm font-mono">${
                   item.id_parceiro
                 }</td>
                 <td class="py-4 px-4">
                     <div class="font-medium text-white truncate max-w-[280px]" title="${
-                      item.nome
-                    }">${item.nome}</div>
+                      cleanName
+                    }">${cleanName}</div>
                 </td>
                 <td class="py-4 px-4 text-right text-gray-300 font-medium">${formatCurrency(
                   item.vendas || 0
                 )}</td>
-                <td class="py-4 px-4 text-right font-bold text-emerald-400">${formatCurrency(
-                  item.comissoes || 0
+                <td class="py-4 px-4 text-right font-bold text-orange-400">${formatCurrency(
+                  item.rt_pendentes || 0
                 )}</td>
                 
                 <td class="py-4 px-4 text-center">
@@ -4332,6 +4431,100 @@ class RelacionamentoApp {
           this.deleteCarteiraParceiro(e.currentTarget.dataset.id);
         });
       });
+      
+      // Search Listener
+      const searchInput = document.getElementById("carteira-search-input");
+      if (searchInput) {
+          // Remover listener antigo clonando
+          const newSearch = searchInput.cloneNode(true);
+          searchInput.parentNode.replaceChild(newSearch, searchInput);
+          
+          newSearch.addEventListener("input", (e) => {
+              this.carteiraSearchTerm = e.target.value;
+              // Recarrega do cache para aplicar filtro
+              this.loadCarteiraWithProgress();
+          });
+          
+          // Mantém o foco
+          newSearch.focus();
+          // Coloca o cursor no final
+          const val = newSearch.value;
+          newSearch.value = '';
+          newSearch.value = val;
+      }
+      
+      // Churn Card Listener
+      const churnCard = document.getElementById("kpi-churn-card");
+      if (churnCard) {
+          // Remove listener antigo
+          const newCard = churnCard.cloneNode(true);
+          churnCard.parentNode.replaceChild(newCard, churnCard);
+          
+          newCard.addEventListener("click", () => {
+              const overlay = document.getElementById("churn-list-overlay");
+              const content = document.getElementById("churn-list-content");
+              
+              if(overlay && content) {
+                  // Filtra parceiros em churn
+                  const churnPartners = this.arquitetos.filter(a => {
+                      // Procura este arquiteto nos dados calculados da tabela (se estiver calculado já)
+                      // Se não, recalcula básico: dia sem envio > 90.
+                      // Melhor pegar do dataset da tabela renderizada se possível, ou recalcular 
+                      // Mas vamos pegar dos DADOS CAlCULADOS salvos no cache/memória
+                      return false; // placeholder, vamos preencher com dados reais
+                  }); 
+                  
+                  // Como não temos acesso fácil a this.combinedData aqui fora do render, 
+                  // vamos refazer a lógica simples ou ler do DOM?
+                  // Melhor ler do DOM quem tem class 'text-red-400 font-bold' na coluna de tempo?
+                  // Não, isso é frágil.
+                  // Vamos pegar do último cálculo salvo no localStorage!
+                  
+                  try {
+                      const cached = localStorage.getItem(`carteira_calc_${this.carteiraPeriod}`);
+                      if(cached) {
+                          const { data } = JSON.parse(cached);
+                          const churns = data.filter(d => {
+                              if(!d.tempo_sem_envio || d.tempo_sem_envio === '-') return false;
+                              const dias = parseInt(d.tempo_sem_envio);
+                              return dias > 90;
+                          }).sort((a,b) => parseInt(b.tempo_sem_envio) - parseInt(a.tempo_sem_envio));
+                          
+                          if(churns.length === 0) {
+                              content.innerHTML = '<p class="text-gray-400 text-center">Nenhum parceiro em risco.</p>';
+                          } else {
+                              content.innerHTML = churns.map(c => `
+                                <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
+                                    <div>
+                                        <p class="font-bold text-white">${c.nome}</p>
+                                        <p class="text-xs text-gray-500">ID: ${c.id_parceiro}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-red-400 font-bold text-sm bg-red-500/10 px-2 py-1 rounded">${c.tempo_sem_envio}</span>
+                                    </div>
+                                </div>
+                              `).join('');
+                          }
+                      }
+                  } catch(e) {
+                      content.innerHTML = '<p class="text-red-400 text-center">Erro ao carregar lista.</p>';
+                  }
+                  
+                  overlay.classList.remove("hidden");
+              }
+          });
+      }
+      
+      // Fechar Churn List
+      const closeChurnBtn = document.getElementById("close-churn-list-btn");
+      const churnOverlay = document.getElementById("churn-list-overlay");
+      
+      if(closeChurnBtn && churnOverlay) {
+          closeChurnBtn.addEventListener("click", () => churnOverlay.classList.add("hidden"));
+          churnOverlay.addEventListener("click", (e) => {
+              if(e.target === churnOverlay) churnOverlay.classList.add("hidden");
+          });
+      }
     }
   }
 
@@ -4401,12 +4594,33 @@ class RelacionamentoApp {
     };
 
     safeSetText("kpi-vendas-total", formatCurrency(totalVendas));
-    safeSetText("kpi-comissoes-total", formatCurrency(totalComissoes));
-    safeSetText("kpi-saude-media", mediaSaude + "%");
+    
+    // Total RT Pendentes
+    const totalRtPendentes = data.reduce(
+        (acc, curr) => acc + (parseFloat(curr.rt_pendentes) || 0),
+        0
+    );
+    safeSetText("kpi-rt-pendentes-total", formatCurrency(totalRtPendentes));
+    
+    // Conversão Média
+    safeSetText("kpi-conversao-media", mediaSaude + "%");
 
-    // Novos KPIs
+    // Ticket Médio
     safeSetText("kpi-ticket-medio", formatCurrency(ticketMedio));
+    
+    // Risco de Churn
     safeSetText("kpi-churn-risk", `${churnRiskCount} Parceiros`);
+
+    // Saúde da Carteira (Porcentagem de Parceiros Ativos)
+    // Ativo = Pelo menos 1 projeto fechado
+    const totalParceiros = data.length;
+    const numParceirosAtivos = data.filter(p => (p.projeto_fechado || 0) > 0).length;
+    
+    // Evita divisão por zero
+    const saudePercent = totalParceiros > 0 ? (numParceirosAtivos / totalParceiros) * 100 : 0;
+    
+    safeSetText("kpi-saude-carteira", `${saudePercent.toFixed(1)}%`);
+    safeSetText("kpi-saude-carteira-subtext", `${numParceirosAtivos} de ${totalParceiros} arquitetos ativos`);
 
     // --- GRÁFICOS (Mantidos) ---
 
