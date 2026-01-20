@@ -3,7 +3,6 @@
 Thumbs.db
 
 # Ignorar chaves de segurança
-js/config.js
 .env
 env.js
 minha-senha

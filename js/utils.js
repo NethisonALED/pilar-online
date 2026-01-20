@@ -23,9 +23,15 @@ if (CONFIG.SUPABASE.URL && CONFIG.SUPABASE.ANON_KEY) {
             <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;text-align:center;font-family:sans-serif;">
                 <h1 style="color:#ef4444;font-size:2rem;margin-bottom:1rem;">Erro de Configuração de Segurança</h1>
                 <p>O sistema não conseguiu carregar as chaves de acesso de forma segura.</p>
-                <p style="margin-top:1rem;color:#94a3b8;">Motivo provável: O servidor PHP não está rodando ou não está acessível.</p>
-                <code style="background:#1e293b;padding:1rem;border-radius:0.5rem;margin-top:2rem;font-family:monospace;">php -S localhost:8000</code>
-                <p style="margin-top:1rem;color:#94a3b8;">Execute o comando acima na pasta do projeto e acesse via <a href="http://localhost:8000" style="color:#38bdf8;">http://localhost:8000</a></p>
+                <p style="margin-top:1rem;color:#94a3b8;">Motivo provável: Configuração não encontrada no servidor.</p>
+                <div style="background:#1e293b;padding:1rem;border-radius:0.5rem;margin-top:2rem;font-family:monospace;text-align:left">
+                    <p style="font-weight:bold;color:#f8fafc">Verifique:</p>
+                    <ul style="list-style-type:disc;margin-left:1.5rem;color:#cbd5e1">
+                        <li>Arquivo .env existe no servidor?</li>
+                        <li>Permissões de leitura no ./sysled-proxy.php</li>
+                        <li>Console do navegador (F12) para mais detalhes</li>
+                    </ul>
+                </div>
             </div>
          `;
     });

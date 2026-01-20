@@ -28,8 +28,8 @@ $allowed_domains = [
 if (in_array($origin, $allowed_domains)) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
-    // Opcional: Se quiser ser restrito, descomente abaixo. 
-    // Por enquanto pode deixar * se tiver medo de errar o domínio.
+    // CORREÇÃO: Liberando geral (*) para não travar no seu domínio de produção
+    // Depois podemos restringir quando soubermos a URL exata.
     header("Access-Control-Allow-Origin: *");
 }
 
