@@ -4764,7 +4764,8 @@ class RelacionamentoApp {
 
     // Saúde da Carteira (Porcentagem de Parceiros Ativos)
     // Ativo = Pelo menos 1 projeto fechado
-    const totalParceiros = data.length;
+    // FIX: User request -> Denominador deve ser o TOTAL da carteira, não só os filtrados
+    const totalParceiros = this.carteira ? this.carteira.length : data.length;
     const numParceirosAtivos = data.filter(p => (p.projeto_fechado || 0) > 0).length;
     
     // Evita divisão por zero
