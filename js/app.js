@@ -3581,8 +3581,7 @@ class RelacionamentoApp {
    * Lógica de Saúde atualizada para considerar apenas o MÊS ATUAL.
    * AGORA: As colunas de Projetos também retornam apenas os dados do mês para a conta bater.
    */
-  calculatePartnerKPIs(partnerId, apiData) {
-    // Se a API ainda não foi carregada, retorna traços
+  calculatePartnerKPIs(partnerId, apiData, startDate = null, endDate = null) {
     if (!apiData || apiData.length === 0) {
       return {
         saude_carteira: "-",
@@ -3594,7 +3593,6 @@ class RelacionamentoApp {
       };
     }
 
-    // 1. Filtra todos os registros da API para este parceiro
     const partnerRecords = apiData.filter(
       (row) => String(row.idParceiro) === String(partnerId)
     );
@@ -3610,33 +3608,40 @@ class RelacionamentoApp {
       };
     }
 
-    // --- DEFINIÇÃO DO MÊS ATUAL ---
+    // --- DEFINIÇÃO DO PERÍODO ---
     const hoje = new Date();
-    const mesAtual = hoje.getMonth(); // 0 a 11
-    const anoAtual = hoje.getFullYear();
+    let start, end;
 
-    // Helper para verificar se uma data string (YYYY-MM-DD) cai no mês atual
-    const isMesAtual = (dateString) => {
+    if (startDate && endDate) {
+        start = new Date(startDate + "T00:00:00");
+        end = new Date(endDate + "T23:59:59");
+    } else {
+        // Default: Mês Atual
+        start = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        end = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
+    }
+
+    const isInPeriod = (dateString) => {
       if (!dateString) return false;
       const d = new Date(dateString + "T12:00:00");
-      return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+      return d >= start && d <= end;
     };
 
-    // --- CÁLCULO DA SAÚDE E TOTAIS (APENAS MÊS ATUAL) ---
+    // --- CÁLCULO DA SAÚDE E TOTAIS ---
 
-    // Fechados no Mês
+    // Fechados no Período
     const fechadosMes = partnerRecords.filter(
       (p) =>
-        String(p.pedidoStatus) === "9" && isMesAtual(p.dataFinalizacaoPrevenda)
+        String(p.pedidoStatus) === "9" && isInPeriod(p.dataFinalizacaoPrevenda)
     ).length;
 
-    // Enviados no Mês
+    // Enviados no Período
     const enviadosMes = partnerRecords.filter(
       (p) =>
         (p.versaoPedido === null ||
           p.versaoPedido === "null" ||
           p.versaoPedido === "") &&
-        isMesAtual(p.dataEmissaoPrevenda)
+        isInPeriod(p.dataEmissaoPrevenda)
     ).length;
 
     // Saúde Carteira
@@ -3644,8 +3649,6 @@ class RelacionamentoApp {
     if (enviadosMes > 0) {
       saude = (fechadosMes / enviadosMes) * 100;
     }
-
-    // Explicação do 108%: Se o arquiteto enviou 10 projetos ESTE mês, mas fechou 11 (alguns eram do mês passado), a saúde será 110%.
 
     // --- DATAS E TEMPO SEM ENVIO (MANTIDO) ---
     const datasEnvio = partnerRecords
@@ -3670,11 +3673,8 @@ class RelacionamentoApp {
 
     return {
       saude_carteira: saude.toFixed(1) + "%",
-
-      // ALTERAÇÃO AQUI: Agora mostramos as contagens DO MÊS, para bater com a porcentagem
       projeto_fechado: fechadosMes,
       projeto_enviado: enviadosMes,
-
       tempo_sem_envio: diasSemEnvio,
       data_envio: lastDataEnvio,
       data_fechamento: lastDataFechamento,
@@ -3704,19 +3704,15 @@ class RelacionamentoApp {
     const controlsHtml = `
             <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros ([Lojas] Especificadores)</h2>
-                    <div class="relative" id="custom-period-dropdown">
-                        <button id="period-dropdown-btn" class="flex items-center justify-between w-48 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white text-sm font-medium rounded-lg pl-4 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all shadow-lg backdrop-blur-sm">
-                            <span id="period-selected-text">${currentLabel}</span>
-                            <span class="material-symbols-outlined text-gray-400 text-xl ml-2 transition-transform duration-200" id="period-dropdown-icon">expand_more</span>
-                        </button>
-                        <div id="period-dropdown-menu" class="hidden absolute top-full left-0 mt-2 w-48 bg-[#1a1f2e] border border-white/10 rounded-lg shadow-xl z-50 overflow-hidden ring-1 ring-black ring-opacity-5 focus:outline-none animate-fade-in-down">
-                            <div class="py-1">
-                                <div class="period-option cursor-pointer block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-colors" data-value="mensal">Análise Mensal</div>
-                                <div class="period-option cursor-pointer block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-colors" data-value="trimestral">Análise Trimestral</div>
-                                <div class="period-option cursor-pointer block px-4 py-2 text-sm text-gray-300 hover:bg-blue-600 hover:text-white transition-colors" data-value="semestral">Análise Semestral</div>
-                            </div>
+                    <h2 class="text-2xl font-bold text-white tracking-tight">Carteira de Parceiros</h2>
+                    
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-gray-400 group-hover:text-emerald-400 transition-colors">calendar_month</span>
                         </div>
+                        <input type="text" id="carteira-date-range" 
+                            class="bg-white/5 border border-white/10 text-white text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-64 pl-10 p-2.5 placeholder-gray-400 hover:bg-white/10 transition-all cursor-pointer font-medium" 
+                            placeholder="Filtrar por Período de Fechamento" readonly>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -3784,6 +3780,44 @@ class RelacionamentoApp {
     };
 
     let contentHtml = "";
+
+    // --- RECOLHER DATES SE EXISTIREM ---
+    const rangeInput = document.getElementById("carteira-date-range");
+    const existingRange = rangeInput ? rangeInput.value : null;
+
+    let startDate = null;
+    let endDate = null;
+
+    if (existingRange && existingRange.includes(" até ")) {
+        [startDate, endDate] = existingRange.split(" até ");
+    }
+    
+    // --- INTIALIZE DATEPICKERS AFTER HTML INSERTION ---
+    setTimeout(() => {
+        if (typeof flatpickr !== "undefined") {
+            const picker = flatpickr("#carteira-date-range", {
+                mode: "range",
+                locale: "pt",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                theme: "dark",
+                disableMobile: "true",
+                conjunction: " até ",
+                onChange: (selectedDates) => {
+                    if (selectedDates.length === 2) {
+                        // Recalcula KPIs usando os dados em memória (false = sem refresh da API)
+                        this.loadCarteiraWithProgress(false); // Era true, causava reload desnecessário
+                    }
+                }
+            });
+            // Restore values if re-rendering
+            if(startDate && endDate) {
+                picker.setDate([startDate, endDate]);
+            }
+        }
+    }, 50);
+
 
     if (this.carteiraViewMode === "dashboard") {
       // MODO DASHBOARD (HTML ESTRUTURAL APENAS, DADOS VIRÃO VIA JS)
@@ -3918,8 +3952,23 @@ class RelacionamentoApp {
     let counterText = document.getElementById("carteira-counter-text");
     let tbody = document.getElementById("carteira-table-body"); // Agora é LET
 
-    // Chave única para o cache baseada no período atual (ex: mensal, trimestral)
-    const CACHE_KEY_CALCULATED = `carteira_calc_${this.carteiraPeriod}`;
+    // Chave única para o cache baseada no período atual e DATAS CUSTOMIZADAS
+    const rangeInput = document.getElementById("carteira-date-range");
+    const rangeVal = rangeInput ? rangeInput.value : "";
+    let customStart = null;
+    let customEnd = null;
+    
+    // Flatpickr Range Mode (Alt Input uses ' até ', internal usually ' to ')
+    // We rely on the element value or internal flatpickr instance
+    if (rangeInput && rangeInput._flatpickr && rangeInput._flatpickr.selectedDates.length === 2) {
+        customStart = rangeInput._flatpickr.selectedDates[0].toISOString().split('T')[0];
+        customEnd = rangeInput._flatpickr.selectedDates[1].toISOString().split('T')[0];
+    } else if (rangeVal && rangeVal.includes(" até ")) {
+         // Fallback manual parse (format d/m/Y expected from Alt)
+         // Note: Parsing depend on locale format. Safer to use Flatpickr instance dates if avail
+    }
+
+    const CACHE_KEY_CALCULATED = `carteira_calc_${this.carteiraPeriod}_${customStart || "no"}_${customEnd || "no"}`;
     const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
 
     // 1. TENTATIVA DE USAR CACHE DE RESULTADO (FAST PATH)
@@ -3998,7 +4047,9 @@ class RelacionamentoApp {
           sysledMap.get(String(parceiro.id_parceiro)) || [];
         const kpis = this.calculateKPIsFromSubset(
           partnerApiData,
-          this.carteiraPeriod
+          this.carteiraPeriod,
+          customStart, 
+          customEnd
         );
 
         // Cálculo de RT Pendentes (Req: RT Acumulado + Valores não pagos nos Pagamentos)
@@ -4023,6 +4074,16 @@ class RelacionamentoApp {
 
 
         const rtPendentesTotal = rtAcumulado + rtEmAbertoComprovantes;
+
+        // --- FILTRAGEM ESTRITA (User Request) ---
+        // "Se nao tiver data de fechmaneto desconside o item"
+        // Se houver filtro de data ativo, só adiciona se tiver activity (projeto_fechado > 0)
+        // Opcional: considerar vendas > 0 também como critério
+        if (customStart && customEnd) {
+             if (kpis.projeto_fechado === 0 && kpis.vendas_periodo === 0) {
+                 continue; // Pula este parceiro
+             }
+        }
 
         combinedData.push({
           ...parceiro,
@@ -4187,14 +4248,14 @@ class RelacionamentoApp {
    * Calcula KPIs filtrando por período (Mensal, Trimestral, Semestral).
    * AGORA: Vendas baseadas em 'valorFinanceiro' da API.
    */
-  calculateKPIsFromSubset(partnerRecords, period = "mensal") {
+  calculateKPIsFromSubset(partnerRecords, period = "mensal", customStart = null, customEnd = null) {
     if (!partnerRecords || partnerRecords.length === 0) {
       return {
         saude_carteira: "0%",
         tempo_sem_envio: "N/A",
         projeto_fechado: 0,
         projeto_enviado: 0,
-        vendas_periodo: 0, // Novo retorno zerado
+        vendas_periodo: 0, 
         data_envio: null,
         data_fechamento: null,
       };
@@ -4203,18 +4264,27 @@ class RelacionamentoApp {
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
 
-    let dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    let dataInicio;
+    let dataFim = new Date(); // Default hoje
 
-    if (period === "trimestral") {
-      dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
-    } else if (period === "semestral") {
-      dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
+    if (customStart && customEnd) {
+        dataInicio = new Date(customStart + "T00:00:00");
+        dataFim = new Date(customEnd + "T23:59:59");
+    } else {
+        // Lógica dos presets
+        dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        if (period === "trimestral") {
+            dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
+        } else if (period === "semestral") {
+            dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
+        }
+        // dataFim continua sendo hoje/agora para presets
     }
 
     const isInPeriod = (dateString) => {
       if (!dateString) return false;
       const d = new Date(dateString + "T12:00:00");
-      return d >= dataInicio && d <= new Date();
+      return d >= dataInicio && d <= dataFim;
     };
 
     // --- CÁLCULOS ---

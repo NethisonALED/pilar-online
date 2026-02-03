@@ -79,8 +79,8 @@ try {
     if (isset($_GET['get_config']) && $_GET['get_config'] === '1') {
         $config = [
             'SUPABASE' => [
-                'URL' => getEnvValue('API_SUPABASE_URL'),
-                'ANON_KEY' => getEnvValue('API_SUPABASE_KEY'),
+                'URL' => getEnvValue('SUPABASE_URL'),
+                'ANON_KEY' => getEnvValue('SUPABASE_ANON_KEY'),
             ],
             // Opcional: retornar a própria URL do proxy se necessário
             'SYSLED' => [
@@ -92,15 +92,11 @@ try {
     }
 
     // 1. Busca as credenciais
-
-
-    // 1. Busca as credenciais
-    $sysledUrl = getEnvValue('API_SYSLED_URL');
-
-    $sysledToken = getEnvValue('API_SYSLED_KEY');
+    $sysledUrl = getEnvValue('SYSLED_API_URL');
+    $sysledToken = getEnvValue('SYSLED_AUTH_TOKEN');
 
     if (!$sysledUrl || !$sysledToken) {
-        throw new Exception("Variáveis API_SYSLED_URL ou API_SYSLED_KEY não encontradas no .env");
+        throw new Exception("Variáveis SYSLED_API_URL ou SYSLED_AUTH_TOKEN não encontradas no .env");
     }
 
     // // 2. Garante que o Token tenha "Bearer"

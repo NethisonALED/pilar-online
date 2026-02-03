@@ -7,11 +7,11 @@ let serverConfig = {
 
 try {
     // 1. Define a URL padrão (Funciona na Hostinger/Produção)
-    let proxyUrl = 'sysled-proxy.php?get_config=1';
+    let proxyUrl = `sysled-proxy.php?get_config=1&t=${Date.now()}`;
 
     // 2. Se estiver local (Live Server), aponta para o servidor PHP local
     if (window.location.port === '5500' || window.location.port === '3000') {
-        proxyUrl = 'http://localhost:8080/sysled-proxy.php?get_config=1';
+        proxyUrl = `http://localhost:8080/sysled-proxy.php?get_config=1&t=${Date.now()}`;
     }
 
     const response = await fetch(proxyUrl);
