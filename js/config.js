@@ -1,8 +1,11 @@
 // js/config.js - VERSÃO HÍBRIDA (DEV + PROD)
+// IMPORTANTE: Este arquivo contém credenciais sensíveis.
+// Copie de config.example.js e preencha com suas credenciais reais.
+// Este arquivo NÃO deve ser commitado no git.
 
 let serverConfig = {
-    SUPABASE: { URL: "", ANON_KEY: "" },
-    SYSLED: { API_URL: "", AUTH_TOKEN: "" }
+    SUPABASE: { URL: "YOUR_SUPABASE_URL_HERE", ANON_KEY: "YOUR_SUPABASE_ANON_KEY_HERE" },
+    SYSLED: { API_URL: "YOUR_SYSLED_API_URL_HERE", AUTH_TOKEN: "YOUR_SYSLED_AUTH_TOKEN_HERE" }
 };
 
 try {
@@ -15,7 +18,7 @@ try {
     }
 
     const response = await fetch(proxyUrl);
-    
+
     if (response.ok) {
         const data = await response.json();
         if (data.SUPABASE) {
@@ -36,9 +39,9 @@ export const CONFIG = {
     },
     SYSLED: {
         // Lógica Híbrida para a API também
-        API_URL: (window.location.port === '5500' || window.location.port === '3000') 
-            ? "http://localhost:8080/sysled-proxy.php" 
-            : "sysled-proxy.php", 
+        API_URL: (window.location.port === '5500' || window.location.port === '3000')
+            ? "http://localhost:8080/sysled-proxy.php"
+            : "sysled-proxy.php",
         AUTH_TOKEN: "",
-    },  
+    },
 };

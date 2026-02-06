@@ -46,7 +46,7 @@ class RelacionamentoApp {
     // Flags para funcionalidades condicionais baseadas no schema do DB
     this.schemaHasRtAcumulado = false;
     this.schemaHasRtTotalPago = false;
-    
+
     // NOVOS ESTADOS PARA CONTROLE DE ACESSO
     this.currentBitrixUserId = null; // Guardará o ID (ex: 100)
     this.isBitrixRestricted = false; // Se true, só vê os próprios dados
@@ -148,7 +148,7 @@ class RelacionamentoApp {
 
       this.currentUserEmail = data.session.user.email;
       this.currentUserId = data.session.user.id;
-      
+
       this.loadProfilePicture(); // Carrega a foto assim que tiver o email
 
       await permissionsManager.loadUserPermissions();
@@ -159,9 +159,9 @@ class RelacionamentoApp {
       // 2. DEFINIR SE É RESTRITO (Lógica de Negócio)
       // Se NÃO for admin ou manager, assume que é vendedor e restringe
       if (userRole !== 'admin' && userRole !== 'manager' && userRole !== 'editor') {
-          this.isBitrixRestricted = true;
+        this.isBitrixRestricted = true;
       } else {
-          this.isBitrixRestricted = false;
+        this.isBitrixRestricted = false;
       }
 
       // 3. BUSCAR ID NO BITRIX PELO EMAIL
@@ -174,11 +174,11 @@ class RelacionamentoApp {
       // --- PROTEÇÃO DE ROTA ---
       // Se for visualizador e tentar acessar algo que não pode, joga pra carteira
       if (this.isBitrixRestricted && activeTab !== 'carteira' && activeTab !== 'crm-opportunities') {
-          activeTab = 'carteira';
-          // Atualiza a URL visualmente sem recarregar
-          const newUrl = new URL(window.location);
-          newUrl.searchParams.set("tab", activeTab);
-          window.history.replaceState({}, "", newUrl);
+        activeTab = 'carteira';
+        // Atualiza a URL visualmente sem recarregar
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set("tab", activeTab);
+        window.history.replaceState({}, "", newUrl);
       }
       // ------------------------
 
@@ -189,9 +189,9 @@ class RelacionamentoApp {
 
       // 4. FINALIZAÇÃO
       initializeEventListeners(this);
-      
+
       this.updateSettingsProfile(); // Atualiza a seção de perfil nas configurações
-      
+
       this.renderAll();
 
       if (activeTab === "carteira") {
@@ -225,90 +225,90 @@ class RelacionamentoApp {
    * Busca o ID do usuário no Bitrix baseado no e-mail logado no Pilar.
    */
   async fetchBitrixUserId() {
-      if (!this.bitrixWebhookUrl || !this.currentUserEmail) return;
+    if (!this.bitrixWebhookUrl || !this.currentUserEmail) return;
 
-      try {
-          // Método user.search busca por EMAIL
-          const response = await fetch(`${this.bitrixWebhookUserSearch}user.get`, {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                  "filter": { "email": this.currentUserEmail }
-              })
-          });
+    try {
+      // Método user.search busca por EMAIL
+      const response = await fetch(`${this.bitrixWebhookUserSearch}user.get`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "filter": { "email": this.currentUserEmail }
+        })
+      });
 
-          const result = await response.json();
+      const result = await response.json();
 
-          if (result.result && result.result.length > 0) {
-              // Pega o primeiro usuário encontrado
-              const user = result.result[0];
-              this.currentBitrixUserId = user.ID;
-              
-              // Se for restrito, já fixa o filtro
-              if (this.isBitrixRestricted) {
-                  this.crmAssignedFilter = user.ID;
-              }
-          } else {
-              console.warn("E-mail não encontrado no Bitrix24.");
-          }
-      } catch (error) {
-          console.error("Erro ao buscar usuário Bitrix:", error);
+      if (result.result && result.result.length > 0) {
+        // Pega o primeiro usuário encontrado
+        const user = result.result[0];
+        this.currentBitrixUserId = user.ID;
+
+        // Se for restrito, já fixa o filtro
+        if (this.isBitrixRestricted) {
+          this.crmAssignedFilter = user.ID;
+        }
+      } else {
+        console.warn("E-mail não encontrado no Bitrix24.");
       }
+    } catch (error) {
+      console.error("Erro ao buscar usuário Bitrix:", error);
+    }
   }
 
   /**
    * Helper: Carrega foto do perfil do localStorage.
    */
   loadProfilePicture() {
-      if (!this.currentUserEmail) return;
-      
-      const savedPic = localStorage.getItem(`pilar_profile_pic_${this.currentUserEmail}`);
-      if (savedPic) {
-          const profilePic = document.getElementById("profile-picture");
-          if (profilePic) {
-              profilePic.style.backgroundImage = `url('${savedPic}')`;
-          }
+    if (!this.currentUserEmail) return;
+
+    const savedPic = localStorage.getItem(`pilar_profile_pic_${this.currentUserEmail}`);
+    if (savedPic) {
+      const profilePic = document.getElementById("profile-picture");
+      if (profilePic) {
+        profilePic.style.backgroundImage = `url('${savedPic}')`;
       }
+    }
   }
 
   /**
    * Handler: Upload Nova Foto de Perfil
    */
   async handleProfilePictureUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-      if (!file.type.startsWith("image/")) {
-          showToast("Por favor, selecione apenas arquivos de imagem.", "warning");
-          return;
-      }
+    if (!file.type.startsWith("image/")) {
+      showToast("Por favor, selecione apenas arquivos de imagem.", "warning");
+      return;
+    }
 
-      // Limite de 2MB para não estourar localStorage
-      if (file.size > 2 * 1024 * 1024) {
-          showToast("A imagem deve ter no máximo 2MB.", "warning");
-          return;
-      }
+    // Limite de 2MB para não estourar localStorage
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("A imagem deve ter no máximo 2MB.", "warning");
+      return;
+    }
 
-      try {
-          const base64 = await fileToBase64(file);
-          
-          // Salva no LocalStorage (chave por email para suportar múltiplos usuários no mesmo pc)
-          if(this.currentUserEmail) {
-              localStorage.setItem(`pilar_profile_pic_${this.currentUserEmail}`, base64);
-              
-              // Atualiza visualmente
-              const profilePic = document.getElementById("profile-picture");
-              if (profilePic) {
-                  profilePic.style.backgroundImage = `url('${base64}')`;
-              }
-              
-              // Opcional: Feedback
-              // showToast("Foto atualizada com sucesso!", "success");
-          }
-      } catch (e) {
-          console.error("Erro ao salvar foto de perfil:", e);
-          showToast("Erro ao processar imagem.", "error");
+    try {
+      const base64 = await fileToBase64(file);
+
+      // Salva no LocalStorage (chave por email para suportar múltiplos usuários no mesmo pc)
+      if (this.currentUserEmail) {
+        localStorage.setItem(`pilar_profile_pic_${this.currentUserEmail}`, base64);
+
+        // Atualiza visualmente
+        const profilePic = document.getElementById("profile-picture");
+        if (profilePic) {
+          profilePic.style.backgroundImage = `url('${base64}')`;
+        }
+
+        // Opcional: Feedback
+        // showToast("Foto atualizada com sucesso!", "success");
       }
+    } catch (e) {
+      console.error("Erro ao salvar foto de perfil:", e);
+      showToast("Erro ao processar imagem.", "error");
+    }
   }
 
   /**
@@ -483,7 +483,7 @@ class RelacionamentoApp {
   renderPaymentTableGeneric(containerId, data, type, emptyMessage, filter) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Filtro unificado
     const filteredData = data.filter(p => !filter || (p.id_parceiro && p.id_parceiro.toString().includes(filter)));
 
@@ -498,7 +498,7 @@ class RelacionamentoApp {
     // Se for Pagamento (agrupado por data), a lógica muda um pouco, mas vamos uniformizar para lista simples ou manter o agrupamento?
     // O original `renderPagamentos` agrupa por data. `renderResgates` é lista corrida.
     // Vamos manter a distinção na renderização final.
-    
+
     if (type === 'resgate') {
       const rows = filteredData.map(p => this.createPaymentRow(p, type)).join("");
       container.innerHTML = `<div class="overflow-x-auto"><table><thead><tr><th>Data</th><th>ID Parceiro</th><th>Parceiro</th><th>Consultor</th><th class="text-right">Valor RT</th><th class="text-center">Pago</th><th>Anexar Comprovante</th><th class="text-center">Ver</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -596,27 +596,27 @@ class RelacionamentoApp {
 
     const headerRtAcumulado = this.schemaHasRtAcumulado
       ? `<th class="sortable-header cursor-pointer" data-sort="rt_acumulado">RT Acumulado ${getSortIcon(
-          "rt_acumulado"
-        )}</th>`
+        "rt_acumulado"
+      )}</th>`
       : "";
     const headerRtTotal = this.schemaHasRtTotalPago
       ? `<th class="sortable-header cursor-pointer" data-sort="rt_total_pago">Total Pago ${getSortIcon(
-          "rt_total_pago"
-        )}</th>`
+        "rt_total_pago"
+      )}</th>`
       : "";
     const headerRow = `<tr>
                                 <th class="sortable-header cursor-pointer" data-sort="id">ID ${getSortIcon(
-                                  "id"
-                                )}</th>
+      "id"
+    )}</th>
                                 <th class="sortable-header cursor-pointer" data-sort="nome">Nome ${getSortIcon(
-                                  "nome"
-                                )}</th>
+      "nome"
+    )}</th>
                                 <th class="sortable-header cursor-pointer text-center" data-sort="salesCount">Vendas ${getSortIcon(
-                                  "salesCount"
-                                )}</th>
+      "salesCount"
+    )}</th>
                                 <th class="sortable-header cursor-pointer text-right" data-sort="valorVendasTotal">Valor Vendas ${getSortIcon(
-                                  "valorVendasTotal"
-                                )}</th>
+      "valorVendasTotal"
+    )}</th>
                                 ${headerRtAcumulado}${headerRtTotal}
                                 <th class="text-center">Ações</th></tr>`;
 
@@ -625,35 +625,30 @@ class RelacionamentoApp {
         let cellRtAcumulado = "";
         if (this.schemaHasRtAcumulado) {
           const rtAcumulado = a.rt_acumulado || 0;
-          cellRtAcumulado = `<td class="text-right font-semibold ${
-            rtAcumulado >= this.minPaymentValue ? "text-primary" : ""
-          }">${formatCurrency(rtAcumulado)}</td>`;
+          cellRtAcumulado = `<td class="text-right font-semibold ${rtAcumulado >= this.minPaymentValue ? "text-primary" : ""
+            }">${formatCurrency(rtAcumulado)}</td>`;
         }
         const cellRtTotal = this.schemaHasRtTotalPago
           ? `<td class="text-right">${formatCurrency(
-              a.rt_total_pago || 0
-            )}</td>`
+            a.rt_total_pago || 0
+          )}</td>`
           : "";
         return `<tr>
-                <td><a href="#" class="id-link text-primary/80 hover:text-primary font-semibold" data-id="${
-                  a.id
-                }">${a.id}</a></td>
+                <td><a href="#" class="id-link text-primary/80 hover:text-primary font-semibold" data-id="${a.id
+          }">${a.id}</a></td>
                 <td>${a.nome}</td>
                 <td class="text-center">${a.salesCount || 0}</td>
                 <td class="text-right">${formatCurrency(
-                  a.valorVendasTotal || 0
-                )}</td>
+            a.valorVendasTotal || 0
+          )}</td>
                 ${cellRtAcumulado}${cellRtTotal}
                 <td class="text-center">
-                    <button class="add-value-btn text-green-400 hover:text-green-300" title="Adicionar Valor Manual" data-id="${
-                      a.id
-                    }"><span class="material-symbols-outlined">add_circle</span></button>
-                    <button class="edit-btn text-blue-400 hover:text-blue-300 ml-2" title="Editar" data-id="${
-                      a.id
-                    }"><span class="material-symbols-outlined">edit</span></button>
-                    <button class="delete-btn text-red-500 hover:text-red-400 ml-2" title="Apagar" data-id="${
-                      a.id
-                    }"><span class="material-symbols-outlined">delete</span></button>
+                    <button class="add-value-btn text-green-400 hover:text-green-300" title="Adicionar Valor Manual" data-id="${a.id
+          }"><span class="material-symbols-outlined">add_circle</span></button>
+                    <button class="edit-btn text-blue-400 hover:text-blue-300 ml-2" title="Editar" data-id="${a.id
+          }"><span class="material-symbols-outlined">edit</span></button>
+                    <button class="delete-btn text-red-500 hover:text-red-400 ml-2" title="Apagar" data-id="${a.id
+          }"><span class="material-symbols-outlined">delete</span></button>
                 </td></tr>`;
       })
       .join("");
@@ -729,16 +724,14 @@ class RelacionamentoApp {
           return `
                 <tr>
                     <td>${c.id_parceiro}</td>
-                    <td><a href="#" class="view-comissao-details-btn text-primary/80 hover:text-primary font-semibold" data-comissao-id="${
-                      c.id
-                    }">${c.id_venda || "N/A"}</a></td>
+                    <td><a href="#" class="view-comissao-details-btn text-primary/80 hover:text-primary font-semibold" data-comissao-id="${c.id
+            }">${c.id_venda || "N/A"}</a></td>
                     <td>${formatApiDateToBR(c.data_venda)}</td>
                     <td class="text-right">${formatCurrency(c.valor_venda)}</td>
                     <td title="${escapeHTML(c.justificativa)}">${escapeHTML((
-            c.justificativa || ""
-          ).substring(0, 30))}${
-            c.justificativa && c.justificativa.length > 30 ? "..." : ""
-          }</td>
+              c.justificativa || ""
+            ).substring(0, 30))}${c.justificativa && c.justificativa.length > 30 ? "..." : ""
+            }</td>
                     <td>${escapeHTML(c.consultor || "")}</td>
                     <td class="text-center"><span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">${statusText}</span></td>
                 </tr>`;
@@ -922,7 +915,7 @@ class RelacionamentoApp {
     let dataToRender = this.sysledData.filter((row) => {
       // 1. REGRA CRÍTICA: STATUS 9
       // Só exibe se pedidoStatus for "9". Se for qualquer outra coisa (ex: "1"), ignora.
-      if (String(row.pedidoStatus) !== "9" ) return false;
+      if (String(row.pedidoStatus) !== "9") return false;
 
       // 2. REGRA DE EXCLUSÃO (Parceiro 0 e 11)
       const pCodigo = String(row.parceiroCodigo || "").trim();
@@ -971,9 +964,8 @@ class RelacionamentoApp {
     );
 
     if (pageData.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="${
-        Object.keys(this.sysledData[0] || {}).length
-      }" class="text-center text-gray-500 py-32 italic">
+      tbody.innerHTML = `<tr><td colspan="${Object.keys(this.sysledData[0] || {}).length
+        }" class="text-center text-gray-500 py-32 italic">
             <div class="flex flex-col items-center gap-2"><span class="material-symbols-outlined text-4xl opacity-20">search_off</span><span>Nenhum resultado encontrado.</span></div>
         </td></tr>`;
     } else {
@@ -993,9 +985,8 @@ class RelacionamentoApp {
                 if (cellValue !== null && !isNaN(Number(String(cellValue))))
                   cellValue = formatApiNumberToBR(cellValue);
               }
-              return `<td class="px-6 py-4 whitespace-nowrap text-center truncate max-w-[200px]" title="${cellValue}">${
-                cellValue ?? "-"
-              }</td>`;
+              return `<td class="px-6 py-4 whitespace-nowrap text-center truncate max-w-[200px]" title="${cellValue}">${cellValue ?? "-"
+                }</td>`;
             })
             .join("");
 
@@ -1019,22 +1010,18 @@ class RelacionamentoApp {
     }
 
     paginationContainer.innerHTML = `
-        <span class="text-xs text-gray-500 font-medium">Mostrando <b class="text-gray-300">${
-          totalItems > 0 ? startIndex + 1 : 0
-        }</b> - <b class="text-gray-300">${Math.min(
-      endIndex,
-      totalItems
-    )}</b> de <b class="text-gray-300">${totalItems}</b></span>
+        <span class="text-xs text-gray-500 font-medium">Mostrando <b class="text-gray-300">${totalItems > 0 ? startIndex + 1 : 0
+      }</b> - <b class="text-gray-300">${Math.min(
+        endIndex,
+        totalItems
+      )}</b> de <b class="text-gray-300">${totalItems}</b></span>
         <div class="flex gap-2">
-            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="prev" ${
-              this.sysledPage === 1 ? "disabled" : ""
-            }><span class="material-symbols-outlined text-lg">chevron_left</span></button>
-            <div class="flex items-center px-3 bg-white/5 rounded text-xs font-mono text-emerald-400 border border-white/5 font-bold">${
-              this.sysledPage
-            } / ${totalPages || 1}</div>
-            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="next" ${
-              this.sysledPage >= totalPages ? "disabled" : ""
-            }><span class="material-symbols-outlined text-lg">chevron_right</span></button>
+            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="prev" ${this.sysledPage === 1 ? "disabled" : ""
+      }><span class="material-symbols-outlined text-lg">chevron_left</span></button>
+            <div class="flex items-center px-3 bg-white/5 rounded text-xs font-mono text-emerald-400 border border-white/5 font-bold">${this.sysledPage
+      } / ${totalPages || 1}</div>
+            <button class="sysled-page-btn flex items-center justify-center w-8 h-8 rounded hover:bg-white/10 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all" data-action="next" ${this.sysledPage >= totalPages ? "disabled" : ""
+      }><span class="material-symbols-outlined text-lg">chevron_right</span></button>
         </div>`;
 
     if (termoBusca) {
@@ -1166,8 +1153,7 @@ class RelacionamentoApp {
         const optionsHtml = roles
           .map(
             (role) =>
-              `<option value="${role}" ${
-                user.role === role ? "selected" : ""
+              `<option value="${role}" ${user.role === role ? "selected" : ""
               }>${role.charAt(0).toUpperCase() + role.slice(1)}</option>`
           )
           .join("");
@@ -1389,14 +1375,12 @@ class RelacionamentoApp {
     const rowsHtml = this.eligibleForPayment
       .map(
         (a) => `
-            <tr><td>${a.id}</td><td>${
-          a.nome
-        }</td><td class="text-right font-semibold text-primary">${formatCurrency(
-          a.rt_acumulado || 0
-        )}</td><td>${
-          (a.tipo_chave_pix ? a.tipo_chave_pix + ": " : "") +
+            <tr><td>${a.id}</td><td>${a.nome
+          }</td><td class="text-right font-semibold text-primary">${formatCurrency(
+            a.rt_acumulado || 0
+          )}</td><td>${(a.tipo_chave_pix ? a.tipo_chave_pix + ": " : "") +
           (a.pix || "Não cadastrado")
-        }</td></tr>`
+          }</td></tr>`
       )
       .join("");
     container.innerHTML = `<table><thead><tr><th>ID</th><th>Nome</th><th class="text-right">Valor a Pagar</th><th>Chave PIX</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
@@ -1433,8 +1417,7 @@ class RelacionamentoApp {
     const detailsHtml = Object.entries(saleData)
       .map(
         ([key, value]) =>
-          `<tr><td class="p-2 font-semibold text-gray-300 align-top">${key}</td><td class="p-2 text-gray-100">${
-            value ?? ""
+          `<tr><td class="p-2 font-semibold text-gray-300 align-top">${key}</td><td class="p-2 text-gray-100">${value ?? ""
           }</td></tr>`
       )
       .join("");
@@ -1493,10 +1476,8 @@ class RelacionamentoApp {
     ]
       .map(
         (item) =>
-          `<div class="grid grid-cols-3 gap-2"><p class="font-medium text-gray-400 col-span-1">${
-            item.label
-          }:</p><div class="col-span-2 ${
-            item.pre ? "whitespace-pre-wrap" : ""
+          `<div class="grid grid-cols-3 gap-2"><p class="font-medium text-gray-400 col-span-1">${item.label
+          }:</p><div class="col-span-2 ${item.pre ? "whitespace-pre-wrap" : ""
           }">${item.pre ? escapeHTML(item.value) : item.value}</div></div>`
       )
       .join("");
@@ -1767,7 +1748,7 @@ class RelacionamentoApp {
       if (error) {
         showToast(
           "AVISO: Os dados dos arquitetos foram atualizados, mas ocorreu um erro ao salvar o histórico de importação para evitar duplicatas. Vendas podem ser importadas novamente no futuro. Erro: " +
-            error.message, "warning"
+          error.message, "warning"
         );
         console.error("Erro ao salvar na tabela sysled_imports:", error);
       }
@@ -2100,8 +2081,7 @@ class RelacionamentoApp {
         this.arquitetos[index] = data;
         this.pontuacoes[id] = data.pontos;
         await this.logAction(
-          `Adicionou venda manual de ${formatCurrency(value)} para ${
-            arq.nome
+          `Adicionou venda manual de ${formatCurrency(value)} para ${arq.nome
           } (ID: ${id})`
         );
         this.renderAll();
@@ -2236,29 +2216,29 @@ class RelacionamentoApp {
     const roleEl = document.getElementById("settings-user-role");
 
     if (this.currentUserEmail) {
-        emailEl.textContent = this.currentUserEmail;
-        // Tenta pegar o nome do mapa de assinados (se houver) ou usa o email
-        // Como não temos nome no auth.user, usamos o email ou lookup se possível
-        nameEl.textContent = this.currentUserEmail.split('@')[0]; 
-        
-        // Carrega foto salva localmente
-        const savedPic = localStorage.getItem(`pilar_profile_pic_${this.currentUserEmail}`);
-        if(savedPic && profilePic) {
-            profilePic.style.backgroundImage = `url('${savedPic}')`;
-        }
+      emailEl.textContent = this.currentUserEmail;
+      // Tenta pegar o nome do mapa de assinados (se houver) ou usa o email
+      // Como não temos nome no auth.user, usamos o email ou lookup se possível
+      nameEl.textContent = this.currentUserEmail.split('@')[0];
+
+      // Carrega foto salva localmente
+      const savedPic = localStorage.getItem(`pilar_profile_pic_${this.currentUserEmail}`);
+      if (savedPic && profilePic) {
+        profilePic.style.backgroundImage = `url('${savedPic}')`;
+      }
     }
 
     if (roleEl) {
-        const role = permissionsManager.getUserRole();
-        roleEl.textContent = role.toUpperCase();
-        // Cores baseadas no cargo
-        if (role === 'admin') {
-            roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30";
-        } else if (role === 'manager') {
-            roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30";
-        } else {
-            roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-gray-500/20 text-gray-400 border border-gray-500/30";
-        }
+      const role = permissionsManager.getUserRole();
+      roleEl.textContent = role.toUpperCase();
+      // Cores baseadas no cargo
+      if (role === 'admin') {
+        roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30";
+      } else if (role === 'manager') {
+        roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30";
+      } else {
+        roleEl.className = "px-2 py-0.5 rounded text-xs font-semibold bg-gray-500/20 text-gray-400 border border-gray-500/30";
+      }
     }
   }
 
@@ -2282,8 +2262,7 @@ class RelacionamentoApp {
       else {
         pagamento.pago = isChecked;
         await this.logAction(
-          `Marcou ${type} (ID: ${pagamentoId}) para ${
-            pagamento.parceiro
+          `Marcou ${type} (ID: ${pagamentoId}) para ${pagamento.parceiro
           } como ${isChecked ? "PAGO" : "NÃO PAGO"}.`
         );
         this.renderResultados();
@@ -2459,8 +2438,7 @@ class RelacionamentoApp {
           (arq) => arq.id === p.id_parceiro
         );
         const chavePix = arquiteto
-          ? `${arquiteto.tipo_chave_pix || ""} ${
-              arquiteto.pix || "Não cadastrada"
+          ? `${arquiteto.tipo_chave_pix || ""} ${arquiteto.pix || "Não cadastrada"
             }`.trim()
           : "Não encontrado";
 
@@ -2610,8 +2588,7 @@ class RelacionamentoApp {
     }
     if (
       confirm(
-        `Gerar pagamento de ${formatCurrency(valor)} para ${
-          arq.nome
+        `Gerar pagamento de ${formatCurrency(valor)} para ${arq.nome
         }? O saldo será zerado.`
       )
     ) {
@@ -2659,13 +2636,12 @@ class RelacionamentoApp {
       if (updateError)
         showToast(
           "Comprovante gerado, mas erro ao atualizar saldo: " +
-            updateError.message, "warning"
+          updateError.message, "warning"
         );
       else {
         showToast(`Comprovante gerado com sucesso para ${arq.nome}!`, "success");
         await this.logAction(
-          `Gerou pagamento individual de ${formatCurrency(valor)} para ${
-            arq.nome
+          `Gerou pagamento individual de ${formatCurrency(valor)} para ${arq.nome
           } (ID: ${id}).`
         );
       }
@@ -2677,7 +2653,8 @@ class RelacionamentoApp {
   }
 
   /**
-   * CORRIGIDO: Gera um resgate a partir da ficha do arquiteto, similar ao Gerar Pagamento.
+   * Abre o modal para resgate parcial do arquiteto.
+   * Permite ao usuário escolher o valor do resgate.
    */
   async handleGerarResgateFicha() {
     console.log("Iniciando handleGerarResgateFicha...");
@@ -2695,123 +2672,187 @@ class RelacionamentoApp {
     }
     console.log("handleGerarResgateFicha: Arquiteto encontrado:", arq);
 
-    const valor = parseFloat(arq.rt_acumulado || 0);
-    console.log("handleGerarResgateFicha: Valor do resgate:", valor);
+    const saldo = parseFloat(arq.rt_acumulado || 0);
+    console.log("handleGerarResgateFicha: Saldo disponível:", saldo);
 
-    if (valor <= 0) {
+    if (saldo <= 0) {
       showToast("Arquiteto sem saldo de RT acumulado para resgate.", "warning");
       return;
     }
 
-    if (
-      confirm(
-        `Gerar resgate de ${formatCurrency(valor)} para ${
-          arq.nome
-        }? O saldo será zerado.`
-      )
-    ) {
-      console.log("handleGerarResgateFicha: Usuário confirmou o resgate.");
+    // Abrir modal de resgate parcial
+    this.openResgateParcialModal(arq, saldo);
+  }
 
-      // Busca o último consultor associado a uma venda para este parceiro
-      const { data: latestImport, error: consultantError } = await supabase
-        .from("sysled_imports")
-        .select("consultor")
-        .eq("id_parceiro", arq.id)
-        .order("data_finalizacao_prevenda", { ascending: false })
-        .limit(1)
-        .single();
+  /**
+   * Abre o modal de resgate parcial com as informações do arquiteto.
+   */
+  openResgateParcialModal(arq, saldo) {
+    document.getElementById("resgate-parcial-arquiteto-id").value = arq.id;
+    document.getElementById("resgate-parcial-arquiteto-nome").textContent =
+      `Arquiteto: ${arq.nome} (ID: ${arq.id})`;
+    document.getElementById("resgate-parcial-saldo").textContent = formatCurrency(saldo);
+    document.getElementById("resgate-parcial-valor").value = "";
+    document.getElementById("resgate-parcial-valor").max = saldo;
+    document.getElementById("resgate-parcial-restante").textContent = formatCurrency(saldo);
+    document.getElementById("resgate-parcial-error").classList.add("hidden");
 
-      if (consultantError && consultantError.code !== "PGRST116") {
-        // PGRST116 = no rows found, which is ok
-        console.error(
-          "handleGerarResgateFicha: Erro ao buscar consultor:",
-          consultantError
-        );
-      }
-      const consultantName = latestImport ? latestImport.consultor : null;
-      console.log(
-        "handleGerarResgateFicha: Consultor encontrado:",
-        consultantName
-      );
+    const modal = document.getElementById("resgate-parcial-modal");
+    modal.onclick = (e) => {
+      if (e.target === modal) this.closeResgateParcialModal();
+    };
+    modal.classList.add("active");
+  }
 
-      const todayDB = new Date().toISOString().slice(0, 10);
+  /**
+   * Fecha o modal de resgate parcial.
+   */
+  closeResgateParcialModal() {
+    document.getElementById("resgate-parcial-modal").classList.remove("active");
+  }
 
-      const payload = {
-        id_parceiro: arq.id,
-        parceiro: arq.nome,
-        rt_valor: valor,
-        pago: false,
-        data_geracao: todayDB,
-        consultor: consultantName,
-        form_pagamento: 2, // Identifica o registro como um RESGATE
-      };
-      console.log(
-        "handleGerarResgateFicha: Enviando payload para Supabase:",
-        payload
-      );
+  /**
+   * Atualiza o saldo restante em tempo real conforme o usuário digita o valor.
+   */
+  handleResgateParcialValorChange() {
+    const id = document.getElementById("resgate-parcial-arquiteto-id").value;
+    const arq = this.arquitetos.find((a) => a.id === id);
+    if (!arq) return;
 
-      // Insere o novo registro na tabela 'pagamentos' com form_pagamento = 2
-      const { error: insertError } = await supabase
-        .from("pagamentos")
-        .insert([payload]);
+    const saldo = parseFloat(arq.rt_acumulado || 0);
+    const valorInput = parseFloat(document.getElementById("resgate-parcial-valor").value) || 0;
+    const restante = saldo - valorInput;
+    const errorEl = document.getElementById("resgate-parcial-error");
 
-      if (insertError) {
-        console.error(
-          "handleGerarResgateFicha: Erro ao inserir resgate no Supabase:",
-          insertError
-        );
-        showToast("Erro ao gerar resgate: " + insertError.message, "error");
-        return;
-      }
-      console.log("handleGerarResgateFicha: Resgate inserido com sucesso.");
-
-      // Zera o saldo acumulado e atualiza o total pago do arquiteto
-      const updatePayload = {
-        rt_acumulado: 0,
-        rt_total_pago: (parseFloat(arq.rt_total_pago) || 0) + valor,
-      };
-      console.log(
-        "handleGerarResgateFicha: Atualizando arquiteto com payload:",
-        updatePayload
-      );
-
-      const { error: updateError } = await supabase
-        .from("arquitetos")
-        .update(updatePayload)
-        .eq("id", arq.id);
-
-      if (updateError) {
-        console.error(
-          "handleGerarResgateFicha: Erro ao atualizar saldo do arquiteto:",
-          updateError
-        );
-        showToast(
-          "Resgate gerado, mas erro ao atualizar saldo do arquiteto: " +
-            updateError.message, "error"
-        );
-      } else {
-        console.log(
-          "handleGerarResgateFicha: Saldo do arquiteto atualizado com sucesso."
-        );
-        showToast(
-          `Resgate de ${formatCurrency(valor)} gerado com sucesso para ${
-            arq.nome
-          }!`, "success"
-        );
-        await this.logAction(
-          `Gerou resgate individual de ${formatCurrency(valor)} para ${
-            arq.nome
-          } (ID: ${id}).`
-        );
-      }
-
-      this.closeEditModal();
-      await this.loadData();
-      this.renderAll();
-      document.querySelector('.menu-link[data-tab="resgates"]').click();
+    if (valorInput > saldo) {
+      document.getElementById("resgate-parcial-restante").textContent = "R$ 0,00";
+      errorEl.textContent = "O valor não pode ser maior que o saldo disponível.";
+      errorEl.classList.remove("hidden");
+    } else if (valorInput <= 0) {
+      document.getElementById("resgate-parcial-restante").textContent = formatCurrency(saldo);
+      errorEl.classList.add("hidden");
     } else {
-      console.log("handleGerarResgateFicha: Usuário cancelou o resgate.");
+      document.getElementById("resgate-parcial-restante").textContent = formatCurrency(restante);
+      errorEl.classList.add("hidden");
     }
+  }
+
+  /**
+   * Processa o resgate parcial com o valor escolhido pelo usuário.
+   */
+  async handleResgateParcialSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("resgate-parcial-arquiteto-id").value;
+    const arq = this.arquitetos.find((a) => a.id === id);
+
+    if (!arq) {
+      showToast("Erro: Arquiteto não encontrado.", "error");
+      return;
+    }
+
+    const saldo = parseFloat(arq.rt_acumulado || 0);
+    const valorResgate = parseFloat(document.getElementById("resgate-parcial-valor").value);
+
+    // Validações
+    if (isNaN(valorResgate) || valorResgate <= 0) {
+      showToast("Por favor, informe um valor válido para o resgate.", "error");
+      return;
+    }
+
+    if (valorResgate > saldo) {
+      showToast("O valor do resgate não pode ser maior que o saldo disponível.", "error");
+      return;
+    }
+
+    console.log("handleResgateParcialSubmit: Processando resgate de", valorResgate, "para", arq.nome);
+
+    // Busca o último consultor associado a uma venda para este parceiro
+    const { data: latestImport, error: consultantError } = await supabase
+      .from("sysled_imports")
+      .select("consultor")
+      .eq("id_parceiro", arq.id)
+      .order("data_finalizacao_prevenda", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (consultantError && consultantError.code !== "PGRST116") {
+      console.error(
+        "handleResgateParcialSubmit: Erro ao buscar consultor:",
+        consultantError
+      );
+    }
+    const consultantName = latestImport ? latestImport.consultor : null;
+
+    const todayDB = new Date().toISOString().slice(0, 10);
+
+    const payload = {
+      id_parceiro: arq.id,
+      parceiro: arq.nome,
+      rt_valor: valorResgate,
+      pago: false,
+      data_geracao: todayDB,
+      consultor: consultantName,
+      form_pagamento: 2, // Identifica o registro como um RESGATE
+    };
+    console.log("handleResgateParcialSubmit: Enviando payload para Supabase:", payload);
+
+    // Insere o novo registro na tabela 'pagamentos' com form_pagamento = 2
+    const { error: insertError } = await supabase
+      .from("pagamentos")
+      .insert([payload]);
+
+    if (insertError) {
+      console.error(
+        "handleResgateParcialSubmit: Erro ao inserir resgate no Supabase:",
+        insertError
+      );
+      showToast("Erro ao gerar resgate: " + insertError.message, "error");
+      return;
+    }
+    console.log("handleResgateParcialSubmit: Resgate inserido com sucesso.");
+
+    // Calcula o novo saldo (abate apenas o valor do resgate)
+    const novoSaldo = saldo - valorResgate;
+    const novoTotalPago = (parseFloat(arq.rt_total_pago) || 0) + valorResgate;
+
+    const updatePayload = {
+      rt_acumulado: novoSaldo,
+      rt_total_pago: novoTotalPago,
+    };
+    console.log("handleResgateParcialSubmit: Atualizando arquiteto com payload:", updatePayload);
+
+    const { error: updateError } = await supabase
+      .from("arquitetos")
+      .update(updatePayload)
+      .eq("id", arq.id);
+
+    if (updateError) {
+      console.error(
+        "handleResgateParcialSubmit: Erro ao atualizar saldo do arquiteto:",
+        updateError
+      );
+      showToast(
+        "Resgate gerado, mas erro ao atualizar saldo do arquiteto: " +
+        updateError.message, "error"
+      );
+    } else {
+      console.log("handleResgateParcialSubmit: Saldo do arquiteto atualizado com sucesso.");
+      showToast(
+        `Resgate de ${formatCurrency(valorResgate)} gerado com sucesso para ${arq.nome
+        }! Saldo restante: ${formatCurrency(novoSaldo)}`, "success"
+      );
+      await this.logAction(
+        `Gerou resgate parcial de ${formatCurrency(valorResgate)} para ${arq.nome
+        } (ID: ${id}). Saldo restante: ${formatCurrency(novoSaldo)}.`
+      );
+    }
+
+    this.closeResgateParcialModal();
+    this.closeEditModal();
+    await this.loadData();
+    this.renderAll();
+    document.querySelector('.menu-link[data-tab="resgates"]').click();
   }
 
   /**
@@ -3206,7 +3247,7 @@ class RelacionamentoApp {
       if (manualError) {
         showToast(
           "Erro ao verificar duplicidade de comissão manual: " +
-            manualError.message, "error"
+          manualError.message, "error"
         );
         return;
       }
@@ -3334,7 +3375,7 @@ class RelacionamentoApp {
     if (comissaoError) {
       showToast(
         "Dados do arquiteto atualizados, mas falha ao marcar comissão como aprovada: " +
-          comissaoError.message, "error"
+        comissaoError.message, "error"
       );
     }
 
@@ -3354,8 +3395,7 @@ class RelacionamentoApp {
 
     showToast("Comissão aprovada e valores contabilizados com sucesso!", "success");
     await this.logAction(
-      `Aprovou comissão manual de ${formatCurrency(valorVenda)} para ${
-        arq.nome
+      `Aprovou comissão manual de ${formatCurrency(valorVenda)} para ${arq.nome
       } (ID: ${arq.id})`
     );
 
@@ -3613,12 +3653,12 @@ class RelacionamentoApp {
     let start, end;
 
     if (startDate && endDate) {
-        start = new Date(startDate + "T00:00:00");
-        end = new Date(endDate + "T23:59:59");
+      start = new Date(startDate + "T00:00:00");
+      end = new Date(endDate + "T23:59:59");
     } else {
-        // Default: Mês Atual
-        start = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        end = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
+      // Default: Mês Atual
+      start = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      end = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
     }
 
     const isInPeriod = (dateString) => {
@@ -3717,16 +3757,14 @@ class RelacionamentoApp {
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="flex bg-gray-800/50 rounded-lg p-1 border border-white/10">
-                        <button id="btn-view-lista" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                          this.carteiraViewMode === "lista"
-                            ? "bg-emerald-600 text-white shadow-md"
-                            : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }"><span class="material-symbols-outlined text-lg mr-1">list</span>Lista</button>
-                        <button id="btn-view-dashboard" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                          this.carteiraViewMode === "dashboard"
-                            ? "bg-emerald-600 text-white shadow-md"
-                            : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }"><span class="material-symbols-outlined text-lg mr-1 ">monitoring</span>Dash</button>
+                        <button id="btn-view-lista" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === "lista"
+        ? "bg-emerald-600 text-white shadow-md"
+        : "text-gray-400 hover:text-white hover:bg-white/5"
+      }"><span class="material-symbols-outlined text-lg mr-1">list</span>Lista</button>
+                        <button id="btn-view-dashboard" class="flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-all ${this.carteiraViewMode === "dashboard"
+        ? "bg-emerald-600 text-white shadow-md"
+        : "text-gray-400 hover:text-white hover:bg-white/5"
+      }"><span class="material-symbols-outlined text-lg mr-1 ">monitoring</span>Dash</button>
                     </div>
                     <div class="h-6 w-px bg-white/10 mx-1"></div> 
                     <button id="btn-refresh-carteira" class="p-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all shadow-lg active:scale-95" title="Atualizar"><span class="material-symbols-outlined text-lg">refresh</span></button>
@@ -3789,33 +3827,33 @@ class RelacionamentoApp {
     let endDate = null;
 
     if (existingRange && existingRange.includes(" até ")) {
-        [startDate, endDate] = existingRange.split(" até ");
+      [startDate, endDate] = existingRange.split(" até ");
     }
-    
+
     // --- INTIALIZE DATEPICKERS AFTER HTML INSERTION ---
     setTimeout(() => {
-        if (typeof flatpickr !== "undefined") {
-            const picker = flatpickr("#carteira-date-range", {
-                mode: "range",
-                locale: "pt",
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "d/m/Y",
-                theme: "dark",
-                disableMobile: "true",
-                conjunction: " até ",
-                onChange: (selectedDates) => {
-                    if (selectedDates.length === 2) {
-                        // Recalcula KPIs usando os dados em memória (false = sem refresh da API)
-                        this.loadCarteiraWithProgress(false); // Era true, causava reload desnecessário
-                    }
-                }
-            });
-            // Restore values if re-rendering
-            if(startDate && endDate) {
-                picker.setDate([startDate, endDate]);
+      if (typeof flatpickr !== "undefined") {
+        const picker = flatpickr("#carteira-date-range", {
+          mode: "range",
+          locale: "pt",
+          dateFormat: "Y-m-d",
+          altInput: true,
+          altFormat: "d/m/Y",
+          theme: "dark",
+          disableMobile: "true",
+          conjunction: " até ",
+          onChange: (selectedDates) => {
+            if (selectedDates.length === 2) {
+              // Recalcula KPIs usando os dados em memória (false = sem refresh da API)
+              this.loadCarteiraWithProgress(false); // Era true, causava reload desnecessário
             }
+          }
+        });
+        // Restore values if re-rendering
+        if (startDate && endDate) {
+          picker.setDate([startDate, endDate]);
         }
+      }
     }, 50);
 
 
@@ -3895,31 +3933,31 @@ class RelacionamentoApp {
                                 <tr>
                                     <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider text-center">#</th>
                                     <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="id_parceiro">ID ${getSortIcon(
-                                      "id_parceiro"
-                                    )}</th>
+        "id_parceiro"
+      )}</th>
                                     <th class="py-4 px-4 font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="nome">Nome ${getSortIcon(
-                                      "nome"
-                                    )}</th>
+        "nome"
+      )}</th>
                                     <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="vendas">Vendas (Período) ${getSortIcon(
-                                      "vendas"
-                                    )}</th>
+        "vendas"
+      )}</th>
                                     <th class="py-4 px-4 text-right font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="rt_pendentes">RT Pendentes ${getSortIcon(
-                                      "rt_pendentes"
-                                    )}</th>
+        "rt_pendentes"
+      )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="saude_carteira">Conversão ${getSortIcon(
-                                      "saude_carteira"
-                                    )}</th>
+        "saude_carteira"
+      )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="tempo_sem_envio">Tempo s/ Envio ${getSortIcon(
-                                      "tempo_sem_envio"
-                                    )}</th>
+        "tempo_sem_envio"
+      )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Fechados</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Enviados</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="data_envio">Dt Envio ${getSortIcon(
-                                      "data_envio"
-                                    )}</th>
+        "data_envio"
+      )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider cursor-pointer hover:text-white transition-colors sort-trigger" data-col="data_fechamento">Dt Fechamento ${getSortIcon(
-                                      "data_fechamento"
-                                    )}</th>
+        "data_fechamento"
+      )}</th>
                                     <th class="py-4 px-4 text-center font-semibold text-gray-400 text-xs uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
@@ -3957,15 +3995,15 @@ class RelacionamentoApp {
     const rangeVal = rangeInput ? rangeInput.value : "";
     let customStart = null;
     let customEnd = null;
-    
+
     // Flatpickr Range Mode (Alt Input uses ' até ', internal usually ' to ')
     // We rely on the element value or internal flatpickr instance
     if (rangeInput && rangeInput._flatpickr && rangeInput._flatpickr.selectedDates.length === 2) {
-        customStart = rangeInput._flatpickr.selectedDates[0].toISOString().split('T')[0];
-        customEnd = rangeInput._flatpickr.selectedDates[1].toISOString().split('T')[0];
+      customStart = rangeInput._flatpickr.selectedDates[0].toISOString().split('T')[0];
+      customEnd = rangeInput._flatpickr.selectedDates[1].toISOString().split('T')[0];
     } else if (rangeVal && rangeVal.includes(" até ")) {
-         // Fallback manual parse (format d/m/Y expected from Alt)
-         // Note: Parsing depend on locale format. Safer to use Flatpickr instance dates if avail
+      // Fallback manual parse (format d/m/Y expected from Alt)
+      // Note: Parsing depend on locale format. Safer to use Flatpickr instance dates if avail
     }
 
     const CACHE_KEY_CALCULATED = `carteira_calc_${this.carteiraPeriod}_${customStart || "no"}_${customEnd || "no"}`;
@@ -4048,28 +4086,28 @@ class RelacionamentoApp {
         const kpis = this.calculateKPIsFromSubset(
           partnerApiData,
           this.carteiraPeriod,
-          customStart, 
+          customStart,
           customEnd
         );
 
         // Cálculo de RT Pendentes (Req: RT Acumulado + Valores não pagos nos Pagamentos)
         const rtAcumulado = arq ? (parseFloat(arq.rt_acumulado) || 0) : 0;
-        
+
         let rtEmAbertoComprovantes = 0;
         // Itera sobre todos os dias de pagamentos para somar os pendentes deste parceiro
         Object.values(this.pagamentos).forEach(diaPagamentos => {
-            diaPagamentos.forEach(p => {
-                if (String(p.id_parceiro) === String(parceiro.id_parceiro) && !p.pago) {
-                    rtEmAbertoComprovantes += (parseFloat(p.rt_valor) || 0);
-                }
-            });
+          diaPagamentos.forEach(p => {
+            if (String(p.id_parceiro) === String(parceiro.id_parceiro) && !p.pago) {
+              rtEmAbertoComprovantes += (parseFloat(p.rt_valor) || 0);
+            }
+          });
         });
 
         // Adiciona também resgates não pagos
-         this.resgates.forEach(r => {
-            if (String(r.id_parceiro) === String(parceiro.id_parceiro) && !r.pago) {
-                rtEmAbertoComprovantes += (parseFloat(r.rt_valor) || 0);
-            }
+        this.resgates.forEach(r => {
+          if (String(r.id_parceiro) === String(parceiro.id_parceiro) && !r.pago) {
+            rtEmAbertoComprovantes += (parseFloat(r.rt_valor) || 0);
+          }
         });
 
 
@@ -4080,9 +4118,9 @@ class RelacionamentoApp {
         // Se houver filtro de data ativo, só adiciona se tiver activity (projeto_fechado > 0)
         // Opcional: considerar vendas > 0 também como critério
         if (customStart && customEnd) {
-             if (kpis.projeto_fechado === 0 && kpis.vendas_periodo === 0) {
-                 continue; // Pula este parceiro
-             }
+          if (kpis.projeto_fechado === 0 && kpis.vendas_periodo === 0) {
+            continue; // Pula este parceiro
+          }
         }
 
         combinedData.push({
@@ -4161,13 +4199,13 @@ class RelacionamentoApp {
           valA = parseFloat(String(valA).replace("%", "")) || 0;
           valB = parseFloat(String(valB).replace("%", "")) || 0;
         } else if (["data_envio", "data_fechamento"].includes(this.carteiraSortColumn)) {
-            // Tratamento para datas (YYYY-MM-DD)
-            // Se vazio, considera data 'zero' ou algo que vá para o final dependendo da ordem, 
-            // mas geralmente sem data = 0 timestamp
-            const timeA = valA ? new Date(valA).getTime() : 0;
-            const timeB = valB ? new Date(valB).getTime() : 0;
-            valA = timeA;
-            valB = timeB;
+          // Tratamento para datas (YYYY-MM-DD)
+          // Se vazio, considera data 'zero' ou algo que vá para o final dependendo da ordem, 
+          // mas geralmente sem data = 0 timestamp
+          const timeA = valA ? new Date(valA).getTime() : 0;
+          const timeB = valB ? new Date(valB).getTime() : 0;
+          valA = timeA;
+          valB = timeB;
         }
 
         if (valA < valB) return this.carteiraSortDirection === "asc" ? -1 : 1;
@@ -4192,9 +4230,9 @@ class RelacionamentoApp {
         // Filtragem por busca
         const term = this.carteiraSearchTerm.toLowerCase();
         const filteredData = data.filter(item => {
-            if (!term) return true;
-            return (String(item.id_parceiro).toLowerCase().includes(term) || 
-                    String(item.nome || "").toLowerCase().includes(term));
+          if (!term) return true;
+          return (String(item.id_parceiro).toLowerCase().includes(term) ||
+            String(item.nome || "").toLowerCase().includes(term));
         });
 
         const rowsBuffer = filteredData
@@ -4255,7 +4293,7 @@ class RelacionamentoApp {
         tempo_sem_envio: "N/A",
         projeto_fechado: 0,
         projeto_enviado: 0,
-        vendas_periodo: 0, 
+        vendas_periodo: 0,
         data_envio: null,
         data_fechamento: null,
       };
@@ -4268,17 +4306,17 @@ class RelacionamentoApp {
     let dataFim = new Date(); // Default hoje
 
     if (customStart && customEnd) {
-        dataInicio = new Date(customStart + "T00:00:00");
-        dataFim = new Date(customEnd + "T23:59:59");
+      dataInicio = new Date(customStart + "T00:00:00");
+      dataFim = new Date(customEnd + "T23:59:59");
     } else {
-        // Lógica dos presets
-        dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        if (period === "trimestral") {
-            dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
-        } else if (period === "semestral") {
-            dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
-        }
-        // dataFim continua sendo hoje/agora para presets
+      // Lógica dos presets
+      dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      if (period === "trimestral") {
+        dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
+      } else if (period === "semestral") {
+        dataInicio = new Date(hoje.getFullYear(), hoje.getMonth() - 5, 1);
+      }
+      // dataFim continua sendo hoje/agora para presets
     }
 
     const isInPeriod = (dateString) => {
@@ -4292,7 +4330,7 @@ class RelacionamentoApp {
     // 1. Filtrar Vendas Fechadas no Período (Status 9 E Original)
     const vendasFechadas = partnerRecords.filter(
       (p) =>
-        String(p.pedidoStatus) === "9" && 
+        String(p.pedidoStatus) === "9" &&
         (p.idPedidoOriginal === null || p.idPedidoOriginal === "null" || p.idPedidoOriginal === "") &&
         isInPeriod(p.dataFinalizacaoPrevenda)
     );
@@ -4369,8 +4407,8 @@ class RelacionamentoApp {
       item.tempo_sem_envio !== "-" && !isNaN(dias) && dias > 90
         ? "text-red-400 font-bold"
         : dias === 90
-        ? "text-yellow-400 font-bold"
-        : "text-gray-300";
+          ? "text-yellow-400 font-bold"
+          : "text-gray-300";
 
     // Limpeza do Nome
     let cleanName = item.nome || "";
@@ -4380,24 +4418,21 @@ class RelacionamentoApp {
     ).trim();
 
     return `
-            <tr class="group border-b border-white/5 hover:bg-white/5 transition-colors ${
-              index % 2 === 0 ? "bg-white/[0.02]" : ""
-            } animate-fade-in">
+            <tr class="group border-b border-white/5 hover:bg-white/5 transition-colors ${index % 2 === 0 ? "bg-white/[0.02]" : ""
+      } animate-fade-in">
                 <td class="py-4 px-4 text-center text-gray-500 text-xs font-mono select-none">${index + 1}</td>
-                <td class="py-4 px-4 text-gray-400 text-sm font-mono">${
-                  item.id_parceiro
-                }</td>
+                <td class="py-4 px-4 text-gray-400 text-sm font-mono">${item.id_parceiro
+      }</td>
                 <td class="py-4 px-4">
-                    <div class="font-medium text-white truncate max-w-[280px]" title="${
-                      cleanName
-                    }">${cleanName}</div>
+                    <div class="font-medium text-white truncate max-w-[280px]" title="${cleanName
+      }">${cleanName}</div>
                 </td>
                 <td class="py-4 px-4 text-right text-gray-300 font-medium">${formatCurrency(
-                  item.vendas || 0
-                )}</td>
+        item.vendas || 0
+      )}</td>
                 <td class="py-4 px-4 text-right font-bold text-orange-400">${formatCurrency(
-                  item.rt_pendentes || 0
-                )}</td>
+        item.rt_pendentes || 0
+      )}</td>
                 
                 <td class="py-4 px-4 text-center">
                     <span class="inline-block py-1 px-2 rounded text-xs font-bold ${saudeClass}">
@@ -4409,25 +4444,20 @@ class RelacionamentoApp {
                     ${item.tempo_sem_envio}
                 </td>
                 
-                <td class="py-4 px-4 text-center text-gray-300">${
-                  item.projeto_fechado
-                }</td>
-                <td class="py-4 px-4 text-center text-gray-300">${
-                  item.projeto_enviado
-                }</td>
-                <td class="py-4 px-4 text-center text-xs text-gray-400">${
-                  item.data_envio ? formatApiDateToBR(item.data_envio) : "-"
-                }</td>
-                <td class="py-4 px-4 text-center text-xs text-gray-400">${
-                  item.data_fechamento
-                    ? formatApiDateToBR(item.data_fechamento)
-                    : "-"
-                }</td>
+                <td class="py-4 px-4 text-center text-gray-300">${item.projeto_fechado
+      }</td>
+                <td class="py-4 px-4 text-center text-gray-300">${item.projeto_enviado
+      }</td>
+                <td class="py-4 px-4 text-center text-xs text-gray-400">${item.data_envio ? formatApiDateToBR(item.data_envio) : "-"
+      }</td>
+                <td class="py-4 px-4 text-center text-xs text-gray-400">${item.data_fechamento
+        ? formatApiDateToBR(item.data_fechamento)
+        : "-"
+      }</td>
 
                 <td class="py-4 px-4 text-center">
-                    <button class="delete-carteira-btn p-2 rounded-full hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-all" title="Remover" data-id="${
-                      item.id_parceiro
-                    }">
+                    <button class="delete-carteira-btn p-2 rounded-full hover:bg-red-500/20 text-gray-500 hover:text-red-400 transition-all" title="Remover" data-id="${item.id_parceiro
+      }">
                         <span class="material-symbols-outlined text-lg">delete</span>
                     </button>
                 </td>
@@ -4582,69 +4612,69 @@ class RelacionamentoApp {
           this.deleteCarteiraParceiro(e.currentTarget.dataset.id);
         });
       });
-      
+
       // Search Listener
       const searchInput = document.getElementById("carteira-search-input");
       if (searchInput) {
-          // Remover listener antigo clonando
-          const newSearch = searchInput.cloneNode(true);
-          searchInput.parentNode.replaceChild(newSearch, searchInput);
-          
-          newSearch.addEventListener("input", (e) => {
-              this.carteiraSearchTerm = e.target.value;
-              // Recarrega do cache para aplicar filtro
-              this.loadCarteiraWithProgress();
-          });
-          
-          // Mantém o foco
-          newSearch.focus();
-          // Coloca o cursor no final
-          const val = newSearch.value;
-          newSearch.value = '';
-          newSearch.value = val;
+        // Remover listener antigo clonando
+        const newSearch = searchInput.cloneNode(true);
+        searchInput.parentNode.replaceChild(newSearch, searchInput);
+
+        newSearch.addEventListener("input", (e) => {
+          this.carteiraSearchTerm = e.target.value;
+          // Recarrega do cache para aplicar filtro
+          this.loadCarteiraWithProgress();
+        });
+
+        // Mantém o foco
+        newSearch.focus();
+        // Coloca o cursor no final
+        const val = newSearch.value;
+        newSearch.value = '';
+        newSearch.value = val;
       }
-      
+
       // Churn Card Listener
       const churnCard = document.getElementById("kpi-churn-card");
       if (churnCard) {
-          // Remove listener antigo
-          const newCard = churnCard.cloneNode(true);
-          churnCard.parentNode.replaceChild(newCard, churnCard);
-          
-          newCard.addEventListener("click", () => {
-              const overlay = document.getElementById("churn-list-overlay");
-              const content = document.getElementById("churn-list-content");
-              
-              if(overlay && content) {
-                  // Filtra parceiros em churn
-                  const churnPartners = this.arquitetos.filter(a => {
-                      // Procura este arquiteto nos dados calculados da tabela (se estiver calculado já)
-                      // Se não, recalcula básico: dia sem envio > 90.
-                      // Melhor pegar do dataset da tabela renderizada se possível, ou recalcular 
-                      // Mas vamos pegar dos DADOS CAlCULADOS salvos no cache/memória
-                      return false; // placeholder, vamos preencher com dados reais
-                  }); 
-                  
-                  // Como não temos acesso fácil a this.combinedData aqui fora do render, 
-                  // vamos refazer a lógica simples ou ler do DOM?
-                  // Melhor ler do DOM quem tem class 'text-red-400 font-bold' na coluna de tempo?
-                  // Não, isso é frágil.
-                  // Vamos pegar do último cálculo salvo no localStorage!
-                  
-                  try {
-                      const cached = localStorage.getItem(`carteira_calc_${this.carteiraPeriod}`);
-                      if(cached) {
-                          const { data } = JSON.parse(cached);
-                          const churns = data.filter(d => {
-                              if(!d.tempo_sem_envio || d.tempo_sem_envio === '-') return false;
-                              const dias = parseInt(d.tempo_sem_envio);
-                              return dias > 90;
-                          }).sort((a,b) => parseInt(b.tempo_sem_envio) - parseInt(a.tempo_sem_envio));
-                          
-                          if(churns.length === 0) {
-                              content.innerHTML = '<p class="text-gray-400 text-center">Nenhum parceiro em risco.</p>';
-                          } else {
-                              content.innerHTML = churns.map(c => `
+        // Remove listener antigo
+        const newCard = churnCard.cloneNode(true);
+        churnCard.parentNode.replaceChild(newCard, churnCard);
+
+        newCard.addEventListener("click", () => {
+          const overlay = document.getElementById("churn-list-overlay");
+          const content = document.getElementById("churn-list-content");
+
+          if (overlay && content) {
+            // Filtra parceiros em churn
+            const churnPartners = this.arquitetos.filter(a => {
+              // Procura este arquiteto nos dados calculados da tabela (se estiver calculado já)
+              // Se não, recalcula básico: dia sem envio > 90.
+              // Melhor pegar do dataset da tabela renderizada se possível, ou recalcular 
+              // Mas vamos pegar dos DADOS CAlCULADOS salvos no cache/memória
+              return false; // placeholder, vamos preencher com dados reais
+            });
+
+            // Como não temos acesso fácil a this.combinedData aqui fora do render, 
+            // vamos refazer a lógica simples ou ler do DOM?
+            // Melhor ler do DOM quem tem class 'text-red-400 font-bold' na coluna de tempo?
+            // Não, isso é frágil.
+            // Vamos pegar do último cálculo salvo no localStorage!
+
+            try {
+              const cached = localStorage.getItem(`carteira_calc_${this.carteiraPeriod}`);
+              if (cached) {
+                const { data } = JSON.parse(cached);
+                const churns = data.filter(d => {
+                  if (!d.tempo_sem_envio || d.tempo_sem_envio === '-') return false;
+                  const dias = parseInt(d.tempo_sem_envio);
+                  return dias > 90;
+                }).sort((a, b) => parseInt(b.tempo_sem_envio) - parseInt(a.tempo_sem_envio));
+
+                if (churns.length === 0) {
+                  content.innerHTML = '<p class="text-gray-400 text-center">Nenhum parceiro em risco.</p>';
+                } else {
+                  content.innerHTML = churns.map(c => `
                                 <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
                                     <div>
                                         <p class="font-bold text-white">${c.nome}</p>
@@ -4655,26 +4685,26 @@ class RelacionamentoApp {
                                     </div>
                                 </div>
                               `).join('');
-                          }
-                      }
-                  } catch(e) {
-                      content.innerHTML = '<p class="text-red-400 text-center">Erro ao carregar lista.</p>';
-                  }
-                  
-                  overlay.classList.remove("hidden");
+                }
               }
-          });
+            } catch (e) {
+              content.innerHTML = '<p class="text-red-400 text-center">Erro ao carregar lista.</p>';
+            }
+
+            overlay.classList.remove("hidden");
+          }
+        });
       }
-      
+
       // Fechar Churn List
       const closeChurnBtn = document.getElementById("close-churn-list-btn");
       const churnOverlay = document.getElementById("churn-list-overlay");
-      
-      if(closeChurnBtn && churnOverlay) {
-          closeChurnBtn.addEventListener("click", () => churnOverlay.classList.add("hidden"));
-          churnOverlay.addEventListener("click", (e) => {
-              if(e.target === churnOverlay) churnOverlay.classList.add("hidden");
-          });
+
+      if (closeChurnBtn && churnOverlay) {
+        closeChurnBtn.addEventListener("click", () => churnOverlay.classList.add("hidden"));
+        churnOverlay.addEventListener("click", (e) => {
+          if (e.target === churnOverlay) churnOverlay.classList.add("hidden");
+        });
       }
     }
   }
@@ -4745,20 +4775,20 @@ class RelacionamentoApp {
     };
 
     safeSetText("kpi-vendas-total", formatCurrency(totalVendas));
-    
+
     // Total RT Pendentes
     const totalRtPendentes = data.reduce(
-        (acc, curr) => acc + (parseFloat(curr.rt_pendentes) || 0),
-        0
+      (acc, curr) => acc + (parseFloat(curr.rt_pendentes) || 0),
+      0
     );
     safeSetText("kpi-rt-pendentes-total", formatCurrency(totalRtPendentes));
-    
+
     // Conversão Média
     safeSetText("kpi-conversao-media", mediaSaude + "%");
 
     // Ticket Médio
     safeSetText("kpi-ticket-medio", formatCurrency(ticketMedio));
-    
+
     // Risco de Churn
     safeSetText("kpi-churn-risk", `${churnRiskCount} Parceiros`);
 
@@ -4767,10 +4797,10 @@ class RelacionamentoApp {
     // FIX: User request -> Denominador deve ser o TOTAL da carteira, não só os filtrados
     const totalParceiros = this.carteira ? this.carteira.length : data.length;
     const numParceirosAtivos = data.filter(p => (p.projeto_fechado || 0) > 0).length;
-    
+
     // Evita divisão por zero
     const saudePercent = totalParceiros > 0 ? (numParceirosAtivos / totalParceiros) * 100 : 0;
-    
+
     safeSetText("kpi-saude-carteira", `${saudePercent.toFixed(1)}%`);
     safeSetText("kpi-saude-carteira-subtext", `${numParceirosAtivos} de ${totalParceiros} arquitetos ativos`);
 
@@ -5176,20 +5206,20 @@ class RelacionamentoApp {
 
     // Só cria a estrutura se ela ainda não existir
     if (!document.getElementById("crm-ui-structure-card")) {
-      
+
       // Gera opções para os selects (Fase e Responsável)
       const stageOptions = Object.entries(this.STAGE_MAP)
         .map(([id, name]) => `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`).join("");
-      
+
       const assignedOptions = Object.entries(this.ASSIGNED_MAP)
         .map(([id, name]) => `<option value="${id}" class="bg-[#0D1A13]">${name}</option>`).join("");
 
       // Helper de ícone de ordenação
       const getSortIcon = (col) => {
-          if (this.crmSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
-          return this.crmSortDirection === 'asc' 
-            ? '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_less</span>' 
-            : '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_more</span>';
+        if (this.crmSortColumn !== col) return '<span class="material-symbols-outlined text-xs text-gray-600 align-middle ml-1">unfold_more</span>';
+        return this.crmSortDirection === 'asc'
+          ? '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_less</span>'
+          : '<span class="material-symbols-outlined text-xs text-emerald-400 align-middle ml-1">expand_more</span>';
       };
 
       // --- INJEÇÃO DO HTML DA ABA ---
@@ -5306,105 +5336,105 @@ class RelacionamentoApp {
             </div>
         </div>`;
 
-        if (this.isBitrixRestricted && this.currentBitrixUserId) {
+      if (this.isBitrixRestricted && this.currentBitrixUserId) {
         const select = document.getElementById("crm-assigned-filter");
-        if(select) select.value = this.currentBitrixUserId;
-    }
+        if (select) select.value = this.currentBitrixUserId;
+      }
 
       // --- EVENT LISTENERS ---
-      
+
       // 1. Abertura do Menu de Filtro Arquiteto
       document.getElementById("crm-architect-header").addEventListener("click", (e) => {
-          e.stopPropagation(); 
-          const menu = document.getElementById("crm-architect-filter-menu");
-          if (menu.classList.contains("hidden")) {
-              this.populateArchitectFilterList(); // Popula lista antes de abrir
-              menu.classList.remove("hidden");
-          } else {
-              menu.classList.add("hidden");
-          }
+        e.stopPropagation();
+        const menu = document.getElementById("crm-architect-filter-menu");
+        if (menu.classList.contains("hidden")) {
+          this.populateArchitectFilterList(); // Popula lista antes de abrir
+          menu.classList.remove("hidden");
+        } else {
+          menu.classList.add("hidden");
+        }
       });
 
       // Fechar menu ao clicar fora
       document.addEventListener("click", (e) => {
-          const menu = document.getElementById("crm-architect-filter-menu");
-          const header = document.getElementById("crm-architect-header");
-          if (menu && !menu.classList.contains("hidden") && !menu.contains(e.target) && !header.contains(e.target)) {
-              menu.classList.add("hidden");
-          }
+        const menu = document.getElementById("crm-architect-filter-menu");
+        const header = document.getElementById("crm-architect-header");
+        if (menu && !menu.classList.contains("hidden") && !menu.contains(e.target) && !header.contains(e.target)) {
+          menu.classList.add("hidden");
+        }
       });
 
       // 2. Ordenação dentro do Menu (A-Z / Z-A)
       document.getElementById("crm-sort-az").addEventListener("click", () => {
-          this.crmSortColumn = "contactName";
-          this.crmSortDirection = "asc";
-          this.renderCrmTableRows();
-          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+        this.crmSortColumn = "contactName";
+        this.crmSortDirection = "asc";
+        this.renderCrmTableRows();
+        document.getElementById("crm-architect-filter-menu").classList.add("hidden");
       });
       document.getElementById("crm-sort-za").addEventListener("click", () => {
-          this.crmSortColumn = "contactName";
-          this.crmSortDirection = "desc";
-          this.renderCrmTableRows();
-          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+        this.crmSortColumn = "contactName";
+        this.crmSortDirection = "desc";
+        this.renderCrmTableRows();
+        document.getElementById("crm-architect-filter-menu").classList.add("hidden");
       });
 
       // 3. Pesquisa dentro do Filtro
       document.getElementById("crm-architect-search").addEventListener("input", (e) => {
-          const term = e.target.value.toLowerCase();
-          const items = document.querySelectorAll(".architect-filter-item");
-          items.forEach(item => {
-              const name = item.querySelector("span").textContent.toLowerCase();
-              item.style.display = name.includes(term) ? "flex" : "none";
-          });
+        const term = e.target.value.toLowerCase();
+        const items = document.querySelectorAll(".architect-filter-item");
+        items.forEach(item => {
+          const name = item.querySelector("span").textContent.toLowerCase();
+          item.style.display = name.includes(term) ? "flex" : "none";
+        });
       });
 
       // 4. Botão OK (Aplicar Filtro)
       document.getElementById("crm-filter-apply").addEventListener("click", () => {
-          const checkboxes = document.querySelectorAll(".architect-checkbox:checked");
-          const selected = Array.from(checkboxes).map(cb => cb.value);
-          
-          const allCheck = document.getElementById("crm-filter-select-all");
-          if (allCheck && allCheck.checked) {
-              this.crmArchitectFilterList = [];
-          } else {
-              this.crmArchitectFilterList = selected;
-          }
-          
-          const icon = document.getElementById("architect-filter-icon");
-          if (this.crmArchitectFilterList.length > 0) {
-              icon.textContent = "filter_alt";
-              icon.classList.add("text-emerald-400");
-          } else {
-              icon.textContent = "filter_list";
-              icon.classList.remove("text-emerald-400");
-          }
+        const checkboxes = document.querySelectorAll(".architect-checkbox:checked");
+        const selected = Array.from(checkboxes).map(cb => cb.value);
 
-          this.crmCurrentPage = 1;
-          this.renderCrmTableRows();
-          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+        const allCheck = document.getElementById("crm-filter-select-all");
+        if (allCheck && allCheck.checked) {
+          this.crmArchitectFilterList = [];
+        } else {
+          this.crmArchitectFilterList = selected;
+        }
+
+        const icon = document.getElementById("architect-filter-icon");
+        if (this.crmArchitectFilterList.length > 0) {
+          icon.textContent = "filter_alt";
+          icon.classList.add("text-emerald-400");
+        } else {
+          icon.textContent = "filter_list";
+          icon.classList.remove("text-emerald-400");
+        }
+
+        this.crmCurrentPage = 1;
+        this.renderCrmTableRows();
+        document.getElementById("crm-architect-filter-menu").classList.add("hidden");
       });
 
       // 5. Botão Limpar
       document.getElementById("crm-filter-clear").addEventListener("click", () => {
-          this.crmArchitectFilterList = [];
-          const icon = document.getElementById("architect-filter-icon");
-          icon.textContent = "filter_list";
-          icon.classList.remove("text-emerald-400");
-          
-          this.crmCurrentPage = 1;
-          this.renderCrmTableRows();
-          document.getElementById("crm-architect-filter-menu").classList.add("hidden");
+        this.crmArchitectFilterList = [];
+        const icon = document.getElementById("architect-filter-icon");
+        icon.textContent = "filter_list";
+        icon.classList.remove("text-emerald-400");
+
+        this.crmCurrentPage = 1;
+        this.renderCrmTableRows();
+        document.getElementById("crm-architect-filter-menu").classList.add("hidden");
       });
 
       // 6. Refresh Global
       document.getElementById("crm-refresh-btn").addEventListener("click", () => {
-         this.crmNextStart = 0; 
-         this.crmDeals = []; 
-         this.crmCurrentPage = 1; 
-         this.crmArchitectFilterList = []; // Limpa filtro de arquiteto
-         const icon = document.getElementById("architect-filter-icon");
-         if(icon) { icon.textContent = "filter_list"; icon.classList.remove("text-emerald-400"); }
-         this.fetchBitrixData(0);
+        this.crmNextStart = 0;
+        this.crmDeals = [];
+        this.crmCurrentPage = 1;
+        this.crmArchitectFilterList = []; // Limpa filtro de arquiteto
+        const icon = document.getElementById("architect-filter-icon");
+        if (icon) { icon.textContent = "filter_list"; icon.classList.remove("text-emerald-400"); }
+        this.fetchBitrixData(0);
       });
 
       // 7. Load More
@@ -5412,35 +5442,35 @@ class RelacionamentoApp {
 
       // 8. Filtro Fase
       document.getElementById("crm-stage-filter").addEventListener("change", (e) => {
-          this.crmStageFilter = e.target.value; 
-          this.crmNextStart = 0; 
-          this.crmDeals = []; 
-          this.crmCurrentPage = 1; 
-          this.fetchBitrixData(0);
+        this.crmStageFilter = e.target.value;
+        this.crmNextStart = 0;
+        this.crmDeals = [];
+        this.crmCurrentPage = 1;
+        this.fetchBitrixData(0);
       });
 
       // 9. Filtro Responsável
       document.getElementById("crm-assigned-filter").addEventListener("change", (e) => {
-          this.crmAssignedFilter = e.target.value; 
-          this.crmNextStart = 0; 
-          this.crmDeals = []; 
-          this.crmCurrentPage = 1; 
-          this.fetchBitrixData(0);
+        this.crmAssignedFilter = e.target.value;
+        this.crmNextStart = 0;
+        this.crmDeals = [];
+        this.crmCurrentPage = 1;
+        this.fetchBitrixData(0);
       });
 
       // 10. Paginação (Anterior/Próximo)
-      document.getElementById("crm-prev-page").addEventListener("click", () => { if (this.crmCurrentPage > 1) { this.crmCurrentPage--; this.renderCrmTableRows(); }});
-      document.getElementById("crm-next-page").addEventListener("click", () => { const total = this.getFilteredData().length; const pages = Math.ceil(total / this.crmItemsPerPage); if (this.crmCurrentPage < pages) { this.crmCurrentPage++; this.renderCrmTableRows(); }});
-      
+      document.getElementById("crm-prev-page").addEventListener("click", () => { if (this.crmCurrentPage > 1) { this.crmCurrentPage--; this.renderCrmTableRows(); } });
+      document.getElementById("crm-next-page").addEventListener("click", () => { const total = this.getFilteredData().length; const pages = Math.ceil(total / this.crmItemsPerPage); if (this.crmCurrentPage < pages) { this.crmCurrentPage++; this.renderCrmTableRows(); } });
+
       // 11. Ordenação (Sort Trigger)
       const headers = container.querySelectorAll(".crm-sort-trigger");
       headers.forEach(th => {
-          th.addEventListener("click", (e) => {
-              const col = e.currentTarget.dataset.col;
-              if(this.crmSortColumn === col) { this.crmSortDirection = this.crmSortDirection === 'asc' ? 'desc' : 'asc'; } 
-              else { this.crmSortColumn = col; this.crmSortDirection = 'asc'; if(col === 'date' || col === 'opportunity') this.crmSortDirection = 'desc'; }
-              this.renderCrmTab(); this.renderCrmTableRows();
-          });
+        th.addEventListener("click", (e) => {
+          const col = e.currentTarget.dataset.col;
+          if (this.crmSortColumn === col) { this.crmSortDirection = this.crmSortDirection === 'asc' ? 'desc' : 'asc'; }
+          else { this.crmSortColumn = col; this.crmSortDirection = 'asc'; if (col === 'date' || col === 'opportunity') this.crmSortDirection = 'desc'; }
+          this.renderCrmTab(); this.renderCrmTableRows();
+        });
       });
     }
 
@@ -5450,15 +5480,15 @@ class RelacionamentoApp {
   }
 
   populateArchitectFilterList() {
-      const listContainer = document.getElementById("crm-architect-list");
-      if (!listContainer) return;
+    const listContainer = document.getElementById("crm-architect-list");
+    if (!listContainer) return;
 
-      // Extrai nomes únicos dos dados carregados
-      const uniqueNames = [...new Set(this.crmDeals.map(d => d.contactName))].sort();
-      
-      const isAllSelected = this.crmArchitectFilterList.length === 0;
+    // Extrai nomes únicos dos dados carregados
+    const uniqueNames = [...new Set(this.crmDeals.map(d => d.contactName))].sort();
 
-      let html = `
+    const isAllSelected = this.crmArchitectFilterList.length === 0;
+
+    let html = `
         <label class="flex items-center gap-2 p-2 hover:bg-white/5 rounded cursor-pointer architect-filter-item">
             <input type="checkbox" id="crm-filter-select-all" class="rounded bg-black/20 border-white/20 text-emerald-500 focus:ring-0" ${isAllSelected ? 'checked' : ''}>
             <span class="text-xs text-gray-200 font-bold">(Selecionar Tudo)</span>
@@ -5466,61 +5496,61 @@ class RelacionamentoApp {
         <div class="h-px bg-white/10 my-1"></div>
       `;
 
-      html += uniqueNames.map(name => {
-          // Se a lista de filtro estiver vazia, todos estão "visualmente" selecionados (comportamento padrão)
-          // Se tiver itens, checa se este está incluso
-          const isChecked = isAllSelected || this.crmArchitectFilterList.includes(name);
-          return `
+    html += uniqueNames.map(name => {
+      // Se a lista de filtro estiver vazia, todos estão "visualmente" selecionados (comportamento padrão)
+      // Se tiver itens, checa se este está incluso
+      const isChecked = isAllSelected || this.crmArchitectFilterList.includes(name);
+      return `
             <label class="flex items-center gap-2 p-2 hover:bg-white/5 rounded cursor-pointer architect-filter-item">
                 <input type="checkbox" value="${name}" class="architect-checkbox rounded bg-black/20 border-white/20 text-emerald-500 focus:ring-0" ${isChecked ? 'checked' : ''}>
                 <span class="text-xs text-gray-300">${name}</span>
             </label>
           `;
-      }).join("");
+    }).join("");
 
-      listContainer.innerHTML = html;
+    listContainer.innerHTML = html;
 
-      // Lógica do "Select All"
-      const selectAll = document.getElementById("crm-filter-select-all");
-      const checkboxes = listContainer.querySelectorAll(".architect-checkbox");
+    // Lógica do "Select All"
+    const selectAll = document.getElementById("crm-filter-select-all");
+    const checkboxes = listContainer.querySelectorAll(".architect-checkbox");
 
-      selectAll.addEventListener("change", (e) => {
-          checkboxes.forEach(cb => cb.checked = e.target.checked);
-      });
+    selectAll.addEventListener("change", (e) => {
+      checkboxes.forEach(cb => cb.checked = e.target.checked);
+    });
   }
 
   getFilteredData() {
-      // 1. Filtro Local de Arquiteto (Se houver seleção)
-      let data = this.crmDeals;
-      if (this.crmArchitectFilterList.length > 0) {
-          data = data.filter(d => this.crmArchitectFilterList.includes(d.contactName));
-      }
+    // 1. Filtro Local de Arquiteto (Se houver seleção)
+    let data = this.crmDeals;
+    if (this.crmArchitectFilterList.length > 0) {
+      data = data.filter(d => this.crmArchitectFilterList.includes(d.contactName));
+    }
 
-      // 2. Ordenação
-      if (this.crmSortColumn) {
-          data.sort((a, b) => {
-              let valA = a[this.crmSortColumn];
-              let valB = b[this.crmSortColumn];
+    // 2. Ordenação
+    if (this.crmSortColumn) {
+      data.sort((a, b) => {
+        let valA = a[this.crmSortColumn];
+        let valB = b[this.crmSortColumn];
 
-              if (this.crmSortColumn === 'contactName' || this.crmSortColumn === 'title') {
-                  valA = valA.toLowerCase();
-                  valB = valB.toLowerCase();
-                  if (valA < valB) return this.crmSortDirection === 'asc' ? -1 : 1;
-                  if (valA > valB) return this.crmSortDirection === 'asc' ? 1 : -1;
-                  return 0;
-              }
-              
-              if (this.crmSortColumn === 'date') {
-                  valA = new Date(valA);
-                  valB = new Date(valB);
-              }
+        if (this.crmSortColumn === 'contactName' || this.crmSortColumn === 'title') {
+          valA = valA.toLowerCase();
+          valB = valB.toLowerCase();
+          if (valA < valB) return this.crmSortDirection === 'asc' ? -1 : 1;
+          if (valA > valB) return this.crmSortDirection === 'asc' ? 1 : -1;
+          return 0;
+        }
 
-              if (valA < valB) return this.crmSortDirection === 'asc' ? -1 : 1;
-              if (valA > valB) return this.crmSortDirection === 'asc' ? 1 : -1;
-              return 0;
-          });
-      }
-      return data;
+        if (this.crmSortColumn === 'date') {
+          valA = new Date(valA);
+          valB = new Date(valB);
+        }
+
+        if (valA < valB) return this.crmSortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return this.crmSortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return data;
   }
 
   /**
@@ -5560,21 +5590,21 @@ class RelacionamentoApp {
       }
 
       if (this.isBitrixRestricted) {
-            // SEGURANÇA MÁXIMA: Se for vendedor, FORÇA o filtro pelo ID dele
-            // Mesmo que ele tente hackear o HTML para mudar o value, aqui sobrescreve.
-            if (this.currentBitrixUserId) {
-                filterObj["ASSIGNED_BY_ID"] = this.currentBitrixUserId;
-            } else {
-                // Se é vendedor mas não achamos o ID no Bitrix (email não bate), 
-                // força um ID inexistente para não mostrar nada (segurança por falha)
-                filterObj["ASSIGNED_BY_ID"] = -1; 
-            }
+        // SEGURANÇA MÁXIMA: Se for vendedor, FORÇA o filtro pelo ID dele
+        // Mesmo que ele tente hackear o HTML para mudar o value, aqui sobrescreve.
+        if (this.currentBitrixUserId) {
+          filterObj["ASSIGNED_BY_ID"] = this.currentBitrixUserId;
         } else {
-            // Se for Admin/Gestor, usa o filtro selecionado na tela (ou vazio para todos)
-            if (this.crmAssignedFilter) {
-                filterObj["ASSIGNED_BY_ID"] = this.crmAssignedFilter;
-            }
+          // Se é vendedor mas não achamos o ID no Bitrix (email não bate), 
+          // força um ID inexistente para não mostrar nada (segurança por falha)
+          filterObj["ASSIGNED_BY_ID"] = -1;
         }
+      } else {
+        // Se for Admin/Gestor, usa o filtro selecionado na tela (ou vazio para todos)
+        if (this.crmAssignedFilter) {
+          filterObj["ASSIGNED_BY_ID"] = this.crmAssignedFilter;
+        }
+      }
 
       const dealResponse = await fetch(
         `${this.bitrixWebhookUrl}crm.deal.list`,
@@ -5726,46 +5756,46 @@ class RelacionamentoApp {
   }
 
   renderCrmTableRows() {
-      const tbody = document.getElementById("crm-table-body");
-      const totalInfo = document.getElementById("crm-total-info");
-      const pageIndicator = document.getElementById("crm-page-indicator");
-      const btnPrev = document.getElementById("crm-prev-page");
-      const btnNext = document.getElementById("crm-next-page");
+    const tbody = document.getElementById("crm-table-body");
+    const totalInfo = document.getElementById("crm-total-info");
+    const pageIndicator = document.getElementById("crm-page-indicator");
+    const btnPrev = document.getElementById("crm-prev-page");
+    const btnNext = document.getElementById("crm-next-page");
 
-      if (!tbody) return;
+    if (!tbody) return;
 
-      // Usa os dados filtrados
-      const filteredData = this.getFilteredData();
+    // Usa os dados filtrados
+    const filteredData = this.getFilteredData();
 
-      // Paginação
-      const totalItems = filteredData.length;
-      const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
-      
-      if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
+    // Paginação
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / this.crmItemsPerPage) || 1;
 
-      const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
-      const endIndex = startIndex + this.crmItemsPerPage;
-      const pageData = filteredData.slice(startIndex, endIndex);
+    if (this.crmCurrentPage > totalPages) this.crmCurrentPage = 1;
 
-      // Info no rodapé
-      if (totalInfo) totalInfo.textContent = `${totalItems} registros visíveis (Total carregado: ${this.crmDeals.length})`;
-      if (pageIndicator) pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
-      if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
-      if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
+    const startIndex = (this.crmCurrentPage - 1) * this.crmItemsPerPage;
+    const endIndex = startIndex + this.crmItemsPerPage;
+    const pageData = filteredData.slice(startIndex, endIndex);
 
-      if (pageData.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio encontrado com estes filtros.</td></tr>`;
-          return;
-      }
+    // Info no rodapé
+    if (totalInfo) totalInfo.textContent = `${totalItems} registros visíveis (Total carregado: ${this.crmDeals.length})`;
+    if (pageIndicator) pageIndicator.textContent = `${this.crmCurrentPage} / ${totalPages}`;
+    if (btnPrev) btnPrev.disabled = this.crmCurrentPage === 1;
+    if (btnNext) btnNext.disabled = this.crmCurrentPage >= totalPages;
 
-     // Renderiza Linhas
-      tbody.innerHTML = pageData.map((deal, index) => {
-          const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
-          let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
-          if (deal.stage === "Ganho") badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
-          if (deal.stage === "Perdido") badgeColor = "bg-red-900 text-red-200 border-red-700";
-          
-          return `
+    if (pageData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-12 italic">Nenhum negócio encontrado com estes filtros.</td></tr>`;
+      return;
+    }
+
+    // Renderiza Linhas
+    tbody.innerHTML = pageData.map((deal, index) => {
+      const bgClass = index % 2 === 0 ? 'bg-transparent' : 'bg-[#10b981]/[0.02]';
+      let badgeColor = "bg-gray-700 text-gray-300 border-gray-600";
+      if (deal.stage === "Ganho") badgeColor = "bg-emerald-900 text-emerald-200 border-emerald-700";
+      if (deal.stage === "Perdido") badgeColor = "bg-red-900 text-red-200 border-red-700";
+
+      return `
             <tr class="${bgClass} hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0 text-gray-300">
                 <td class="px-6 py-4 whitespace-nowrap text-blue-300 font-medium truncate max-w-[220px]" title="${deal.contactName}">
                     ${deal.contactName}
@@ -5785,7 +5815,7 @@ class RelacionamentoApp {
                 </td>
             </tr>
           `;
-      }).join("");
+    }).join("");
   }
 }
 

@@ -53,19 +53,19 @@ export function initializeEventListeners(app) {
 
       // ADICIONE ISTO:
       if (targetTab === "crm-opportunities") {
-          app.renderCrmTab();
+        app.renderCrmTab();
       }
 
       if (targetTab === "consulta-sysled") {
-          // Verifica se já existem dados na memória
-          if (app.sysledData && app.sysledData.length > 0) {
-              // Se JÁ tem dados, apenas redesenha a tabela (instantâneo)
-              console.log("Dados em cache encontrados. Renderizando...");
-              app.renderSysledTable();
-          } else {
-              // Se NÃO tem dados (primeira vez ou F5), busca na API
-              app.fetchSysledData(); 
-          }
+        // Verifica se já existem dados na memória
+        if (app.sysledData && app.sysledData.length > 0) {
+          // Se JÁ tem dados, apenas redesenha a tabela (instantâneo)
+          console.log("Dados em cache encontrados. Renderizando...");
+          app.renderSysledTable();
+        } else {
+          // Se NÃO tem dados (primeira vez ou F5), busca na API
+          app.fetchSysledData();
+        }
       }
 
       // 5. Atualiza URL
@@ -119,6 +119,8 @@ export function initializeEventListeners(app) {
     if (target.closest("#close-comprovante-modal-btn"))
       app.closeComprovanteModal();
     if (target.closest("#cancel-edit-rt-btn")) app.closeEditRtModal();
+    if (target.closest("#cancel-resgate-parcial-btn"))
+      app.closeResgateParcialModal();
     if (target.closest("#cancel-gerar-pagamentos-btn"))
       document
         .getElementById("gerar-pagamentos-modal")
@@ -175,13 +177,13 @@ export function initializeEventListeners(app) {
     }
 
     if (target.closest("#sysled-clear-search-btn")) {
-        // ... (código existente)
+      // ... (código existente)
     }
 
     // --- ADICIONE ISTO AQUI ---
     const deleteSysledBtn = target.closest(".delete-sysled-item-btn");
     if (deleteSysledBtn) {
-        app.handleDeleteSysled(deleteSysledBtn.dataset.id);
+      app.handleDeleteSysled(deleteSysledBtn.dataset.id);
     }
 
     // --- NOVO: Paginação Sysled ---
@@ -216,45 +218,53 @@ export function initializeEventListeners(app) {
       case "novo-arquiteto-form":
         app.handleNovoArquitetoSubmit(e);
         break;
+      case "resgate-parcial-form":
+        app.handleResgateParcialSubmit(e);
+        break;
     }
-  }); 
-  
+  });
+
   // --- DELEGAÇÃO DE EVENTOS DE INPUT E CHANGE ---
   mainContainer.addEventListener("input", (e) => {
-        const target = e.target;
-        const id = target.id;
+    const target = e.target;
+    const id = target.id;
 
-        switch (id) {
-            // Aba Arquitetos (Se ainda existir no seu HTML)
-            case 'arquiteto-search-input':
-                app.renderArquitetosTable();
-                break;
+    switch (id) {
+      // Aba Arquitetos (Se ainda existir no seu HTML)
+      case 'arquiteto-search-input':
+        app.renderArquitetosTable();
+        break;
 
-            // Aba Sysled (Lógica Unificada: Botão X + Render)
-            case 'sysled-filter-search':
-                // 1. Controle visual do botão X
-                const clearBtn = document.getElementById('sysled-clear-search-btn');
-                if (clearBtn) {
-                    if (target.value.trim().length > 0) clearBtn.classList.remove('hidden');
-                    else clearBtn.classList.add('hidden');
-                }
-                
-                // 2. Filtro e Render
-                app.sysledPage = 1; // Sempre volta pra pág 1 ao digitar
-                app.renderSysledTable(); 
-                break;
-
-            // Aba Pagamentos
-            case "pagamento-search-input":
-                app.renderPagamentos(target.value.trim());
-                break;
-
-            // Aba Resgates
-            case "resgate-search-input":
-                app.renderResgates(target.value.trim());
-                break;
+      // Aba Sysled (Lógica Unificada: Botão X + Render)
+      case 'sysled-filter-search':
+        // 1. Controle visual do botão X
+        const clearBtn = document.getElementById('sysled-clear-search-btn');
+        if (clearBtn) {
+          if (target.value.trim().length > 0) clearBtn.classList.remove('hidden');
+          else clearBtn.classList.add('hidden');
         }
-    });
+
+        // 2. Filtro e Render
+        app.sysledPage = 1; // Sempre volta pra pág 1 ao digitar
+        app.renderSysledTable();
+        break;
+
+      // Aba Pagamentos
+      case "pagamento-search-input":
+        app.renderPagamentos(target.value.trim());
+        break;
+
+      // Aba Resgates
+      case "resgate-search-input":
+        app.renderResgates(target.value.trim());
+        break;
+
+      // Modal de Resgate Parcial
+      case "resgate-parcial-valor":
+        app.handleResgateParcialValorChange();
+        break;
+    }
+  });
 
   mainContainer.addEventListener("change", (e) => {
     switch (e.target.id) {
