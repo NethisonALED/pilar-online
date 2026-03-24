@@ -5,5 +5,6 @@ Thumbs.db
 # Ignorar chaves de segurança
 .env
 env.js
+js/config.js
 minha-senha
 node_modules
