@@ -228,14 +228,20 @@ class RelacionamentoApp {
       if (!this.bitrixWebhookUrl || !this.currentUserEmail) return;
 
       try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000); // Timeout de 8s
+
           // Método user.search busca por EMAIL
           const response = await fetch(`${this.bitrixWebhookUserSearch}user.get`, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
                   "filter": { "email": this.currentUserEmail }
-              })
+              }),
+              signal: controller.signal
           });
+          
+          clearTimeout(timeoutId);
 
           const result = await response.json();
 
@@ -318,15 +324,7 @@ class RelacionamentoApp {
     console.time("Tempo de Carregamento"); // Para você medir no console F12
 
     // Promise.all é ótimo, mas sem .limit() ele mata a performance
-    const [
-      arqRes,
-      pagRes,
-      filesRes,
-      comissoesRes,
-      logsRes,
-      usersRes,
-      carteiraRes,
-    ] = await Promise.all([
+    const supabaseCalls = Promise.all([
       supabase.from("arquitetos").select("*"),
 
       // Limitamos a 500 pagamentos mais recentes (ajuste conforme necessidade)
@@ -360,6 +358,19 @@ class RelacionamentoApp {
       supabase.from("profiles").select("id, email, role"),
       supabase.from("carteira").select("*"),
     ]);
+
+    // Timeout de segurança para o Supabase
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout ao carregar dados do banco de dados (15s).")), 15000));
+    
+    const [
+      arqRes,
+      pagRes,
+      filesRes,
+      comissoesRes,
+      logsRes,
+      usersRes,
+      carteiraRes,
+    ] = await Promise.race([supabaseCalls, timeoutPromise]);
 
     console.timeEnd("Tempo de Carregamento"); // Veja o resultado no console do navegador
 
